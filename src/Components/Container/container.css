@@ -1,0 +1,13 @@
+.container {
+  margin: 0 auto;
+  width: 35rem;
+
+  padding-bottom: 1.3333333rem;
+}
+
+@media only screen and (max-width : 36rem) {
+  .container {
+    padding: 0 1rem;
+    width: auto;
+  }
+}
