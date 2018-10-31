@@ -16,7 +16,7 @@ export default class IndexPage extends Component {
   }
 
   reload () {
-    fetch('http://localhost:3001/users/self/location')
+    fetch('https://api.halfmoon.ws/users/self/location')
     .then(response => response.json())
     .then(data => this.setState({
       location: data.status === 'ok' ? data.data : {}
