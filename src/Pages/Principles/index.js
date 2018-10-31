@@ -35,8 +35,35 @@ export default class PrinciplesPage extends Component {
           </Principle.Content>
 
         </Principle>
-        <Principle name='power-through-knowledge'>
+        <Principle name='home-is-planet-earth'>
           <Principle.Title>
+            Home is Planet Earth
+          </Principle.Title>
+
+          <p>I’ve been fortunate enough to be part of 3 different cultures in my life so far in a real and meaningful way. I’m an Iranian – born and raised in Tehran until I was 15. I’m a Canadian citizen and lived in Toronto and Montreal from 15 until I was 23, and I’ve opted into being part of the American Dream ever since. And there are many more I’d like to be a part of.</p>
+          <p>Furthermore, there are a unique set of realities in the world that make it possible to live a multi-city life without dimension the depth and strength of relationships one can build otherwise.</p>
+
+          <Principle.Content>
+            <p><strong>I will live in 2-3 cities at a time and split my time according to my interests in each city. My home is planet Earth.</strong></p>
+            <p>Given that anyone can work remotely (at least in my field), and that it’s possible to create a network of timeshares with friends and family with the help of software and communication tools, and that travel has become just cheap enough – I’m choosing to opt into a distributed lifestyle. I will keep close friendships, physical, emotional, and financial ties in each of the cities in which I reside in.</p>
+          </Principle.Content>
+        </Principle>
+
+        <Principle name='emotions-are-reasonable'>
+          <Principle.Title>Emotions and Reason are Compatible</Principle.Title>
+          <p>To get the most out of the human experience, it’s foolish to suppress emotions and let logic dictate every life decision. Though humans (and myself especially) are capable of doing this, it’s a limited way to live an otherwise much more interesting and fulfilling life if emotions are entangled in decisions from time to time.</p>
+          <Principle.Content>
+            <p><strong>How I feel should be seriously weighted in decision making.</strong> When it comes to matters of the heart, family, and friends – how I feel should be part of the decision making process instead of what a purely logical and reasonable response might be.</p>
+
+            <p>I will willingly open myself up to feel more deeply in order to understand how I feel about any situation as part of the decision making process (instead of attempting to purely reason through).</p>
+
+            <p>Emotions and reasons are compatible, so long as I use my emotions as a strong input when making reason-based decisions.</p>
+          </Principle.Content>
+        </Principle>
+
+
+        <Principle name='power-through-knowledge'>
+          <Principle.Title workInProgress>
             Power through Knowledge, not Capital
           </Principle.Title>
           <p>Humanity has falsely tied its individual success metric to the economical system (as consumerism requires it to), but it doesn’t seem to be the best way to achieve tranquility or long-term fulfillment in one's life.</p>
@@ -62,20 +89,8 @@ export default class PrinciplesPage extends Component {
           </Principle.Content>
         </Principle>
 
-        <Principle name='emotions-are-reasonable'>
-          <Principle.Title>Emotions and Reason are Compatible</Principle.Title>
-          <p>To get the most out of the human experience, it’s foolish to suppress emotions and let logic dictate every life decision. Though humans (and myself especially) are capable of doing this, it’s a limited way to live an otherwise much more interesting and fulfilling life if emotions are entangled in decisions from time to time.</p>
-          <Principle.Content>
-            <p><strong>How I feel should be seriously weighted in decision making.</strong> When it comes to matters of the heart, family, and friends – how I feel should be part of the decision making process instead of what a purely logical and reasonable response might be.</p>
-
-            <p>I will willingly open myself up to feel more deeply in order to understand how I feel about any situation as part of the decision making process (instead of attempting to purely reason through).</p>
-
-            <p>Emotions and reasons are compatible, so long as I use my emotions as a strong input when making reason-based decisions.</p>
-          </Principle.Content>
-        </Principle>
-
         <Principle name='moral-absolutes'>
-          <Principle.Title>
+          <Principle.Title workInProgress>
             My World Has Moral Absolutes
           </Principle.Title>
 
@@ -89,19 +104,6 @@ export default class PrinciplesPage extends Component {
           </Principle.Content>
         </Principle>
 
-        <Principle name='home-is-planet-earth'>
-          <Principle.Title>
-            Home is Planet Earth
-          </Principle.Title>
-
-          <p>I’ve been fortunate enough to be part of 3 different cultures in my life so far in a real and meaningful way. I’m an Iranian – born and raised in Tehran until I was 15. I’m a Canadian citizen and lived in Toronto and Montreal from 15 until I was 23, and I’ve opted into being part of the American Dream ever since. And there are many more I’d like to be a part of.</p>
-          <p>Furthermore, there are a unique set of realities in the world that make it possible to live a multi-city life without dimension the depth and strength of relationships one can build otherwise.</p>
-
-          <Principle.Content>
-            <p><strong>I will live in 2-3 cities at a time and split my time according to my interests in each city. My home is planet Earth.</strong></p>
-            <p>Given that anyone can work remotely (at least in my field), and that it’s possible to create a network of timeshares with friends and family with the help of software and communication tools, and that travel has become just cheap enough – I’m choosing to opt into a distributed lifestyle. I will keep close friendships, physical, emotional, and financial ties in each of the cities in which I reside in.</p>
-          </Principle.Content>
-        </Principle>
       </div>
     );
   }

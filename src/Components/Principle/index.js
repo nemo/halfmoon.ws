@@ -14,8 +14,15 @@ class Principle extends Component {
   }
 }
 
-Principle.Title = ({ children }) => (
-  <h2>{children}</h2>
+Principle.Title = ({ children, workInProgress }) => (
+  <h2>
+    {children}
+    {workInProgress && (
+      (<span>
+        <br /><span className='work-in-progress'>Work In Progress</span>
+      </span>)
+    )}
+  </h2>
 )
 
 Principle.Content = ({ children }) => (
