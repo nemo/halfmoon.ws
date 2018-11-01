@@ -41,7 +41,7 @@ export default class PrinciplesPage extends Component {
           </Principle.Title>
 
           <p>I’ve been fortunate enough to be part of 3 different cultures in my life so far in a real and meaningful way. I’m an Iranian – born and raised in Tehran until I was 15. I’m a Canadian citizen and lived in Toronto and Montreal from 15 until I was 23, and I’ve opted into being part of the American Dream ever since. And there are many more I’d like to be a part of.</p>
-          <p>Furthermore, there are a unique set of realities in the world that make it possible to live a multi-city life without dimension the depth and strength of relationships one can build otherwise.</p>
+          <p>Furthermore, there are a unique set of realities in the world that make it possible to live a multi-city life without diminishing the depth and strength of relationships one can build otherwise.</p>
 
           <Principle.Content>
             <p><strong>I will live in 2-3 cities at a time and split my time according to my interests in each city. My home is planet Earth.</strong></p>

@@ -16,11 +16,11 @@ export default class IndexPage extends Component {
   }
 
   reload () {
-    fetch('https://api.halfmoon.ws/users/self/location')
+    setTimeout(() => fetch('https://api.halfmoon.ws/users/self/location')
     .then(response => response.json())
     .then(data => this.setState({
       location: data.status === 'ok' ? data.data : {}
-    }));
+    })), 1000)
   }
 
   render() {
@@ -39,7 +39,7 @@ export default class IndexPage extends Component {
             </p>
 
           </Container>
-          <Map {...location}/>
+          <Map {...location} />
         </section>
       </div>
     );

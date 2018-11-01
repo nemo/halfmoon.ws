@@ -3,13 +3,18 @@ import ReactMapGL, { Marker } from 'react-map-gl';
 import Pin from './Pin'
 import 'mapbox-gl/dist/mapbox-gl.css';
 
+const SF = {
+  latitude: 37.774929,
+  longitude: -122.419418
+}
+
 export default class Map extends Component {
   state = {
     viewport: {
       width: window.innerWidth,
       height: 400,
-      latitude: 37.7577,
-      longitude: -122.4376,
+      latitude: SF.latitude,
+      longitude: SF.longitude,
       zoom: 13.3
     }
   };
@@ -30,8 +35,13 @@ export default class Map extends Component {
   render() {
     let { viewport } = this.state
 
-    viewport.latitude = ((this.props.location || {}).lat) || viewport.latitude
-    viewport.longitude = (this.props.location || {}).lng || viewport.latitude
+    if (!this.props.location) {
+      viewport.zoom = 1
+    } else  {
+      viewport.latitude = (this.props.location || {}).lat
+      viewport.longitude = (this.props.location || {}).lng
+      viewport.zoom = 13.3
+    }
 
     let name = this.props.name || 'Planet Earth';
     let category = (this.props.category || {})
@@ -46,7 +56,7 @@ export default class Map extends Component {
         {...viewport}
         mapboxApiAccessToken={'pk.eyJ1IjoibmltYWciLCJhIjoiY2pud3VoZzVwMDVmcjNrbXh5b3d3NjB2OSJ9.yBw1zlfz47gr8EMyaitZjA'}
         mapStyle={'mapbox://styles/nimag/cjnwuqk0a0aph2rqj7j6iz1wc'}
-        onViewportChange={(viewport) => this.setState({viewport})}
+        onViewPortChange={(viewport) => this.setState({ viewport })}
       >
       <Marker
         offsetTop={-50}
