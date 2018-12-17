@@ -1,25 +1,16 @@
 .principle {
   margin-bottom: 2rem;
-  border-bottom: 1px solid white;
 }
 
-.principle h3 {
+.principle h1 {
   margin: 0;
-  margin-top: 2rem;
+  color: #FB5D86;
 }
 
 .principle strong {
   border-bottom: 1px solid white;
 }
 
-.principle .work-in-progress {
-  display: inline-block;
-  padding: 1px 5px;
-  margin-top: 5px;
-
-  background: #FB5D86;
-  color: white;
-
-  font-size: 0.8rem;
-  border-radius: 5px;
+.principle .divider {
+  text-align: center;
 }

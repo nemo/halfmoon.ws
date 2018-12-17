@@ -5,31 +5,14 @@ import Contianer from '../Container'
 class Principle extends Component {
   render () {
     return (
-      <div name={this.props.name} id={this.props.name} className='principle'>
+      <div name={`principle-${this.props.number}`} id={`principle-${this.props.number}`} className='principle'>
         <Contianer>
-            {this.props.children}
+            <h1 className='number'>{this.props.number}.</h1>
+            <div className='content'>{this.props.children}</div>
         </Contianer>
       </div>
     )
   }
 }
-
-Principle.Title = ({ children, workInProgress }) => (
-  <h2>
-    {children}
-    {workInProgress && (
-      (<span>
-        <br /><span className='work-in-progress'>Work In Progress</span>
-      </span>)
-    )}
-  </h2>
-)
-
-Principle.Content = ({ children }) => (
-  <div>
-    <h3>Principle</h3>
-    {children}
-  </div>
-)
 
 export default Principle;

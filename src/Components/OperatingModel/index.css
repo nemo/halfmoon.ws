@@ -1,0 +1,32 @@
+.operating-model {
+  margin-bottom: 2rem;
+}
+
+.operating-model h2 {
+  color: #FB5D86;
+}
+
+.operating-model h3 {
+  margin: 0;
+  margin-top: 2rem;
+}
+
+.operating-model strong {
+  border-bottom: 1px solid white;
+}
+
+.operating-model .divider {
+  text-align: center;
+}
+
+.operating-model .work-in-progress {
+  display: inline-block;
+  padding: 1px 5px;
+  margin-top: 5px;
+
+  background: #FB5D86;
+  color: white;
+
+  font-size: 0.8rem;
+  border-radius: 5px;
+}
