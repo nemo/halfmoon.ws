@@ -34,7 +34,7 @@ export default class PrinciplesPage extends Component {
 
         <Principle number={3}>
           <p>
-            Life choices are limited to the options are presented with based on factors that could be out of your control – Agency is limited to one's socioeconomic status, upbringing, and the part of the world they happened to have been raised.
+            Life choices are limited to the options you are presented with based on factors that could be out of your control – Agency is limited to one's socioeconomic status, upbringing, and the part of the world they happened to have been raised.
           </p>
         </Principle>
 
