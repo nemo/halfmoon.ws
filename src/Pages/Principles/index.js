@@ -34,7 +34,7 @@ export default class PrinciplesPage extends Component {
 
         <Principle number={3}>
           <p>
-            Information complexity and connective are rapidly increasing over time — Attempting to slow this down is futile, but we should acquire enough knowledge to be able to help shape its fundamentals.
+            Life choices are limited to the options are presented with based on factors that could be out of your control – Agency is limited to one's socioeconomic status, upbringing, and the part of the world they happened to have been raised.
           </p>
         </Principle>
 
