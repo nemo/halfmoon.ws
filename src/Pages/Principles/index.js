@@ -16,7 +16,7 @@ export default class PrinciplesPage extends Component {
 
             <p>In an attempt to truly enjoy my human experience – I’ve set out to build a set of principles. The fundamental criteria for these principles are that they are truisms which are rooted in science, humanity’s collective imagination, or I feel a strong personal pull towards based on my philosophies.</p>
 
-            <p>As I discover these principles over time, I will update and share what I’m calling “operating models” that take these principles into account and makes it apparent how they shape my daily lifestyle.</p>
+            <p>As I discover these principles over time, I will update and share what I’m calling “operating models” that take these principles into account and help shape my daily lifestyle.</p>
           </Container>
         </section>
 
