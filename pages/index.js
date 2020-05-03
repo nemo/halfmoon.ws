@@ -21,6 +21,12 @@ export default class Home extends Component {
     const { location } = this.props
       return (
         <div>
+          <Head>
+            <title>Nima Gardideh</title>
+            <meta property="og:title" content="Nima Gardideh" />
+            <meta property="og:url" content="https://halfmoon.ws/" />
+          </Head>
+
           <Container>
             <section>
               <h1>Who am I?</h1>
