@@ -1,0 +1,19 @@
+.principles {
+  margin-bottom: 3rem;
+}
+
+.divider {
+  margin-top: 3rem;
+}
+
+.principle strong {
+  border-bottom: 1px solid white;
+}
+
+.primary {
+  margin-top: 3rem;
+  color: #fb5d86;
+}
+
+.title {
+}

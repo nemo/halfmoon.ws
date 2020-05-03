@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import Pin from './Pin'
-import 'mapbox-gl/dist/mapbox-gl.css';
 
 const SF = {
   latitude: 37.774929,
@@ -10,16 +9,18 @@ const SF = {
 
 export default class Map extends Component {
   state = {
-    viewport: {
-      width: window.innerWidth,
-      height: 400,
-      latitude: SF.latitude,
-      longitude: SF.longitude,
-      zoom: 13.3
-    }
-  };
+  }
 
   componentDidMount () {
+    this.setState({
+      viewport: {
+        width: window.innerWidth,
+        height: 400,
+        latitude: SF.latitude,
+        longitude: SF.longitude,
+        zoom: 13.3
+      }
+    })
     window.addEventListener('resize', () => this.resize())
   }
 
@@ -34,6 +35,11 @@ export default class Map extends Component {
 
   render() {
     let { viewport } = this.state
+
+    if (!viewport) return null
+
+    console.log('viewport', viewport)
+    console.log('this.props.location', this.props.location)
 
     if (!this.props.location) {
       viewport.zoom = 1
