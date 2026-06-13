@@ -1,0 +1,51 @@
+---
+title: "Tracking conversations with Botkit and Keen IO"
+description: "Open-source middleware to track bot metrics with Keen IO – check it out and read about the motivation behind it."
+pubDate: 2017-01-11
+tags:
+  - keen-io
+  - analytics
+  - botkit
+  - bots
+  - slack
+originalUrl: "https://medium.com/hackernoon/tracking-conversations-with-botkit-and-keen-io-63a9209a12da"
+heroImage: "/src/assets/posts/tracking-conversations-with-botkit-and-keen-io/hero.png"
+draft: false
+---
+
+import heroImage from '../../assets/posts/tracking-conversations-with-botkit-and-keen-io/hero.png';
+
+<figure>
+  <img src={heroImage.src} alt="Botkit analytics, powered by Keen IO" />
+  <figcaption>Botkit analytics, powered by Keen IO</figcaption>
+</figure>
+
+Open-source middleware to track bot metrics with Keen IO – [check it out here](https://keen.github.io/keen-botkit/) and read about the motivation below 🚀
+
+This post is part of a series of open source projects that I'll be releasing in the next while, as described [previously here](https://serverless.zone/shipping-quickly-how-we-test-ideas-using-microservices-and-stdlib-9e8143cee403#.ed3mzowug).
+
+### Bot Analytics
+
+One of the things that we had to deal with when we were building [Suto](https://asksuto.com) was that the traditional "session"-based analytics systems (like Google Analytics) didn't really work. Even the pure "event"-based analytics systems (like Mixpanel) were too prescriptive for a new medium like chat interfaces.
+
+We wanted to answer slightly complicated questions like "What type of questions are these set of users asking?" or "How many times are these users starting conversations with us?" without having to do too much work to get those answers on a dashboard.
+
+We definitely didn't want to build our own analytics stack, since I knew that it takes a small village to get it right given my experience at [Taplytics](https://taplytics.com).
+
+So we decided to outsource this task to [Keen IO](https://keen.io), a flexible and scalable analytics platform that I had used before. It turned out to work out very well – we were able to put together a great dashboard together in about a day and as we grew to other channels (like Email and Facebook Messenger), we were able to track everything in one place.
+
+So today, I'm open-sourcing a small library that I originally built to pass data from [Botkit](https://github.com/howdyai/botkit) to Keen IO. It enabled us to have a decent view of the usage of our bot (which we decided to shut down a few weeks ago, a story for another time) in the hope that it helps others :)
+
+### Keen IO Botkit Middleware
+
+I've become a big fan of Howdy's [Botkit](https://github.com/howdyai/botkit) framework. It's a great abstraction over the different ways you can create a bot and gives you enough customization capabilities to make things easier.
+
+A great example of this is their [middleware](https://github.com/howdyai/botkit#middleware) functionality that lets you listen (and/or modify) the incoming and outgoing messages. Which is exactly what I used to track messages going in and out for our bot.
+
+I've abstracted this in an open source library called [keen-botkit](https://github.com/keen/keen-botkit).
+
+I've been hesitant to share it since we're no longer working on our bot, but Keen graciously offered to maintain the project (which is why it's [on their Github now](https://github.com/keen/keen-botkit)), so I feel comfortable with having others use it and take advantage of having better analytics for their bots.
+
+If you already have a bot or are about to work on one, check out [Keen IO for Botkit](https://keen.github.io/keen-botkit/) and start tracking its usage right away ⚒️
+
+If you'd like to keep up with my open-source releases over the next while, be sure to follow my posts or subscribe [here](http://halfmoon.us7.list-manage2.com/subscribe?u=30694c968f204ccb0f66b0006&id=dcbdf1fab2).

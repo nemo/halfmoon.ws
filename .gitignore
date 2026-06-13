@@ -28,3 +28,11 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# astro build artifacts & staging
+.build-staging/
+*.MOV
+dist/
+node_modules/
+.astro/
+.vercel

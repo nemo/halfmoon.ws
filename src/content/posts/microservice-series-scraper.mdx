@@ -1,0 +1,61 @@
+---
+title: "Microservice Series: Scraper"
+description: "A scalable universal scraper. Scrape thousands of TechCrunch articles in seconds!"
+pubDate: 2017-01-05
+tags:
+  - techcrunch
+  - web-scraping
+  - marketing
+  - microservices
+originalUrl: "https://medium.com/hackernoon/microservice-series-scraper-ee970df3e81f"
+heroImage: "/src/assets/posts/microservice-series-scraper/hero-universal-scraper.png"
+draft: false
+---
+
+import heroUniversalScraper from "../../assets/posts/microservice-series-scraper/hero-universal-scraper.png";
+import scrapedTechcrunchTitles from "../../assets/posts/microservice-series-scraper/scraped-techcrunch-titles.png";
+import { Image } from "astro:assets";
+
+<figure>
+  <Image src={heroUniversalScraper} alt="Universal Scraper Microservice" />
+  <figcaption>Universal Scraper Microservice</figcaption>
+</figure>
+
+A scalable universal scraper. Scrape thousands of TechCrunch articles in seconds!
+
+This post is part of a series of open source projects that we'll be releasing in the next while, as described [previously here](https://serverless.zone/shipping-quickly-how-we-test-ideas-using-microservices-and-stdlib-9e8143cee403#.ed3mzowug).
+
+### Scraping
+
+I've been doing a bit of Machine Learning [recently](https://github.com/nemo/natural-synaptic) and a big part of learning how to create different architectures and models is to deal with real-life data. There are plenty of great [datasets](https://kaggle.com/datasets) out there but I wanted to build one from scratch and settled on TechCrunch article titles (to use for a tech-news article title generator).
+
+There are plenty of ways to scrape simple data like that from public sites such as TC but since we've had to do a few scraping jobs before, I set out to build a simple scraper that pulled in public metadata as well as text pulled in using simple queries to the HTML content.
+
+#### Scrape
+
+That's where [scrape](https://github.com/nemo/scrape) came in. It's built on top of [stdlib](https://stdlib.com) and has a simple abstraction around pulling in data from the raw HTML of sites it scrapes, as well as pulling in structured [schema.org](https://schema.org), and [Open Graph](http://ogp.me/) metadata.
+
+It's open source:
+
+[nemo/scrape](https://github.com/nemo/scrape)
+
+And you can also use a production-ready version on stdlib [here](http://stdlib.com/services/nemo/scrape).
+
+### Scraping Techcrunch
+
+Naturally, after building a distributed scraper – it's rather easy to scrape up a lot of article titles from a site like Techcrunch.
+
+Here's a quick snippet that I used to scrape about 100 pages of Techcrunch archives ([original gist](https://medium.com/media/8f1bb724a1c07fff586603b046a5ca70/href)).
+
+And in a matter of seconds:
+
+<figure>
+  <Image src={scrapedTechcrunchTitles} alt="Scraped Techcrunch article names" />
+  <figcaption>Scraped Techcrunch article names</figcaption>
+</figure>
+
+Now to have fun with this data and come up with a few ML models. That's for another day.
+
+Next time you need to scrape a site in a structured way and don't want to invest in creating the infrastructure for it, feel free to use (or fork) [scrape](https://github.com/nemo/scrape)!
+
+If you'd like to keep up with the open-source microservice releases that we're doing over the next while, follow my posts.

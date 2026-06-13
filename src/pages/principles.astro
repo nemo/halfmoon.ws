@@ -1,0 +1,235 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Verbatim content from .build-staging/principles.md
+const intro = [
+  'A while back, I decided to embark on a journey to build a framework for living my life. For many years, I worked to achieve without clearly understanding why I was doing so.',
+  'This document is an attempt to change that by thinking through first principles. My ultimate goal is to enjoy my human experience and make the years count.',
+  "The fundamental criteria for these principles are that they are truisms rooted in science, humanity's collective imagination, or I feel a strong personal pull towards them based on my philosophies. As I discover these principles over time, I will update this document.",
+  'I use these principles to build "lifestyle frameworks" described below.',
+];
+
+const lastUpdated = 'Last Updated: Jan 10, 2021.';
+
+const principles = [
+  {
+    n: 1,
+    title: 'Life is struggle.',
+    body: 'The nature of life is its struggle to survive. As itself, its species, and beyond. Living beings are biologically designed to excel at this struggle.',
+  },
+  {
+    n: 2,
+    title: 'Humans have collective imagination.',
+    body: "Humanity has a collective imagination. We're capable of believing in ideas, concepts, and systems at a collective level (community, nation, species).",
+  },
+  {
+    n: 3,
+    title: 'Humans are influenced by narratives.',
+    body: "Stories have the power to evoke emotion or thought in us. Regardless of how a narrative came to be, it can influence people's thoughts and actions, whether rooted in science, culture, or fiction.",
+  },
+  {
+    n: 4,
+    title: 'Free will is limited.',
+    body: "If there is any free will, it is limited to a few choices available to you based on factors that are mostly out of your control. Agency is limited to your socioeconomic status, upbringing, physical health, mental health, and the part of the world you're in.",
+  },
+];
+
+const howILiveIntro = [
+  'Given these principles, I’ve derived some higher-order principles that I call "lifestyle frameworks." They’re a collective of behaviors, commitments, and decisions I’ve made about how to live.',
+  'Collectively they help me live my life on a day to day basis.',
+];
+
+const frameworks = [
+  {
+    title: 'Home is Planet Earth',
+    paras: [
+      "Location is a part of how much choice I have access to (#4). I'm fortunate enough to be able to live in multiple places at once, which could increase my range of choices by increasing serendipity.",
+      'There are a unique set of realities in the world that make it possible to live a multi-city life without diminishing the depth and strength of relationships one can build otherwise: cheap travel costs, remote work, internet for communication, and non-geographical communities.',
+      'I will live in 2-3 cities and split my time according to my interests in each town. My home is planet Earth.',
+    ],
+  },
+  {
+    title: 'Be present',
+    paras: [
+      "A lot of what I think about is influenced by narratives or concepts created or maintained by the world's collective imagination—things like culture, religion, news, and environment all influence my thoughts and actions (#2, #3, #4.)",
+      'If I want to disconnect or detach myself from any of these long-running narratives, I need to practice being present.',
+      "Fortunately, I've discovered that meditation and therapy are excellent tools for achieving this.",
+      'I will meditate every day and attend therapy once a week to better understand myself and work on being present.',
+    ],
+  },
+  {
+    title: 'Shared struggle is the way',
+    paras: [
+      'Life by nature is a series of struggles (#1). There will be ups and downs, and we build our story one day at a time (#3).',
+      'Sharing my story with my immediate community is fulfilling, helps me understand myself better, and helps us be part of a narrative together.',
+      'I will share my struggles with my friends and family, the good and the bad. I will do this weekly with those closest to me and make space for them to do the same.',
+    ],
+  },
+  {
+    title: 'Be part of collectives',
+    paras: [
+      'Collectively struggling through life can be meaningful (#1), especially with our ability to believe in things together (#2) and building memories which become part of our narratives (#3.)',
+      'Being part of a community of people who supports one another, believe in something together, or work to struggle through a project can be meaningful.',
+      'I will choose to be part of communities, build them, and actively participate in their creation or maintenance.',
+      "Note: This is primarily why I'm one of the founders of Pearmill, have a strong community where I live, and enjoy being part of art collectives.",
+    ],
+  },
+];
+---
+
+<Base
+  title="Principles"
+  description="Nima Gardideh's first-principles framework for living."
+>
+  <article class="principles">
+    <header class="principles__head">
+      <h1 class="principles__h1">Nima's Principles</h1>
+    </header>
+
+    <section class="principles__intro">
+      {intro.map((p) => <p>{p}</p>)}
+      <p class="principles__updated">{lastUpdated}</p>
+    </section>
+
+    <ol class="principles__list">
+      {
+        principles.map((p) => (
+          <li class="principle">
+            <span class="principle__num">{p.n}.</span>
+            <div class="principle__content">
+              <h2 class="principle__title">{p.title}</h2>
+              <p class="principle__body">{p.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <section class="principles__live">
+      <h2 class="principles__h2">How I Live</h2>
+      {howILiveIntro.map((p) => <p class="principles__live-intro">{p}</p>)}
+
+      {
+        frameworks.map((f) => (
+          <div class="framework">
+            <h3 class="framework__title">{f.title}</h3>
+            {f.paras.map((para) => (
+              <p class="framework__body">{para}</p>
+            ))}
+          </div>
+        ))
+      }
+    </section>
+  </article>
+</Base>
+
+<style>
+  .principles {
+    max-width: var(--prose-max);
+    padding-block: var(--space-3) var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  .principles__h1 {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display-lg);
+    font-weight: var(--fw-light);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .principles__intro {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .principles__updated {
+    font-family: var(--font-sans);
+    font-size: var(--fs-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .principles__list {
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .principle {
+    display: flex;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .principle:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .principle__num {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-light);
+    color: var(--muted);
+    line-height: 1.2;
+  }
+
+  .principle__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .principle__title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-regular);
+    line-height: var(--lh-tight);
+  }
+
+  .principles__live {
+    margin-top: var(--space-5);
+  }
+
+  .principles__h2 {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .principles__live-intro {
+    margin-top: var(--space-2);
+  }
+
+  .framework {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .framework__title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-light);
+    line-height: var(--lh-tight);
+  }
+
+  @media (max-width: 480px) {
+    .principles__h1 {
+      font-size: var(--fs-display);
+    }
+  }
+</style>

@@ -1,0 +1,127 @@
+---
+// Styles the long-form MDX article body.
+export interface Props {
+  /** Optional brand color to accent links within a project case study. */
+  accent?: string;
+}
+const { accent } = Astro.props;
+---
+
+<div class="prose" style={accent ? `--prose-accent: ${accent};` : undefined}>
+  <slot />
+</div>
+
+<style>
+  .prose {
+    --prose-accent: var(--fg);
+    max-width: var(--prose-max);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--fg);
+  }
+
+  .prose > :global(* + *) {
+    margin-top: var(--space-3);
+  }
+
+  .prose :global(h2) {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-regular);
+    line-height: var(--lh-tight);
+    margin-top: var(--space-5);
+  }
+
+  .prose :global(h3) {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-light);
+    line-height: var(--lh-tight);
+    margin-top: var(--space-4);
+  }
+
+  .prose :global(h4) {
+    font-family: var(--font-sans);
+    font-size: var(--fs-body);
+    font-weight: var(--fw-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: var(--space-4);
+  }
+
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol) {
+    max-width: var(--prose-max);
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.25em;
+  }
+
+  .prose :global(li + li) {
+    margin-top: var(--space-1);
+  }
+
+  .prose :global(a) {
+    color: var(--prose-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  .prose :global(blockquote) {
+    border-left: 2px solid var(--border);
+    padding-left: var(--space-3);
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .prose :global(img) {
+    width: 100%;
+    border-radius: var(--radius);
+    margin-block: var(--space-3);
+  }
+
+  .prose :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin-block: var(--space-4);
+  }
+
+  .prose :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--border);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  .prose :global(pre) {
+    font-family: var(--font-mono);
+    background: var(--panel-bg);
+    color: var(--panel-fg);
+    padding: var(--space-3);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-size: var(--fs-content);
+    line-height: var(--lh-tight);
+  }
+
+  .prose :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+
+  .prose :global(figure) {
+    margin: 0;
+  }
+
+  .prose :global(figcaption) {
+    font-size: var(--fs-content);
+    color: var(--muted);
+    margin-top: var(--space-1);
+  }
+</style>

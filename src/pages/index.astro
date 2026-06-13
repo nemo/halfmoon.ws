@@ -1,0 +1,112 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Base title="Nima Gardideh">
+  <section class="fold panel">
+    <h1 class="fold__headline">
+      a founder, artist, engineer, and musician based in Brooklyn.
+    </h1>
+  </section>
+
+  <section class="home-projects" aria-label="Selected projects">
+    <ul class="home-projects__list">
+      {
+        projects.map((project) => (
+          <li class="home-projects__item">
+            <ProjectCard
+              name={project.data.name}
+              role={project.data.role}
+              period={project.data.period}
+              summary={project.data.summary}
+              brandColor={project.data.brandColor}
+              link={project.data.link}
+              href={`/projects/${project.slug}`}
+              heroImage={project.data.heroImage}
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="home-about">
+    <p>
+      I spend most of my time at Pearmill, helping companies grow through art
+      and technology. Beyond that I write, make music, and dance. You can read
+      more about how I try to live in <a href="/principles">my principles</a>.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .fold {
+    background-color: var(--panel-bg);
+    color: var(--panel-fg);
+    padding: var(--space-3) var(--space-3) var(--space-hero);
+    margin-top: var(--space-2);
+  }
+
+  .fold__headline {
+    font-family: var(--font-sans);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-light);
+    line-height: var(--lh-tight);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    max-width: 40ch;
+  }
+
+  .home-projects {
+    margin-top: var(--space-4);
+  }
+
+  .home-projects__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  /* Desktop: two cards side-by-side (flex:1 0 0 wrapping row, per Figma). */
+  .home-projects__item {
+    flex: 1 0 0;
+    min-width: 320px;
+  }
+
+  /* Mobile: single column, each card full width. */
+  @media (max-width: 480px) {
+    .home-projects__item {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+
+    .fold {
+      padding: var(--space-1) var(--space-1) var(--space-3);
+    }
+
+    .fold__headline {
+      font-size: var(--fs-caption);
+    }
+  }
+
+  .home-about {
+    margin-top: var(--space-4);
+    max-width: var(--prose-max);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  .home-about a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

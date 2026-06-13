@@ -1,0 +1,76 @@
+---
+// Tiny client-side theme toggle. Persists choice to localStorage.
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  aria-label="Toggle color theme"
+  title="Toggle color theme"
+>
+  <span class="theme-toggle__icon" data-icon-sun aria-hidden="true">☀</span>
+  <span class="theme-toggle__icon" data-icon-moon aria-hidden="true">☾</span>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    line-height: 1;
+    color: inherit;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+
+  .theme-toggle:hover {
+    opacity: 0.7;
+  }
+
+  .theme-toggle__icon {
+    font-size: 0.8rem;
+  }
+
+  /* Show the icon for the theme you'd switch TO. */
+  [data-icon-sun] {
+    display: none;
+  }
+  [data-icon-moon] {
+    display: inline;
+  }
+  :global(:root[data-theme='dark']) [data-icon-sun] {
+    display: inline;
+  }
+  :global(:root[data-theme='dark']) [data-icon-moon] {
+    display: none;
+  }
+</style>
+
+<script>
+  function currentTheme(): 'light' | 'dark' {
+    const explicit = document.documentElement.dataset.theme;
+    if (explicit === 'light' || explicit === 'dark') return explicit;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch (e) {
+        /* ignore */
+      }
+    });
+  });
+</script>

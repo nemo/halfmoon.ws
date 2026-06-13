@@ -1,0 +1,35 @@
+---
+title: "Microservice Series: Email Capture / Sending"
+description: "This post is part of a series of open source projects that we'll be releasing in the next while."
+pubDate: 2017-03-01
+tags:
+  - microservices
+  - marketing
+  - startup
+originalUrl: "https://medium.com/art-marketing/microservice-series-email-capture-sending-6d386304ef53"
+draft: false
+---
+
+This post is part of a series of open source projects that we'll be releasing in the next while, as described [previously here](https://serverless.zone/shipping-quickly-how-we-test-ideas-using-microservices-and-stdlib-9e8143cee403#.ed3mzowug).
+
+### Email Capture
+
+One of the most common things we do is create landing pages to collect folks' email addresses. There are plenty of service that do this (like [launchrock](https://www.launchrock.com/)) but they're always too cluttered and don't let us have full control of the experience.
+
+We're makers at heart and care about the simple animations on a sign-up form and how users interact with it. Even though it's just a landing page, we want the users to know that we care that they're signing up.
+
+As easy as it sounds, we always have to put together a small app hosted on somewhere like [heroku](https://heroku.com) and do a Mailchimp integration to collect the emails. So we decided to build a microservice on top of [stdlib](https://stdlib.com/services/nemo/email-service) to take care of all of that and make it super simple for us to host serverless landing pages.
+
+We've called it the [email-service](https://github.com/nemo/email-service) – since we want it to support sending emails as well – and we're open sourcing it. It supports a simple subscribe function and can be used to build simple landing pages. ([See the example.](https://github.com/nemo/email-service))
+
+### Sending Email
+
+If you've been around product companies enough, you know that changing email providers is a scary journey, sometimes taking many weeks for implementation. This is usually because the email service is very baked into the product that you've built and switching isn't really an easy task.
+
+This is where microservices can be incredibly helpful – a wrapper around your email client so you can switch services quickly and not have to worry about baking it too much into your product code.
+
+This is why the email service supports a [send function](https://github.com/nemo/email-service#email-servicesubscribe-1) that we use in our product (currently built on top of Mandrill). In the future, if we want to switch to another provider (like [SES](https://aws.amazon.com/ses/)), then all we have to do is launch the stdlib service that supports it. It's super simple to use. ([See the send example.](https://github.com/nemo/email-service#email-servicesubscribe-1))
+
+Next time you need to implement a simple email capturing landing page or send emails, take a look at [our email-service](https://github.com/nemo/email-service), fork it and use if for your product!
+
+If you'd like to keep up with the open-source microservice releases that we're doing over the next while, follow my posts.

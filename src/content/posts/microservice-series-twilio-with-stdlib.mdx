@@ -1,0 +1,51 @@
+---
+title: "Microservice Series: Twilio with stdlib"
+description: "A service to make sending messages with Twilio easier at scale."
+pubDate: 2017-01-03
+tags:
+  - twilio
+  - microservices
+  - api
+  - open-source
+  - messaging
+originalUrl: "https://medium.com/hackernoon/microservice-series-twilio-with-stdlib-8c8c98db6f65"
+heroImage: "/src/assets/posts/microservice-series-twilio-with-stdlib/hero.png"
+draft: false
+---
+
+import heroImage from "../../assets/posts/microservice-series-twilio-with-stdlib/hero.png";
+
+<figure>
+  <img src={heroImage.src} alt="Using Twilio and stdlib to create a scalable SMS service." />
+  <figcaption>Using Twilio and stdlib to create a scalable SMS service.</figcaption>
+</figure>
+
+A service to make sending messages with Twilio easier at scale.
+
+This post is part of a series of open source projects that I'll be releasing in the next while, as described [previously here](https://serverless.zone/shipping-quickly-how-we-test-ideas-using-microservices-and-stdlib-9e8143cee403#.ed3mzowug).
+
+### Delivering Messages
+
+Previously, we had built a product, [Suto](https://asksuto.com), that gave product recommendations via text messages. We had to deliver a lot of messages to our users via SMS and MMS. Fortunately, there are a couple of great companies like [Twilio](https://twilio.com) and [Plivo](https://www.plivo.com/) that are solving the macro problems when it comes to delivering messages over multiple networks.
+
+However, there are quite a few issues dealing with these APIs and providing a good experience to users who are communicating with your business via SMS or MMS.
+
+These issues range from messages being delivered in the wrong order or format, all the way to the messages not being delivered at all. We had to deal with all of that as a small startup attempting to create a product people love.
+
+We've created a simple service on [stdlib](https://stdlib.com) to solve these problems.
+
+### Twilio Messaging Microservice
+
+Today, we're open sourcing a small portion of what we had built to deal with a few of those issues. Specifically – message order delivery, truncation and multi-media messaging.
+
+It's a microservice to help deliver messages using Twilio called [twilio-f](https://github.com/nemo/twilio-f) built using [stdlib](https://stdlib.com/@nemo/lib/twilio/). The service is available [here](https://stdlib.com/@nemo/lib/twilio/) and the code can be found [here](https://github.com/nemo/twilio-f).
+
+You can use its **_sendMessage_** function to deliver long, descriptive messages with multiple media attached to the message and it will handle all the work for you.
+
+It'll handle **multiple media urls**, automatically **splits up long messages** to avoid truncation, and **control delivery order** using timeouts.
+
+You can read about how to get started with it here: [https://github.com/nemo/twilio-f#sending-messages](https://github.com/nemo/twilio-f#sending-messages)
+
+Next time you're building a chat-bot or have to deliver SMS/MMS to your customers – now there's a super-easy and battle-tested function that gets the job done!
+
+If you'd like to keep up with the open-source microservice releases that we're doing over the next while, be sure to follow my posts.

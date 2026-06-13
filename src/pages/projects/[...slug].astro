@@ -1,0 +1,247 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Prose from '../../components/Prose.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+const { name, role, period, summary, brandColor, link, heroImage, gallery } =
+  project.data;
+---
+
+<Base
+  title={name}
+  description={summary}
+  image={heroImage ?? '/og-default.png'}
+>
+  <article class="project" style={`--brand: ${brandColor};`}>
+    <a class="project__back" href="/projects">← All projects</a>
+
+    <header class="project__hero">
+      {
+        heroImage ? (
+          <div class="project__hero-media">
+            <img src={heroImage} alt={`${name} hero`} />
+          </div>
+        ) : (
+          <div class="project__hero-block">
+            <h1 class="project__hero-title">{name}</h1>
+          </div>
+        )
+      }
+    </header>
+
+    <div class="project__meta">
+      <h1 class="project__title">{name}</h1>
+      <dl class="project__facts">
+        <div class="project__fact">
+          <dt>Role</dt>
+          <dd>{role}</dd>
+        </div>
+        {
+          period && (
+            <div class="project__fact">
+              <dt>Period</dt>
+              <dd>{period}</dd>
+            </div>
+          )
+        }
+        {
+          link && (
+            <div class="project__fact">
+              <dt>Link</dt>
+              <dd>
+                <a href={link} target="_blank" rel="noopener">
+                  {link.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+
+    <Prose accent={brandColor}>
+      <Content />
+    </Prose>
+
+    {
+      gallery && gallery.length > 0 && (
+        <section class="project__gallery" aria-label="Gallery">
+          <ul class="project__gallery-grid">
+            {gallery.map((src) => (
+              <li>
+                <img src={src} alt={`${name} photo`} loading="lazy" decoding="async" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  .project {
+    padding-bottom: var(--space-4);
+  }
+
+  .project__back {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--fs-content);
+    color: var(--muted);
+  }
+
+  .project__back:hover {
+    color: var(--fg);
+    opacity: 1;
+  }
+
+  /* Hero */
+  .project__hero {
+    margin-top: var(--space-3);
+  }
+
+  .project__hero-media,
+  .project__hero-block {
+    border-radius: var(--radius);
+    overflow: hidden;
+    background-color: var(--brand);
+  }
+
+  .project__hero-media {
+    aspect-ratio: 2171 / 1240;
+    max-height: 420px;
+  }
+
+  .project__hero-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .project__hero-block {
+    display: flex;
+    align-items: flex-end;
+    min-height: 320px;
+    padding: var(--space-3);
+  }
+
+  .project__hero-title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display-lg);
+    font-weight: var(--fw-light);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #fff;
+    mix-blend-mode: difference;
+  }
+
+  /* Meta */
+  .project__meta {
+    margin-top: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .project__title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .project__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: var(--space-2) 0 0;
+  }
+
+  .project__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .project__fact dt {
+    font-family: var(--font-sans);
+    font-size: var(--fs-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .project__fact dd {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--fs-content);
+  }
+
+  .project__fact a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Body spacing */
+  .project :global(.prose) {
+    margin-top: var(--space-3);
+  }
+
+  .project :global(.prose video) {
+    width: 100%;
+    border-radius: var(--radius);
+    margin-block: var(--space-3);
+  }
+
+  /* Gallery */
+  .project__gallery {
+    margin-top: var(--space-4);
+  }
+
+  .project__gallery-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-1);
+  }
+
+  .project__gallery-grid img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  /* Tablet */
+  @media (max-width: 800px) {
+    .project__hero-title {
+      font-size: var(--fs-display);
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .project__gallery-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .project__hero-block {
+      min-height: 220px;
+    }
+  }
+</style>

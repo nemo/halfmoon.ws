@@ -1,0 +1,104 @@
+---
+title: "Hacker News Bot with Slack's Events API and StdLib"
+description: "I'm an avid Hacker News consumer, so I built a Slack bot for it using Slack's Events API, StdLib, and Botkit."
+pubDate: 2017-02-23
+tags:
+  - slack
+  - bots
+  - hacker-news
+  - stdlib
+originalUrl: "https://medium.com/hackernoon/hacker-news-bot-with-slacks-events-api-and-stdlib-33e28cea1b18"
+heroImage: "/src/assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/hero.png"
+draft: false
+---
+
+import { Image } from "astro:assets";
+import hero from "../../assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/hero.png";
+import multipleQueries from "../../assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/multiple-queries.png";
+import topStories from "../../assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/top-stories.png";
+import newStories from "../../assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/new-stories.png";
+import showHn from "../../assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/show-hn.png";
+import jobs from "../../assets/posts/hacker-news-bot-with-slacks-events-api-and-stdlib/jobs.png";
+
+I'm an avid Hacker News consumer. It's one of the first places I go in the morning and tend to visit it multiple times a day. It might as well be my default tab (though to be fair, I have something [way cooler](https://chrome.google.com/webstore/detail/motivation/ofdgfpchbidcgncgfpdlpclnpaemakoj) for that).
+
+Recently, I noticed that YC has an open and [official API for Hacker News](https://github.com/HackerNews/API) so I set out to create a Slack bot (as a way to train myself for a product we're working on).
+
+This all took just a few hours and credit should all go to Slack's great [Events API](https://api.slack.com/events-api) that makes it so you don't need to run a bot process at all times and enabled me to use [StdLib](https://stdlib.com) alongside [Botkit](https://github.com/howdyai/botkit) and put together a pretty decent experience.
+
+<figure>
+  <Image src={hero} alt="Hacker News Slack bot" />
+</figure>
+
+### Functionality
+
+The bot currently supports almost all the public functionality of the API (except for users). Here's how to use them:
+
+#### Multiple Queries
+
+You can get the bot to get you multiple post types all at once by asking for the different post types right in one message!
+
+> @hackernewsbot get me jobs and top stories
+
+<figure>
+  <Image src={multipleQueries} alt="Querying multiple post types" />
+  <figcaption>Querying multiple post types</figcaption>
+</figure>
+
+The bot cycles through all the commands that it sees and performs all of them and concatenates them in the same order. Since I asked it to get me jobs and top stories, it's showing the job postings first (since it showed up first in my text) and the top stories afterwards.
+
+#### Top Stories
+
+You can get the top stories (equivalent of going to the front page of [HN](https://news.ycombinator.com)).
+
+> @hackernewsbot top stories
+
+<figure>
+  <Image src={topStories} alt="Top Stories on Hacker News" />
+  <figcaption>Top Stories on Hacker News</figcaption>
+</figure>
+
+It will show you the top stories whenever you say anything that contains the word top.
+
+#### New Stories
+
+You can get the latest posts (equivalent of posts in [/newest](https://news.ycombinator.com/newest) on HN).
+
+> @hackernewsbot new stories
+
+<figure>
+  <Image src={newStories} alt="New Stories on Hacker News" />
+  <figcaption>New Stories on Hacker News</figcaption>
+</figure>
+
+It will show you the newest posts whenever you mention anything with the word new in it.
+
+#### Show HNs
+
+You can get the latest Show HN posts (equivalent of [/show](https://news.ycombinator.com/show) on HN).
+
+> @hackernewsbot Show HNs
+
+<figure>
+  <Image src={showHn} alt="Show HN stories on Hacker News" />
+  <figcaption>Show HN stories on Hacker News</figcaption>
+</figure>
+
+It'll get you the latest Show HNs whenever you mention the word show.
+
+#### Job Posts
+
+It can show you the latest job postings on HN (equivalent of [/jobs](https://news.ycombinator.com/jobs) on HN).
+
+> @hackernewsbot jobs
+
+<figure>
+  <Image src={jobs} alt="Job postings on Hacker News" />
+  <figcaption>Job postings on Hacker News</figcaption>
+</figure>
+
+In the future, I'd like it to support fetching posts by specific users (which the API supports) and potentially posting automatic notifications whenever a new post hits the front-page!
+
+If you just want to install it to your Slack group, then [go here](http://f.stdlib.com/nemo/slack-bot).
+
+If you want to read the code, [here it is](https://github.com/nemo/hackernews-bot).

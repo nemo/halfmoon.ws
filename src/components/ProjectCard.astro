@@ -1,0 +1,155 @@
+---
+export interface Props {
+  name: string;
+  role: string;
+  period?: string;
+  summary: string;
+  brandColor: string;
+  link?: string;
+  href?: string;
+  heroImage?: string;
+}
+
+const { name, role, period, summary, brandColor, link, href, heroImage } =
+  Astro.props;
+---
+
+<article class="card" style={`--brand: ${brandColor};`}>
+  <a class="card__media" href={href ?? link ?? '#'} aria-hidden={href || link ? undefined : 'true'} tabindex={href || link ? undefined : -1}>
+    {
+      heroImage ? (
+        <img src={heroImage} alt="" loading="lazy" decoding="async" />
+      ) : (
+        <span class="card__media-fallback">{name}</span>
+      )
+    }
+  </a>
+
+  <div class="card__body">
+    <header class="card__head">
+      <h3 class="card__title">
+        {href ? <a href={href}>{name}</a> : name}
+      </h3>
+      <p class="card__sub">
+        {role}{period ? <span class="card__period"> · {period}</span> : null}
+      </p>
+    </header>
+
+    <p class="card__summary">{summary}</p>
+
+    {
+      (href || link) && (
+        <p class="card__links">
+          {href && (
+            <a class="card__link" href={href}>
+              Read case study
+            </a>
+          )}
+          {link && (
+            <a class="card__link" href={link} target="_blank" rel="noopener">
+              Visit
+            </a>
+          )}
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-height: 350px;
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 2171 / 1240;
+    max-height: 300px;
+    border-radius: var(--radius);
+    background-color: var(--brand);
+    overflow: hidden;
+  }
+
+  .card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card__media-fallback {
+    font-family: var(--font-sans);
+    font-size: var(--fs-content);
+    font-weight: var(--fw-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fff;
+    mix-blend-mode: difference;
+    padding: var(--space-1);
+    text-align: center;
+  }
+
+  .card__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .card__title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .card__sub {
+    font-size: var(--fs-subtitle);
+    color: var(--muted);
+  }
+
+  .card__period {
+    color: var(--muted);
+  }
+
+  .card__summary {
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    max-width: var(--prose-max);
+  }
+
+  .card__links {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: auto;
+  }
+
+  .card__link {
+    font-family: var(--font-sans);
+    font-size: var(--fs-content);
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .card__link:hover {
+    opacity: 0.75;
+  }
+
+  @media (max-width: 480px) {
+    .card__title {
+      font-size: var(--fs-content);
+    }
+
+    .card__sub {
+      font-size: var(--fs-caption);
+    }
+  }
+</style>

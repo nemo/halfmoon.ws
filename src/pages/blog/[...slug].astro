@@ -1,0 +1,139 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Prose from '../../components/Prose.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const { title, description, pubDate, originalUrl, heroImage } = post.data;
+
+const dateFmt = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Only public-resolvable hero paths render as a plain <img> src.
+const hero = heroImage && !heroImage.startsWith('/src/') ? heroImage : undefined;
+---
+
+<Base title={title} description={description} image={hero ?? '/og-default.png'}>
+  <article class="article">
+    <a class="article__back" href="/blog">← All writing</a>
+
+    <header class="article__head">
+      <time class="article__date" datetime={pubDate.toISOString()}>
+        {dateFmt}
+      </time>
+      <h1 class="article__title">{title}</h1>
+    </header>
+
+    {
+      hero && (
+        <div class="article__hero">
+          <img src={hero} alt="" />
+        </div>
+      )
+    }
+
+    <Prose>
+      <Content />
+    </Prose>
+
+    <footer class="article__foot">
+      <a href={originalUrl} target="_blank" rel="noopener">
+        Originally published on Medium →
+      </a>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .article {
+    padding-bottom: var(--space-4);
+  }
+
+  .article__back {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-family: var(--font-sans);
+    font-size: var(--fs-content);
+    color: var(--muted);
+  }
+
+  .article__back:hover {
+    color: var(--fg);
+    opacity: 1;
+  }
+
+  .article__head {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    max-width: var(--prose-max);
+  }
+
+  .article__date {
+    font-family: var(--font-sans);
+    font-size: var(--fs-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .article__title {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display-lg);
+    font-weight: var(--fw-light);
+    line-height: var(--lh-tight);
+  }
+
+  .article__hero {
+    margin-top: var(--space-3);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .article__hero img {
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .article :global(.prose) {
+    margin-top: var(--space-4);
+  }
+
+  .article__foot {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+    font-family: var(--font-sans);
+    font-size: var(--fs-content);
+  }
+
+  .article__foot a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    color: var(--muted);
+  }
+
+  .article__foot a:hover {
+    color: var(--fg);
+    opacity: 1;
+  }
+
+  @media (max-width: 480px) {
+    .article__title {
+      font-size: var(--fs-display);
+    }
+  }
+</style>

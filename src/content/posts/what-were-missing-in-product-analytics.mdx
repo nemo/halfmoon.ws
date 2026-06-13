@@ -1,0 +1,121 @@
+---
+title: "What we’re missing in product analytics"
+description: "I often get asked which analytics tool one should use."
+pubDate: 2017-04-03
+tags:
+  - analytics
+  - big-data
+  - mobile-analytics
+originalUrl: "https://medium.com/hackernoon/what-were-missing-in-product-analytics-928984c2e36a"
+heroImage: "/posts-assets/what-were-missing-in-product-analytics/hero.jpeg"
+draft: false
+---
+
+![](/posts-assets/what-were-missing-in-product-analytics/hero.jpeg)
+
+I often get asked which analytics tool one should use. This often leads to a large debate over the extremely large amount of tools on the market. I’ve been a big advocate of a few products in the analytics space and was previously the Head of Product at [Taplytics](https://taplytics.com) (YC W14).
+
+This isn’t a post about which analytics tool you should use, but rather some fodder for how one should think about building and selling an analytics tool today based on my experiences with analytics as a Founder, PM, and Engineer.
+
+If you’re thinking about starting an analytics company today, here’s how I would think about it.
+
+### The analytics landscape today
+
+I run a [product company](https://thebriefapp.com), and in order to handle product analytics there are a couple of different routes we could take.
+
+#### 1. **Use off-the-shelf / prescriptive analytics tools**
+
+Tools like Mixpanel, Google Analytics, Amplitude, etc.
+
+**Pros:**
+
+- Quite easy / fast to implement and fairly low-maintenance.
+- Can use tag managers like GTM or Segment to avoid getting locked into one vendor.
+
+**Cons:**
+
+- Low amount of control over custom reporting.
+- Almost no predictive analytics (though [Amplitude](https://amplitude.com) is doing some interesting stuff here).
+- Hard to combine with internal data for deeper analysis.
+- Doesn’t scale past a certain point.
+
+#### 2. **Use analytics/data as a service companies**
+
+Companies that help you with data collection + warehousing (like [Taplytics BigQuery](https://taplytics.com/bigquery/) or [Segment Warehouse](https://segment.com/warehouses)) combined with visualization tools like [Looker](https://looker.com), [Mode](https://modeanalytics.com), or [Periscope](https://www.periscopedata.com/), or platform/API plays that help you with everything (like [Keen IO](https://keen.io)).
+
+**Pros:**
+
+- Far easier mesh of product data and internal company data.
+- More of a realistic long-term solution for a growing company.
+- Easy collection of data (with client SDKs) and fast integration.
+- Much more custom in-depth analysis is available, including predictive analytics.
+
+**Cons:**
+
+- You’ll either need analysts (for warehouse-solutions with visualizers), or developers (for analytics API solutions like Keen IO) to build reports and dashboards.
+- Data integrity partially falls on you to send the right events.
+
+#### 3. **Collect and store data ourselves**
+
+Use a data warehouse/lake and maybe buy visualization tools like [Looker](https://looker.com), [Mode](https://modeanalytics.com/), etc.
+
+**Pros:**
+
+- Full control over data collection and analysis, including predictive analytics.
+
+**Cons:**
+
+- “Re-inventing” the wheel essentially from scratch.
+- You’ll likely need a team of 1–3 engineers to properly maintain the whole collection and analytics pipeline, including your own client SDKs (if anyone’s told you this is easy, they’ve likely never done this at scale).
+- Data integrity falls all on you and it’s not an easy feat.
+
+### What I’ve learnt about handling data
+
+Making the decision between the options above is a rather common conversation I have with founders/PMs trying to get a clear view of their users and make better decisions.
+
+It mainly comes down to “**go prescriptive**” or “**go custom**” and that’s a rather hard decision to make. And it turns out that eventually, you end up going custom to a certain extent and I’ve come to accept that as a fact.
+
+Another fact is that creating a fully functioning analytics pipeline is hard, but definitely not as hard as it used to be. Because:
+
+1. When most analytics companies started (around 3–8 years ag0), the off-the-shelf databases that could handle event data at scale just didn’t exist. That’s not the case anymore: [Citus](https://www.citusdata.com/), [Druid](http://druid.io/), [BigQuery](https://cloud.google.com/bigquery/), [RedShift](https://aws.amazon.com/redshift/).
+2. Compute and Storage have become a lot cheaper, giving you the ability to store trillions of data points a month and analyze them without having to pay a massive fee.
+
+By no means are analytics pipelines a solved problem, but I believe the business of data piping is a fragile business model.
+
+> As storage and compute get cheaper, value shifts even more to analysis and insights on the data.
+
+### So what’s missing?
+
+Most analytics companies started quite a few years ago. In addition to the technological advances in data infrastructure, there have been advances in the tech industry’s understanding of product success metrics. There’s [extensive literature](https://www.amazon.com/Lean-Analytics-Better-Startup-Faster/dp/1449335675) on how to think about products, but we’ve essentially done almost nothing to address these learnings and have failed to incorporate them into modern analytics tools and systems (with some exceptions like [Answers](https://answers.io/)).
+
+### **I believe we need a platform that supports both structured and unstructured data, with a marketplace for analysis to enable insights and democratize product analytics.**
+
+Let’s dissect that into two parts:
+
+#### 1. Structured and unstructured data
+
+Given that we’ve learnt a lot about key performance indicators (KPIs) that make a company likely to be successful, a new analytics product should incorporate these learnings and immediately support a few set of structured events and entities for different industries.
+
+Answers does a decent job with structured events with their [different event types](http://d.pr/Ard1): Sign Up, Purchase, Content View, etc.
+
+When this is combined with a way to connect “entities” like Users, Products, Posts and other common entity data, it gives analysts the ability to create reports and metrics specific to their business.
+
+Though, as I mentioned earlier, if we assume that every company will eventually need customization, then unstructured data will need to be accepted as well.
+
+#### 2. Analytics Marketplace
+
+If we’ve successfully created a standard data structure for common events and KPIs, then it becomes inevitable and rather obvious to have a compute platform that gives analysts the ability to create report templates with predefined queries and distribute them via a marketplace.
+
+Then CTOs, Analysts, Marketers, Product Managers, and Business Owners can select report packages that serve their business needs and help them discover insights for their products.
+
+For example, let’s say you’re a marketer and need a Return on Ad Spend report. You could simply search the marketplace and find one. Need to do long-term user-growth projections? There’s a report for that. Need cohort analysis on user activity? Add that to your report cart. Something missing? Build your own report and sell it on the platform.
+
+I have yet to see anyone realize that both the technology and the knowledge to create such a product analytics marketplace has existed for quite a long time. It would be an incredibly valuable product for companies and business users.
+
+You might be wondering why I’m not working on this product myself. After all – it’s supposedly a great business! I truly believe this.
+
+But alas, I’ve realized that I like solving problems for consumers much more. At least for now.
+
+Thanks to [@alexakmeyer](https://twitter.com/alexakmeyer) for reviewing.
+
+> You can follow me [@ngardideh](http://twitter.com/ngardideh) or subscribe to my mailing list for more posts around mobile, experimentation and product management [here](http://eepurl.com/O2E0X).

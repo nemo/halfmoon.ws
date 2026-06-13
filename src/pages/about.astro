@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Find Me"
+  description="A bit about Nima Gardideh — and how to get in touch."
+>
+  <article class="about">
+    <div class="about__avatar">
+      <img src="/avatar.jpg" alt="Portrait of Nima Gardideh" width="512" height="452" />
+    </div>
+
+    <div class="about__text">
+      <h1 class="about__h1">A Bit About Me</h1>
+
+      <p>
+        I spend most of time working with an incredibly creative team at
+        Pearmill, where we help companies grow through art and technology. It's
+        been the only place where I've been able to feel like an artist,
+        entrepreneur, and engineer at the same time.
+      </p>
+      <p>
+        Beyond that, I write poetry, blogs, and like dancing. You can learn more
+        about me by reading my <a href="/principles">principles</a>.
+      </p>
+      <p>
+        You can always message me on X:
+        <a href="https://x.com/ngardideh" target="_blank" rel="noopener">@ngardideh</a>.
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .about {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    padding-block: var(--space-4);
+    max-width: var(--subcontainer-max);
+  }
+
+  .about__avatar {
+    flex: 0 0 240px;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .about__avatar img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .about__text {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+
+  .about__h1 {
+    font-family: var(--font-sans);
+    font-size: var(--fs-display-lg);
+    font-weight: var(--fw-light);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: var(--space-1);
+  }
+
+  .about__text a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Tablet */
+  @media (max-width: 800px) {
+    .about__avatar {
+      flex-basis: 200px;
+    }
+  }
+
+  /* Mobile: stack avatar above text */
+  @media (max-width: 480px) {
+    .about {
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .about__avatar {
+      flex-basis: auto;
+      width: 60%;
+      max-width: 240px;
+    }
+
+    .about__h1 {
+      font-size: var(--fs-display);
+    }
+  }
+</style>

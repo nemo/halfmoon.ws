@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  /** Set to false to omit the shared nav/footer chrome. */
+  chrome?: boolean;
+}
+
+const {
+  title,
+  description = 'Nima Gardideh — builder, operator, and partner. Projects, writing, and principles.',
+  image = '/og-default.png',
+  chrome = true,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
+const ogImage = new URL(image, Astro.site ?? Astro.url).toString();
+const fullTitle = title === 'Nima Gardideh' ? title : `${title} — Nima Gardideh`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Nima Gardideh" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap"
+    />
+
+    <!-- No-flash theme: set data-theme before paint -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.dataset.theme = stored;
+          } else {
+            var prefersDark =
+              window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.dataset.theme = prefersDark ? 'dark' : 'light';
+          }
+        } catch (e) {
+          /* localStorage unavailable — fall back to CSS prefers-color-scheme */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    {chrome && <Nav />}
+    <main class="container">
+      <slot />
+    </main>
+    {chrome && <Footer />}
+  </body>
+</html>
