@@ -9,9 +9,10 @@ export interface Props {
   link?: string;
   href?: string;
   heroImage?: string;
+  imageFit?: 'cover' | 'contain';
 }
 
-const { name, role, summary, brandColor, link, href, heroImage } = Astro.props;
+const { name, role, summary, brandColor, link, href, heroImage, imageFit = 'cover' } = Astro.props;
 const detailHref = href ?? link ?? '#';
 ---
 
@@ -23,7 +24,7 @@ const detailHref = href ?? link ?? '#';
 
   <div class="pcard__sub-container">
     <a
-      class="pcard__media"
+      class:list={['pcard__media', imageFit === 'contain' && 'is-contain']}
       href={detailHref}
       style={`--brand: ${brandColor};`}
       aria-label={name}
@@ -83,6 +84,7 @@ const detailHref = href ?? link ?? '#';
 
   .pcard__media {
     display: block;
+    box-sizing: border-box;
     flex: 0 0 auto;
     width: 315px;
     max-width: 100%;
@@ -96,6 +98,16 @@ const detailHref = href ?? link ?? '#';
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Logo-style images: full logo centered on a white plate, not cropped. */
+  .pcard__media.is-contain {
+    background-color: #ffffff;
+    padding: 20px;
+  }
+
+  .pcard__media.is-contain img {
+    object-fit: contain;
   }
 
   .pcard__content {

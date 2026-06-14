@@ -29,6 +29,7 @@ const projects = (await getCollection('projects')).sort(
               ? '/media/pearmill/pearmill.png'
               : undefined)
           }
+          imageFit={project.data.imageFit}
         />
       ))
     }
