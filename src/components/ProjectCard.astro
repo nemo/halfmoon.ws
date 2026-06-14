@@ -16,7 +16,7 @@ const { name, role, summary, brandColor, link, href, heroImage, imageFit = 'cove
 const detailHref = href ?? link ?? '#';
 ---
 
-<Box class="pcard">
+<Box class="pcard" style={`--brand: ${brandColor};`}>
   <header class="pcard__head">
     <h3 class="pcard__title">{name}</h3>
     <p class="pcard__sub">{role}</p>
@@ -53,6 +53,32 @@ const detailHref = href ?? link ?? '#';
   .pcard {
     display: flex;
     flex-direction: column;
+    /* The card takes on the project's core color; text flips to white. */
+    background-color: var(--brand);
+    --box-fg: #ffffff;
+    --box-muted: rgba(255, 255, 255, 0.72);
+    color: #ffffff;
+    transition:
+      background-color 0.3s ease,
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  /* Thoughtful hover: the background deepens into a richer shade of the
+     project's own color, with a subtle lift. */
+  .pcard:hover {
+    background-color: color-mix(in srgb, var(--brand) 82%, #000 18%);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pcard {
+      transition: background-color 0.3s ease;
+    }
+    .pcard:hover {
+      transform: none;
+    }
   }
 
   /* Headline block: TITLE + SUB-TITLE, pb 15px. */
@@ -82,16 +108,22 @@ const detailHref = href ?? link ?? '#';
     max-width: var(--subcontainer-max);
   }
 
+  /* A small thumbnail mark, same rounded corners as every other box. */
   .pcard__media {
     display: block;
     box-sizing: border-box;
     flex: 0 0 auto;
-    width: 315px;
+    width: 88px;
     max-width: 100%;
-    aspect-ratio: 315 / 180;
+    aspect-ratio: 1 / 1;
     border-radius: var(--radius);
-    background-color: var(--brand);
+    background-color: rgba(0, 0, 0, 0.12);
     overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  .pcard:hover .pcard__media {
+    transform: scale(1.04);
   }
 
   .pcard__media img {
@@ -103,7 +135,7 @@ const detailHref = href ?? link ?? '#';
   /* Logo-style images: full logo centered on a white plate, not cropped. */
   .pcard__media.is-contain {
     background-color: #ffffff;
-    padding: 20px;
+    padding: 10px;
   }
 
   .pcard__media.is-contain img {
@@ -130,12 +162,16 @@ const detailHref = href ?? link ?? '#';
     font-family: var(--font-display);
     font-size: var(--fs-list);
     font-weight: var(--fw-regular);
-    color: var(--accent);
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    opacity: 0.85;
     transition: opacity 0.15s ease;
   }
 
   .pcard__link:hover {
-    opacity: 0.75;
+    opacity: 1;
   }
 
   /* Mobile: image block on top, content below (image full width of box). */
