@@ -1,48 +1,99 @@
 ---
 import Base from '../layouts/Base.astro';
+import Box from '../components/Box.astro';
+import TileRow from '../components/TileRow.astro';
+import Prose from '../components/Prose.astro';
 ---
 
 <Base
   title="Find Me"
   description="A bit about Nima Gardideh — and how to get in touch."
 >
-  <article class="about">
-    <div class="about__avatar">
-      <img src="/avatar.jpg" alt="Portrait of Nima Gardideh" width="512" height="452" />
-    </div>
+  <TileRow class="about" stackAt="tablet" aria-label="About Nima Gardideh">
+    <!-- About text box -->
+    <Box class="about__text-box" as="article">
+      <header class="about__head">
+        <h1 class="about__title">A BIT ABOUT ME</h1>
+        <p class="about__sub">Find Me</p>
+      </header>
 
-    <div class="about__text">
-      <h1 class="about__h1">A Bit About Me</h1>
+      <Prose>
+        <p>
+          I spend most of my time working with an incredibly creative team at
+          Pearmill, where we help companies grow through art and technology.
+          It's been the only place where I've been able to feel like an artist,
+          entrepreneur, and engineer at the same time.
+        </p>
+        <p>
+          Beyond that, I write poetry, blogs, and like dancing. You can learn
+          more about me by reading my <a href="/principles">principles</a>.
+        </p>
+      </Prose>
 
-      <p>
-        I spend most of time working with an incredibly creative team at
-        Pearmill, where we help companies grow through art and technology. It's
-        been the only place where I've been able to feel like an artist,
-        entrepreneur, and engineer at the same time.
-      </p>
-      <p>
-        Beyond that, I write poetry, blogs, and like dancing. You can learn more
-        about me by reading my <a href="/principles">principles</a>.
-      </p>
-      <p>
-        You can always message me on X:
-        <a href="https://x.com/ngardideh" target="_blank" rel="noopener">@ngardideh</a>.
-      </p>
-    </div>
-  </article>
+      <a
+        class="about__link"
+        href="https://x.com/ngardideh"
+        target="_blank"
+        rel="noopener"
+      >
+        Message me on X — @ngardideh
+      </a>
+    </Box>
+
+    <!-- Avatar image box -->
+    <Box class="about__avatar-box">
+      <div class="about__avatar">
+        <img
+          src="/avatar.jpg"
+          alt="Portrait of Nima Gardideh"
+          width="512"
+          height="452"
+        />
+      </div>
+    </Box>
+  </TileRow>
 </Base>
 
 <style>
-  .about {
-    display: flex;
-    gap: var(--space-4);
-    align-items: flex-start;
-    padding-block: var(--space-4);
-    max-width: var(--subcontainer-max);
+  /* Avatar box hugs its image rather than spreading like the text box. */
+  .about__avatar-box {
+    flex: 0 0 auto !important;
+    max-width: 360px;
+  }
+
+  .about__head {
+    padding-bottom: 15px;
+  }
+
+  .about__title {
+    font-family: var(--font-display);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    color: var(--box-fg);
+  }
+
+  .about__sub {
+    font-family: var(--font-display);
+    font-size: var(--fs-sub);
+    font-weight: var(--fw-regular);
+    color: var(--box-muted);
+  }
+
+  .about__link {
+    display: inline-block;
+    margin-top: var(--box-pad);
+    font-family: var(--font-display);
+    font-size: var(--fs-list);
+    color: var(--accent);
+    transition: opacity 0.15s ease;
+  }
+
+  .about__link:hover {
+    opacity: 0.75;
   }
 
   .about__avatar {
-    flex: 0 0 240px;
     border-radius: var(--radius);
     overflow: hidden;
   }
@@ -53,52 +104,10 @@ import Base from '../layouts/Base.astro';
     object-fit: cover;
   }
 
-  .about__text {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-  }
-
-  .about__h1 {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display-lg);
-    font-weight: var(--fw-light);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    margin-bottom: var(--space-1);
-  }
-
-  .about__text a {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-
-  /* Tablet */
+  /* Stacked: avatar box no longer hugs, fills width up to a cap. */
   @media (max-width: 800px) {
-    .about__avatar {
-      flex-basis: 200px;
-    }
-  }
-
-  /* Mobile: stack avatar above text */
-  @media (max-width: 480px) {
-    .about {
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-
-    .about__avatar {
-      flex-basis: auto;
-      width: 60%;
-      max-width: 240px;
-    }
-
-    .about__h1 {
-      font-size: var(--fs-display);
+    .about__avatar-box {
+      max-width: 280px;
     }
   }
 </style>

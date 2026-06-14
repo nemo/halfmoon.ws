@@ -1,0 +1,32 @@
+---
+/**
+ * TileRow — a flex row of tiled boxes.
+ * gap 2px, flex-wrap, align-items: stretch. Direct .box children are
+ * flex:1 0 0 with min-width:0, so they collapse/expand together and stack
+ * on narrow viewports.
+ *
+ * stackAt: "mobile" (<=480px, default) | "tablet" (<=800px) — when the row
+ * collapses to a single column.
+ */
+export interface Props {
+  stackAt?: 'mobile' | 'tablet';
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { stackAt = 'mobile', as = 'div', class: className, ...rest } =
+  Astro.props;
+const Tag = as as any;
+const classes = [
+  'tile-row',
+  stackAt === 'tablet' ? 'tile-row--stack-tablet' : null,
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<Tag class={classes} {...rest}>
+  <slot />
+</Tag>

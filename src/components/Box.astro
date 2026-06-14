@@ -1,0 +1,24 @@
+---
+/**
+ * Box — a rounded (12px) tiling surface pane.
+ * Variant "dark" (#2b2825 surface, light text) is the default.
+ * Variant "light" (#f9fafb surface, #000 text) is the nav wordmark pane.
+ * 10px padding by default; accepts class + style passthrough.
+ */
+export interface Props {
+  variant?: 'dark' | 'light';
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { variant = 'dark', as = 'div', class: className, ...rest } = Astro.props;
+const Tag = as as any;
+const classes = ['box', variant === 'light' ? 'box--light' : null, className]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<Tag class={classes} {...rest}>
+  <slot />
+</Tag>

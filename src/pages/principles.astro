@@ -1,5 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import Box from '../components/Box.astro';
+import TileRow from '../components/TileRow.astro';
+import Prose from '../components/Prose.astro';
 
 // Verbatim content from .build-staging/principles.md
 const intro = [
@@ -81,155 +84,122 @@ const frameworks = [
   title="Principles"
   description="Nima Gardideh's first-principles framework for living."
 >
-  <article class="principles">
-    <header class="principles__head">
-      <h1 class="principles__h1">Nima's Principles</h1>
+  <!-- Intro box -->
+  <Box class="prin-intro" as="article">
+    <header class="prin-head">
+      <h1 class="prin-head__title">NIMA'S PRINCIPLES</h1>
+      <p class="prin-head__sub">A first-principles framework for living</p>
     </header>
-
-    <section class="principles__intro">
+    <Prose>
       {intro.map((p) => <p>{p}</p>)}
-      <p class="principles__updated">{lastUpdated}</p>
-    </section>
+    </Prose>
+    <p class="prin-updated">{lastUpdated}</p>
+  </Box>
 
-    <ol class="principles__list">
-      {
-        principles.map((p) => (
-          <li class="principle">
-            <span class="principle__num">{p.n}.</span>
-            <div class="principle__content">
-              <h2 class="principle__title">{p.title}</h2>
-              <p class="principle__body">{p.body}</p>
-            </div>
-          </li>
-        ))
-      }
-    </ol>
+  <!-- Each principle as its own tiled box; 2-up rows on desktop. -->
+  <TileRow class="prin-grid" stackAt="mobile" aria-label="Principles">
+    {
+      principles.map((p) => (
+        <Box class="prin-item" as="article">
+          <header class="prin-item__head">
+            <span class="prin-item__num">{String(p.n).padStart(2, '0')}</span>
+            <h2 class="prin-item__title">{p.title.toUpperCase()}</h2>
+          </header>
+          <Prose>
+            <p>{p.body}</p>
+          </Prose>
+        </Box>
+      ))
+    }
+  </TileRow>
 
-    <section class="principles__live">
-      <h2 class="principles__h2">How I Live</h2>
-      {howILiveIntro.map((p) => <p class="principles__live-intro">{p}</p>)}
+  <!-- How I Live intro box -->
+  <Box class="prin-intro" as="section">
+    <header class="prin-head">
+      <h2 class="prin-head__title">HOW I LIVE</h2>
+      <p class="prin-head__sub">Lifestyle frameworks</p>
+    </header>
+    <Prose>
+      {howILiveIntro.map((p) => <p>{p}</p>)}
+    </Prose>
+  </Box>
 
-      {
-        frameworks.map((f) => (
-          <div class="framework">
-            <h3 class="framework__title">{f.title}</h3>
+  <!-- Each commitment / framework as its own tiled box. -->
+  <TileRow class="prin-grid" stackAt="mobile" aria-label="Lifestyle frameworks">
+    {
+      frameworks.map((f) => (
+        <Box class="prin-item" as="article">
+          <header class="prin-item__head">
+            <h3 class="prin-item__title">{f.title.toUpperCase()}</h3>
+          </header>
+          <Prose>
             {f.paras.map((para) => (
-              <p class="framework__body">{para}</p>
+              <p>{para}</p>
             ))}
-          </div>
-        ))
-      }
-    </section>
-  </article>
+          </Prose>
+        </Box>
+      ))
+    }
+  </TileRow>
 </Base>
 
 <style>
-  .principles {
-    max-width: var(--prose-max);
-    padding-block: var(--space-3) var(--space-4);
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
+  .prin-head {
+    padding-bottom: 15px;
   }
 
-  .principles__h1 {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display-lg);
-    font-weight: var(--fw-light);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-
-  .principles__intro {
-    margin-top: var(--space-3);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .principles__updated {
-    font-family: var(--font-sans);
-    font-size: var(--fs-caption);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-  }
-
-  .principles__list {
-    list-style: none;
-    margin: var(--space-4) 0 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .principle {
-    display: flex;
-    gap: var(--space-2);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .principle:last-child {
-    border-bottom: 0;
-    padding-bottom: 0;
-  }
-
-  .principle__num {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display);
-    font-weight: var(--fw-light);
-    color: var(--muted);
-    line-height: 1.2;
-  }
-
-  .principle__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .principle__title {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display);
-    font-weight: var(--fw-regular);
-    line-height: var(--lh-tight);
-  }
-
-  .principles__live {
-    margin-top: var(--space-5);
-  }
-
-  .principles__h2 {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display);
+  .prin-head__title {
+    font-family: var(--font-display);
+    font-size: var(--fs-title);
     font-weight: var(--fw-regular);
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    color: var(--box-fg);
   }
 
-  .principles__live-intro {
-    margin-top: var(--space-2);
+  .prin-head__sub {
+    font-family: var(--font-display);
+    font-size: var(--fs-sub);
+    font-weight: var(--fw-regular);
+    color: var(--box-muted);
   }
 
-  .framework {
-    margin-top: var(--space-4);
+  .prin-intro :global(.prose) {
+    max-width: var(--subcontainer-max);
+  }
+
+  .prin-updated {
+    margin-top: 15px;
+    font-family: var(--font-display);
+    font-size: var(--fs-sub);
+    text-transform: uppercase;
+    color: var(--box-muted);
+  }
+
+  /* Principle / framework item boxes share equal height in their row. */
+  .prin-item {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
   }
 
-  .framework__title {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display);
-    font-weight: var(--fw-light);
-    line-height: var(--lh-tight);
+  .prin-item__head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 15px;
   }
 
-  @media (max-width: 480px) {
-    .principles__h1 {
-      font-size: var(--fs-display);
-    }
+  .prin-item__num {
+    font-family: var(--font-display);
+    font-size: var(--fs-sub);
+    font-weight: var(--fw-regular);
+    color: var(--box-muted);
+  }
+
+  .prin-item__title {
+    font-family: var(--font-display);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    color: var(--box-fg);
   }
 </style>

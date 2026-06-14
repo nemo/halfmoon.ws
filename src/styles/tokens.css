@@ -1,118 +1,145 @@
 /* ==========================================================================
-   Design tokens — derived from .build-staging/design-tokens.json
-   The site chrome is strictly monochrome/neutral. Color comes only from
-   each project's own brandColor (applied inline per component).
+   Design tokens — halfmoon.ws "tiling window manager" system.
+   Authoritative values from .build-staging/design-notes-v2.md (Figma).
+   Do NOT substitute shades.
    ========================================================================== */
 
 :root {
   /* ---- Font families ---- */
-  --font-sans: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-serif: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-body: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* ---- Type scale (from Figma scale) ---- */
-  --fs-caption: 0.75rem;  /* 12px — nav wordmark, mobile subtitle */
-  --fs-content: 0.875rem; /* 14px — card content / link text */
-  --fs-subtitle: 0.875rem;/* 14px — project role / subtitle */
-  --fs-body: 1rem;        /* 16px — rich text body */
-  --fs-title: 1rem;       /* 16px — project card title */
-  --fs-h1: 1rem;          /* 16px — hero/fold headline */
+  /* legacy aliases (kept so older selectors keep working) */
+  --font-sans: var(--font-display);
 
-  /* Larger display sizes for editorial pages (multiples of the base rhythm) */
-  --fs-display: 1.5rem;
-  --fs-display-lg: 2.25rem;
+  /* legacy type aliases */
+  --fs-caption: var(--fs-wordmark);
+  --fs-content: var(--fs-list);
+  --fs-subtitle: var(--fs-sub);
+  --fs-display: var(--fs-title);
+  --fs-display-lg: var(--fs-title);
+  --fs-h1: var(--fs-headline);
+  --lh-body: var(--lh-tight);
 
-  --lh-tight: 1.3;
-  --lh-body: 1.6;
+  /* legacy spacing aliases (now driven by box padding / gutter) */
+  --space-1: var(--box-pad);    /* 10px */
+  --space-2: 15px;
+  --space-3: 15px;
+  --space-4: 20px;
+  --space-5: 25px;
+  --space-hero: 230px;
+  --prose-max: var(--subcontainer-max);
+  --container-max: 1100px;
 
+  /* ---- Font weights ---- */
   --fw-light: 300;
   --fw-regular: 400;
-  --fw-medium: 500;
 
-  /* ---- Spacing scale (from Figma: 10 / 15 / 25 / 40 / 56 / 230 px) ---- */
-  --space-1: 0.625rem;   /* 10px */
-  --space-2: 0.9375rem;  /* 15px */
-  --space-3: 1.5625rem;  /* 25px */
-  --space-4: 2.5rem;     /* 40px */
-  --space-5: 3.5rem;     /* 56px */
-  --space-hero: 14.375rem;/* 230px hero spacer */
+  /* ---- Type scale (exact, from Figma) ---- */
+  --fs-wordmark: 12px;   /* nav wordmark */
+  --fs-nav: 12px;        /* nav links */
+  --fs-sub: 14px;        /* sub-title #bcbbbc */
+  --fs-list: 14px;       /* list body / links */
+  --fs-body: 16px;       /* detail body (Inter) */
+  --fs-title: 16px;      /* project TITLE uppercase */
+  --fs-headline: 16px;   /* fold headline (Hanken Light) */
 
-  /* ---- Radii ---- */
+  --lh-tight: 1.3;
+
+  /* ---- Geometry ---- */
   --radius: 12px;
+  --box-pad: 10px;
+  --gutter: 2px;
 
   /* ---- Layout ---- */
-  --container-max: 1100px;
-  --prose-max: 720px;
   --subcontainer-max: 800px;
-  --gutter: var(--space-1);
+  --image-block-max: 500px;
 
-  /* ---- Breakpoints (reference; used in media queries) ----
-     mobile <= 480px, tablet ~800px, desktop >= 1024px */
-
-  /* ---- Raw palette (theme-agnostic) ---- */
-  --color-dark-bg: #2b2825;
-  --color-dark-text: #f9fafb;
-  --color-dark-muted: #bcbbbc;
-  --color-light-bg: #f9fafb;
-  --color-light-text: #2b2825;
-  --color-light-muted: #6b6862;
-  --color-black: #000000;
+  /* ---- Theme-agnostic raw palette (exact) ---- */
+  --c-box: #2b2825;        /* warm brown-black box surface */
+  --c-light: #f9fafb;      /* light surface / page bg / text-on-dark */
+  --c-muted: #bcbbbc;      /* muted / secondary text */
+  --c-accent: #c53b3b;     /* brick red — only accent */
+  --c-black: #000000;
+  --c-dark-page: #141210;  /* dark theme page */
 }
 
 /* ==========================================================================
    THEME PALETTES
-   Light is the :root default. Dark applies when:
-     - the OS prefers dark AND no explicit data-theme is set, OR
-     - data-theme="dark" is set explicitly.
+   :root = LIGHT (the Figma).
+   data-theme="dark" = dark inverse of chrome only.
+   prefers-color-scheme: dark applies when no explicit data-theme is set.
    ========================================================================== */
 
-/* Light (default) */
+/* LIGHT (default — exactly the Figma) */
 :root {
-  --bg: var(--color-light-bg);
-  --fg: var(--color-light-text);
-  --muted: var(--color-light-muted);
-  --border: rgba(43, 40, 37, 0.14);
-  --panel-bg: var(--color-light-text); /* inverted panel (dark chip on light page) */
-  --panel-fg: var(--color-light-bg);
-  --panel-muted: var(--color-dark-muted);
+  --page-bg: var(--c-light);     /* gutter color shows through */
+  --box-bg: var(--c-box);
+  --box-fg: var(--c-light);
+  --box-muted: var(--c-muted);
+  --accent: var(--c-accent);
+
+  --wordmark-bg: var(--c-light);
+  --wordmark-fg: var(--c-black);
+
+  /* tiling seam: in light theme it's just the page color (no hairline). */
+  --seam: transparent;
+
+  /* legacy color aliases — page content lives inside dark boxes. */
+  --fg: var(--box-fg);
+  --muted: var(--box-muted);
+  --border: rgba(249, 250, 251, 0.16);
+  --panel-bg: rgba(0, 0, 0, 0.35);
+  --panel-fg: var(--box-fg);
+  --font-body-legacy: var(--font-body);
+
   color-scheme: light;
 }
 
-/* System dark, only when the user hasn't picked a theme manually */
+/* DARK (system default, only when user hasn't chosen) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg: var(--color-dark-bg);
-    --fg: var(--color-dark-text);
-    --muted: var(--color-dark-muted);
-    --border: rgba(249, 250, 251, 0.16);
-    --panel-bg: var(--color-dark-bg);
-    --panel-fg: var(--color-dark-text);
-    --panel-muted: var(--color-dark-muted);
+    --page-bg: var(--c-dark-page);
+    --box-bg: var(--c-box);
+    --box-fg: var(--c-light);
+    --box-muted: var(--c-muted);
+    --accent: var(--c-accent);
+
+    --wordmark-bg: var(--c-light);
+    --wordmark-fg: var(--c-black);
+
+    --seam: rgba(255, 255, 255, 0.08);
     color-scheme: dark;
   }
 }
 
-/* Explicit light */
+/* Explicit LIGHT */
 :root[data-theme='light'] {
-  --bg: var(--color-light-bg);
-  --fg: var(--color-light-text);
-  --muted: var(--color-light-muted);
-  --border: rgba(43, 40, 37, 0.14);
-  --panel-bg: var(--color-light-text);
-  --panel-fg: var(--color-light-bg);
-  --panel-muted: var(--color-dark-muted);
+  --page-bg: var(--c-light);
+  --box-bg: var(--c-box);
+  --box-fg: var(--c-light);
+  --box-muted: var(--c-muted);
+  --accent: var(--c-accent);
+
+  --wordmark-bg: var(--c-light);
+  --wordmark-fg: var(--c-black);
+
+  --seam: transparent;
   color-scheme: light;
 }
 
-/* Explicit dark */
+/* Explicit DARK (faithful inverse of chrome only — keep warm palette) */
 :root[data-theme='dark'] {
-  --bg: var(--color-dark-bg);
-  --fg: var(--color-dark-text);
-  --muted: var(--color-dark-muted);
-  --border: rgba(249, 250, 251, 0.16);
-  --panel-bg: var(--color-dark-bg);
-  --panel-fg: var(--color-dark-text);
-  --panel-muted: var(--color-dark-muted);
+  --page-bg: var(--c-dark-page);
+  --box-bg: var(--c-box);
+  --box-fg: var(--c-light);
+  --box-muted: var(--c-muted);
+  --accent: var(--c-accent);
+
+  --wordmark-bg: var(--c-light);
+  --wordmark-fg: var(--c-black);
+
+  --seam: rgba(255, 255, 255, 0.08);
   color-scheme: dark;
 }

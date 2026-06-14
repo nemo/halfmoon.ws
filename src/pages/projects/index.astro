@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import TileRow from '../../components/TileRow.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 
 const projects = (await getCollection('projects')).sort(
@@ -12,67 +13,30 @@ const projects = (await getCollection('projects')).sort(
   title="Projects"
   description="Companies, products, and performances Nima Gardideh has built."
 >
-  <header class="page-head">
-    <p class="eyebrow">Projects</p>
-    <p class="page-head__lead">
-      Companies, products, and performances I've built and helped build.
-    </p>
-  </header>
-
-  <section aria-label="All projects">
-    <ul class="projects__list">
-      {
-        projects.map((project) => (
-          <li class="projects__item">
-            <ProjectCard
-              name={project.data.name}
-              role={project.data.role}
-              period={project.data.period}
-              summary={project.data.summary}
-              brandColor={project.data.brandColor}
-              link={project.data.link}
-              href={`/projects/${project.slug}`}
-              heroImage={project.data.heroImage}
-            />
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  <TileRow class="projects" stackAt="mobile" aria-label="All projects">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          name={project.data.name}
+          role={project.data.role}
+          summary={project.data.summary}
+          brandColor={project.data.brandColor}
+          link={project.data.link}
+          href={`/projects/${project.slug}`}
+          heroImage={
+            project.data.heroImage ??
+            (project.slug === 'pearmill'
+              ? '/media/pearmill/pearmill.png'
+              : undefined)
+          }
+        />
+      ))
+    }
+  </TileRow>
 </Base>
 
 <style>
-  .page-head {
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-3);
-  }
-
-  .page-head__lead {
-    margin-top: var(--space-2);
-    max-width: var(--prose-max);
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--muted);
-  }
-
-  .projects__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .projects__item {
-    flex: 1 0 0;
-    min-width: 320px;
-  }
-
-  @media (max-width: 480px) {
-    .projects__item {
-      flex: 1 1 100%;
-      min-width: 0;
-    }
+  .projects :global(.box) {
+    min-height: 350px;
   }
 </style>

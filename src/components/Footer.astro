@@ -1,4 +1,6 @@
 ---
+import Box from './Box.astro';
+
 const year = new Date().getFullYear();
 
 const links = [
@@ -9,10 +11,10 @@ const links = [
 ];
 ---
 
-<footer class="footer container">
-  <div class="footer-inner">
-    <span class="footer-mark">NIMA GARDIDEH</span>
-    <ul class="footer-links">
+<Box class="footer" as="footer">
+  <div class="footer__inner">
+    <span class="footer__mark">NIMA GARDIDEH</span>
+    <ul class="footer__links">
       {
         links.map((link) => (
           <li>
@@ -26,57 +28,50 @@ const links = [
         </a>
       </li>
     </ul>
-    <span class="footer-copy">© {year}</span>
+    <span class="footer__copy">© {year}</span>
   </div>
-</footer>
+</Box>
 
 <style>
-  .footer {
-    margin-top: var(--space-5);
-    padding-top: var(--space-3);
-    padding-bottom: var(--space-4);
-    border-top: 1px solid var(--border);
-  }
-
-  .footer-inner {
+  .footer__inner {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-2);
+    gap: var(--box-pad);
   }
 
-  .footer-mark {
-    font-family: var(--font-sans);
-    font-size: var(--fs-caption);
-    letter-spacing: 0.08em;
+  .footer__mark {
+    font-family: var(--font-display);
+    font-size: var(--fs-wordmark);
     text-transform: uppercase;
   }
 
-  .footer-links {
+  .footer__links {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    gap: 15px;
     list-style: none;
     padding: 0;
     margin: 0;
-    font-family: var(--font-sans);
-    font-size: var(--fs-content);
-    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: var(--fs-nav);
+    text-transform: uppercase;
+    color: var(--box-muted);
   }
 
-  .footer-links a:hover {
-    color: var(--fg);
-    opacity: 1;
+  .footer__links a:hover {
+    color: var(--accent);
   }
 
-  .footer-copy {
-    font-size: var(--fs-content);
-    color: var(--muted);
+  .footer__copy {
+    font-family: var(--font-display);
+    font-size: var(--fs-nav);
+    color: var(--box-muted);
   }
 
   @media (max-width: 480px) {
-    .footer-inner {
+    .footer__inner {
       flex-direction: column;
       align-items: flex-start;
     }

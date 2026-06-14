@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import Box from '../../components/Box.astro';
+import TileRow from '../../components/TileRow.astro';
 
 const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
@@ -16,150 +18,184 @@ const dateFmt = (d: Date) =>
 // Only public-resolvable hero paths can be used as a plain <img> src.
 const thumbSrc = (src?: string) =>
   src && !src.startsWith('/src/') ? src : undefined;
+
+// Chunk posts into rows of 2 so each row tiles to equal height.
+const rows: (typeof posts)[] = [];
+for (let i = 0; i < posts.length; i += 2) rows.push(posts.slice(i, i + 2));
 ---
 
 <Base
   title="Blog"
   description="Writing by Nima Gardideh on product, engineering, and building."
 >
-  <header class="page-head">
-    <p class="eyebrow">Blog</p>
-    <p class="page-head__lead">
-      Essays and notes, originally published on Medium.
-    </p>
-  </header>
+  <!-- Header box -->
+  <Box class="blog-intro">
+    <header class="blog-head">
+      <h1 class="blog-head__title">BLOG</h1>
+      <p class="blog-head__sub">
+        Essays and notes, originally published on Medium.
+      </p>
+    </header>
+  </Box>
 
-  <ul class="posts">
-    {
-      posts.map((post) => {
-        const thumb = thumbSrc(post.data.heroImage);
-        return (
-          <li class="post">
-            <a class="post__link" href={`/blog/${post.slug}`}>
-              {thumb && (
-                <div class="post__thumb">
-                  <img src={thumb} alt="" loading="lazy" decoding="async" />
+  <!-- Post boxes, tiled 2-up per row, stacking on mobile. -->
+  {
+    rows.map((row) => (
+      <TileRow class="blog-grid" stackAt="mobile" aria-label="Writing">
+        {row.map((post) => {
+          const thumb = thumbSrc(post.data.heroImage);
+          return (
+            <Box class="post" as="article">
+              <a class="post__link" href={`/blog/${post.slug}`}>
+                <header class="post__head">
+                  <time
+                    class="post__date"
+                    datetime={post.data.pubDate.toISOString()}
+                  >
+                    {dateFmt(post.data.pubDate)}
+                  </time>
+                  <h2 class="post__title">{post.data.title}</h2>
+                </header>
+                <div class="post__sub-container">
+                  {thumb && (
+                    <div class="post__media">
+                      <img
+                        src={thumb}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  )}
+                  <div class="post__content">
+                    <p class="post__desc">{post.data.description}</p>
+                    <span class="post__cta">Read more</span>
+                  </div>
                 </div>
-              )}
-              <div class="post__text">
-                <time class="post__date" datetime={post.data.pubDate.toISOString()}>
-                  {dateFmt(post.data.pubDate)}
-                </time>
-                <h2 class="post__title">{post.data.title}</h2>
-                <p class="post__desc">{post.data.description}</p>
-              </div>
-            </a>
-          </li>
-        );
-      })
-    }
-  </ul>
+              </a>
+            </Box>
+          );
+        })}
+      </TileRow>
+    ))
+  }
 </Base>
 
 <style>
-  .page-head {
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-3);
+  .blog-head__title {
+    font-family: var(--font-display);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    color: var(--box-fg);
   }
 
-  .page-head__lead {
-    margin-top: var(--space-2);
-    max-width: var(--prose-max);
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--muted);
-  }
-
-  .posts {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .blog-head__sub {
+    margin-top: 4px;
+    font-family: var(--font-display);
+    font-size: var(--fs-sub);
+    color: var(--box-muted);
   }
 
   .post {
-    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
   }
 
   .post__link {
     display: flex;
-    gap: var(--space-3);
-    align-items: flex-start;
-    padding-block: var(--space-3);
+    flex-direction: column;
+    height: 100%;
   }
 
-  .post__link:hover {
-    opacity: 1;
+  .post__head {
+    padding-bottom: 15px;
+  }
+
+  .post__date {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--fs-sub);
+    text-transform: uppercase;
+    color: var(--box-muted);
+  }
+
+  .post__title {
+    margin-top: 4px;
+    font-family: var(--font-display);
+    font-size: var(--fs-title);
+    font-weight: var(--fw-regular);
+    text-transform: uppercase;
+    color: var(--box-fg);
   }
 
   .post__link:hover .post__title {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    color: var(--accent);
   }
 
-  .post__thumb {
-    flex: 0 0 200px;
+  .post__sub-container {
+    display: flex;
+    align-items: flex-start;
+    max-width: var(--subcontainer-max);
+  }
+
+  .post__media {
+    flex: 0 0 auto;
+    width: 200px;
+    max-width: 45%;
     aspect-ratio: 3 / 2;
     border-radius: var(--radius);
     overflow: hidden;
-    background: var(--border);
   }
 
-  .post__thumb img {
+  .post__media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .post__text {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+  .post__content {
+    flex: 1 0 0;
+    min-width: 0;
+    padding-left: var(--box-pad);
   }
 
-  .post__date {
-    font-family: var(--font-sans);
-    font-size: var(--fs-caption);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-  }
-
-  .post__title {
-    font-family: var(--font-sans);
-    font-size: var(--fs-display);
-    font-weight: var(--fw-regular);
-    line-height: var(--lh-tight);
+  /* No-thumb posts: content takes the full width. */
+  .post__sub-container:not(:has(.post__media)) .post__content {
+    padding-left: 0;
   }
 
   .post__desc {
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--muted);
-    max-width: var(--prose-max);
+    font-family: var(--font-display);
+    font-size: var(--fs-list);
+    line-height: var(--lh-tight);
+    color: var(--box-fg);
   }
 
-  @media (max-width: 800px) {
-    .post__thumb {
-      flex-basis: 140px;
-    }
-
-    .post__title {
-      font-size: var(--fs-body);
-    }
+  .post__cta {
+    display: inline-block;
+    margin-top: var(--box-pad);
+    font-family: var(--font-display);
+    font-size: var(--fs-list);
+    color: var(--accent);
   }
 
+  /* Mobile: thumb on top, content below. */
   @media (max-width: 480px) {
-    .post__link {
+    .post__sub-container {
       flex-direction: column;
-      gap: var(--space-2);
+      align-items: stretch;
     }
 
-    .post__thumb {
-      flex-basis: auto;
+    .post__media {
       width: 100%;
+      max-width: 100%;
+    }
+
+    .post__content {
+      padding-left: 0;
+      padding-top: var(--box-pad);
     }
   }
 </style>

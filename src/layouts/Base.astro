@@ -51,13 +51,7 @@ const fullTitle = title === 'Nima Gardideh' ? title : `${title} — Nima Gardide
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap"
-    />
+    <!-- Fonts are self-hosted via @fontsource imports in global.css -->
 
     <!-- No-flash theme: set data-theme before paint -->
     <script is:inline>
@@ -79,10 +73,12 @@ const fullTitle = title === 'Nima Gardideh' ? title : `${title} — Nima Gardide
     </script>
   </head>
   <body>
-    {chrome && <Nav />}
-    <main class="container">
-      <slot />
-    </main>
-    {chrome && <Footer />}
+    <div class="page">
+      {chrome && <Nav />}
+      <main class="page__main">
+        <slot />
+      </main>
+      {chrome && <Footer />}
+    </div>
   </body>
 </html>

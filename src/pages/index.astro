@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import Box from '../components/Box.astro';
+import TileRow from '../components/TileRow.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 
 const projects = (await getCollection('projects')).sort(
@@ -9,104 +11,71 @@ const projects = (await getCollection('projects')).sort(
 ---
 
 <Base title="Nima Gardideh">
-  <section class="fold panel">
+  <!-- Fold: full-width tall dark box -->
+  <Box class="fold">
     <h1 class="fold__headline">
       a founder, artist, engineer, and musician based in Brooklyn.
     </h1>
-  </section>
+  </Box>
 
-  <section class="home-projects" aria-label="Selected projects">
-    <ul class="home-projects__list">
-      {
-        projects.map((project) => (
-          <li class="home-projects__item">
-            <ProjectCard
-              name={project.data.name}
-              role={project.data.role}
-              period={project.data.period}
-              summary={project.data.summary}
-              brandColor={project.data.brandColor}
-              link={project.data.link}
-              href={`/projects/${project.slug}`}
-              heroImage={project.data.heroImage}
-            />
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <section class="home-about">
-    <p>
-      I spend most of my time at Pearmill, helping companies grow through art
-      and technology. Beyond that I write, make music, and dance. You can read
-      more about how I try to live in <a href="/principles">my principles</a>.
-    </p>
-  </section>
+  <!-- Projects-list: wrapping row of equal flex project boxes, 2-up desktop -->
+  <TileRow class="projects" stackAt="mobile" aria-label="Selected projects">
+    {
+      projects.map((project) => (
+        <ProjectCard
+          name={project.data.name}
+          role={project.data.role}
+          summary={project.data.summary}
+          brandColor={project.data.brandColor}
+          link={project.data.link}
+          href={`/projects/${project.slug}`}
+          heroImage={
+            project.data.heroImage ??
+            (project.slug === 'pearmill'
+              ? '/media/pearmill/pearmill.png'
+              : undefined)
+          }
+        />
+      ))
+    }
+  </TileRow>
 </Base>
 
 <style>
   .fold {
-    background-color: var(--panel-bg);
-    color: var(--panel-fg);
-    padding: var(--space-3) var(--space-3) var(--space-hero);
-    margin-top: var(--space-2);
+    display: flex;
+    /* tall stature — headline sits at the top, big empty space below */
+    min-height: 260px;
   }
 
   .fold__headline {
-    font-family: var(--font-sans);
-    font-size: var(--fs-h1);
+    font-family: var(--font-display);
+    font-size: var(--fs-headline);
     font-weight: var(--fw-light);
     line-height: var(--lh-tight);
     text-transform: uppercase;
-    letter-spacing: 0.02em;
-    max-width: 40ch;
+    align-self: flex-start;
   }
 
-  .home-projects {
-    margin-top: var(--space-4);
+  /* On the home list the project boxes are tall panes. */
+  .projects :global(.box) {
+    min-height: 350px;
   }
 
-  .home-projects__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
+  /* 2-up on desktop: each project box takes ~half the row (minus the gutter)
+     so exactly two tile per row and the rest wrap to the next row. */
+  .projects :global(> .box) {
+    flex: 1 1 calc(50% - var(--gutter));
   }
 
-  /* Desktop: two cards side-by-side (flex:1 0 0 wrapping row, per Figma). */
-  .home-projects__item {
-    flex: 1 0 0;
-    min-width: 320px;
-  }
-
-  /* Mobile: single column, each card full width. */
   @media (max-width: 480px) {
-    .home-projects__item {
-      flex: 1 1 100%;
-      min-width: 0;
-    }
-
     .fold {
-      padding: var(--space-1) var(--space-1) var(--space-3);
+      min-height: 300px;
     }
 
-    .fold__headline {
-      font-size: var(--fs-caption);
+    /* 1-up on mobile — each project box spans the full row. */
+    .projects :global(> .box) {
+      flex: 1 1 100%;
     }
-  }
-
-  .home-about {
-    margin-top: var(--space-4);
-    max-width: var(--prose-max);
-    font-family: var(--font-body);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-  }
-
-  .home-about a {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
   }
 </style>
