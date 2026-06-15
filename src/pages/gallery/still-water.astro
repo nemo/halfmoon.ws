@@ -1,0 +1,318 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const all = await getCollection('projects');
+const projects = all.sort((a, b) => a.data.order - b.data.order);
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Still Water">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <div class="water" id="water" aria-hidden="true">
+    <svg class="surface" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="depth" cx="50%" cy="42%" r="75%">
+          <stop offset="0%" stop-color="#eef0ee" />
+          <stop offset="55%" stop-color="#e6e8e6" />
+          <stop offset="100%" stop-color="#dadcda" />
+        </radialGradient>
+      </defs>
+      <rect width="1000" height="1000" fill="url(#depth)" />
+
+      <!-- Ambient ripples, drifting slowly on a timer -->
+      <g class="ambient" fill="none" stroke="#a4ada4" stroke-width="0.5">
+        <circle class="ring r1" cx="780" cy="640" r="40" />
+        <circle class="ring r2" cx="220" cy="760" r="40" />
+        <circle class="ring r3" cx="860" cy="300" r="40" />
+      </g>
+    </svg>
+    <!-- Cursor ripple lives here, drawn by tiny script -->
+    <svg class="cursor-layer" id="cursorLayer" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+  </div>
+
+  <main class="page">
+    <header class="masthead">
+      <span class="wordmark">Nima Gardideh</span>
+      <span class="site">halfmoon.ws</span>
+    </header>
+
+    <section class="hero">
+      <h1 class="line">
+        a founder, artist, engineer,<br />and musician based in Brooklyn.
+      </h1>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </section>
+
+    <section class="index" aria-label="Selected work">
+      <ul class="projects">
+        {projects.map((p) => (
+          <li>
+            <a href={`/projects/${p.slug}`}>
+              <span class="name">{p.data.name}</span>
+              <span class="role">{p.data.role}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <nav class="nav" aria-label="Primary">
+        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(html) {
+      -webkit-text-size-adjust: 100%;
+    }
+    :global(body) {
+      margin: 0;
+      background: #e6e8e6;
+      color: #2b2e2b;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+    }
+
+    /* ---- Water surface ---- */
+    .water {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .surface,
+    .cursor-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .cursor-layer {
+      pointer-events: none;
+    }
+
+    .ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      opacity: 0;
+    }
+    .ambient .r1 { animation: ripple 20s ease-out infinite; }
+    .ambient .r2 { animation: ripple 24s ease-out infinite 9s; }
+    .ambient .r3 { animation: ripple 28s ease-out infinite 16s; }
+
+    @keyframes ripple {
+      0%   { transform: scale(0.2); opacity: 0; }
+      12%  { opacity: 0.28; }
+      100% { transform: scale(6.5); opacity: 0; }
+    }
+
+    /* cursor ripples (added by script) */
+    :global(.cursor-layer circle) {
+      fill: none;
+      stroke: #9aa39a;
+      stroke-width: 0.6;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: ripple 6s ease-out forwards;
+    }
+
+    /* ---- Page content ---- */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4.5rem);
+    }
+
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.74rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #6b716b;
+    }
+    .wordmark { color: #3a3e3a; }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(3rem, 12vh, 8rem) 0;
+    }
+    .line {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2rem, 5.6vw, 3.6rem);
+      line-height: 1.18;
+      letter-spacing: 0.005em;
+      margin: 0;
+      color: #23261f;
+      max-width: 24ch;
+    }
+    .about {
+      margin: 1.8rem 0 0;
+      font-size: 0.95rem;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: #5c625c;
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+    }
+
+    .index {
+      padding-top: clamp(2rem, 6vh, 4rem);
+    }
+    .projects {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-width: 30rem;
+    }
+    .projects li {
+      border-top: 1px solid rgba(60, 66, 60, 0.14);
+    }
+    .projects li:last-child {
+      border-bottom: 1px solid rgba(60, 66, 60, 0.14);
+    }
+    .projects a {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1.5rem;
+      padding: 0.95rem 0;
+      text-decoration: none;
+      color: #2b2e2b;
+      transition: opacity 0.6s ease, padding-left 0.6s ease;
+    }
+    .projects a:hover {
+      opacity: 0.55;
+      padding-left: 0.35rem;
+    }
+    .projects .name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+    .projects .role {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7a807a;
+      text-align: right;
+    }
+
+    .foot {
+      margin-top: clamp(3rem, 10vh, 6rem);
+      padding-top: 1.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem 2rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.4rem;
+    }
+    .foot a {
+      color: #6b716b;
+      text-decoration: none;
+      transition: color 0.5s ease;
+    }
+    .foot a:hover { color: #23261f; }
+    .social { color: #5c625c; }
+
+    @media (max-width: 480px) {
+      .projects a { gap: 0.75rem; }
+      .projects .role { font-size: 0.66rem; }
+      .masthead .site { display: none; }
+    }
+
+    /* ---- Reduced motion: a perfectly still surface ---- */
+    @media (prefers-reduced-motion: reduce) {
+      .ambient .ring {
+        animation: none;
+        opacity: 0.28;
+      }
+      .ambient .ring { opacity: 0.16; }
+      .ambient .r1 { transform: scale(3.2); }
+      .ambient .r2 { transform: scale(5); }
+      .ambient .r3 { transform: scale(2.4); }
+      :global(.cursor-layer circle) { animation: none; display: none; }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (reduce.matches) return;
+
+      const layer = document.getElementById('cursorLayer');
+      const water = document.getElementById('water');
+      if (!layer || !water) return;
+
+      const svgNS = 'http://www.w3.org/2000/svg';
+      let last = 0;
+
+      function ripple(clientX, clientY) {
+        const now = performance.now();
+        if (now - last < 320) return; // breathe; don't flood
+        last = now;
+
+        const rect = water.getBoundingClientRect();
+        const x = ((clientX - rect.left) / rect.width) * 1000;
+        const y = ((clientY - rect.top) / rect.height) * 1000;
+
+        const c = document.createElementNS(svgNS, 'circle');
+        c.setAttribute('cx', x.toFixed(1));
+        c.setAttribute('cy', y.toFixed(1));
+        c.setAttribute('r', '30');
+        layer.appendChild(c);
+        setTimeout(() => c.remove(), 6100);
+      }
+
+      window.addEventListener('pointermove', (e) => ripple(e.clientX, e.clientY), {
+        passive: true,
+      });
+      window.addEventListener('pointerdown', (e) => {
+        last = 0;
+        ripple(e.clientX, e.clientY);
+      });
+    })();
+  </script>
+</GalleryShell>

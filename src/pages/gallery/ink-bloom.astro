@@ -1,0 +1,319 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<GalleryShell title="Nima Gardideh" trend="Ink Bloom">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <!-- A single drop of ink, diffusing slowly into still water. -->
+    <div class="bloom" aria-hidden="true">
+      <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <filter id="diffuse" x="-30%" y="-30%" width="160%" height="160%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.009"
+              numOctaves="2"
+              seed="11"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="12"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+            <feGaussianBlur stdDeviation="14" />
+            <!-- desaturate to keep the ink truly neutral (no chromatic fringe) -->
+            <feColorMatrix
+              type="matrix"
+              values="0.21 0.72 0.07 0 0
+                      0.21 0.72 0.07 0 0
+                      0.21 0.72 0.07 0 0
+                      0    0    0    1 0"
+            />
+          </filter>
+          <radialGradient id="ink" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#15110e" stop-opacity="0.46" />
+            <stop offset="30%" stop-color="#15110e" stop-opacity="0.2" />
+            <stop offset="60%" stop-color="#15110e" stop-opacity="0.05" />
+            <stop offset="100%" stop-color="#15110e" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <g filter="url(#diffuse)">
+          <circle class="drop" cx="300" cy="300" r="260" fill="url(#ink)" />
+        </g>
+      </svg>
+    </div>
+
+    <header class="masthead">
+      <span class="domain">halfmoon.ws</span>
+      <nav class="links">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1 class="wordmark">Nima&nbsp;Gardideh</h1>
+      <p class="line">
+        a founder, artist, engineer, and musician based in Brooklyn.
+      </p>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </section>
+
+    <section class="work" aria-label="Selected work">
+      <ul class="index">
+        {
+          projects.map((p) => (
+            <li>
+              <a href={`/projects/${p.slug}`}>
+                <span class="name">{p.data.name}</span>
+                <span class="dash" aria-hidden="true"></span>
+                <span class="role">{p.data.role}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <a href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(html) {
+      font-size: 17px;
+    }
+    :global(body) {
+      margin: 0;
+      background: #f6f1e9;
+      color: #2a2622;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 6vw, 5.5rem);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* --- The ink bloom: ambient, behind the type --- */
+    .bloom {
+      position: absolute;
+      top: 26%;
+      left: 38%;
+      width: min(105vw, 105vh);
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      animation: settle 9s ease-out 0.6s forwards;
+    }
+    .bloom svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .drop {
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: scale(0.55);
+      animation: spread 40s cubic-bezier(0.12, 0.55, 0.2, 1) 0.6s forwards;
+    }
+
+    @keyframes settle {
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes spread {
+      to {
+        transform: scale(1);
+      }
+    }
+
+    /* --- Type & layout: type carries the page --- */
+    .masthead {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+    }
+    .domain {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.74rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #9a9186;
+    }
+    .links {
+      display: flex;
+      gap: clamp(1rem, 2.5vw, 2rem);
+    }
+    .links a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6f675d;
+      text-decoration: none;
+      transition: color 0.5s ease;
+    }
+    .links a:hover {
+      color: #14110f;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 2;
+      margin: auto 0;
+      max-width: 34ch;
+    }
+    .wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: clamp(3rem, 11vw, 6.5rem);
+      line-height: 0.98;
+      letter-spacing: -0.01em;
+      margin: 0;
+      color: #14110f;
+    }
+    .line {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(1.25rem, 3.6vw, 1.9rem);
+      line-height: 1.45;
+      color: #4a443c;
+      margin: clamp(1.2rem, 3vw, 1.8rem) 0 0;
+    }
+    .about {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.84rem;
+      letter-spacing: 0.02em;
+      color: #877e72;
+      margin: 1.1rem 0 0;
+    }
+
+    .work {
+      position: relative;
+      z-index: 2;
+      margin-top: clamp(2.5rem, 7vw, 5rem);
+      max-width: 30rem;
+    }
+    .index {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .index li {
+      border-top: 1px solid rgba(20, 17, 15, 0.12);
+    }
+    .index li:last-child {
+      border-bottom: 1px solid rgba(20, 17, 15, 0.12);
+    }
+    .index a {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      text-decoration: none;
+      color: inherit;
+    }
+    .name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      color: #14110f;
+      white-space: nowrap;
+    }
+    .dash {
+      flex: 1;
+      height: 0;
+      border-top: 1px dotted rgba(20, 17, 15, 0.22);
+      transform: translateY(-0.35rem);
+    }
+    .role {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8a8175;
+      text-align: right;
+      transition: color 0.5s ease;
+    }
+    .index a:hover .role {
+      color: #2a2622;
+    }
+    .index a:hover .name {
+      font-style: italic;
+    }
+
+    .foot {
+      position: relative;
+      z-index: 2;
+      margin-top: clamp(3rem, 8vw, 5rem);
+    }
+    .foot a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.74rem;
+      letter-spacing: 0.14em;
+      color: #9a9186;
+      text-decoration: none;
+      transition: color 0.5s ease;
+    }
+    .foot a:hover {
+      color: #14110f;
+    }
+
+    @media (max-width: 600px) {
+      .bloom {
+        top: 28%;
+        left: 50%;
+        width: 155vw;
+      }
+      .hero {
+        margin-top: 3rem;
+      }
+    }
+
+    /* Serene static fallback */
+    @media (prefers-reduced-motion: reduce) {
+      .bloom {
+        opacity: 1;
+        animation: none;
+      }
+      .drop {
+        transform: scale(1);
+        animation: none;
+      }
+    }
+  </style>
+</GalleryShell>

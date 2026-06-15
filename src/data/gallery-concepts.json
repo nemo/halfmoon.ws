@@ -1,34 +1,19 @@
 {
   "concepts": [
-    {
-      "slug": "synesthesia",
-      "name": "Synesthesia",
-      "tagline": "Sound Hallucinations, as the interface",
-      "summary": "The whole page is a generative audio-visual instrument that 'hears' your cursor. Move it to play standing waves of light; click a project to fire a chromatic ripple and a tuned tone across the screen."
-    },
-    {
-      "slug": "determinism",
-      "name": "Determinism",
-      "tagline": "Free will is limited — made literal",
-      "summary": "Your identity and projects are agents in a deterministic force field. Grab and scatter them and they fight back, then implode and re-order into their fated arrangement. An interface that argues a worldview."
-    },
-    {
-      "slug": "planet",
-      "name": "Home is Planet Earth",
-      "tagline": "A portfolio you orbit",
-      "summary": "A dark, cinematic globe you spin and zoom. Your multi-city life rises as labeled light-pillars, projects trail past as comet-tailed satellites, and a meridian readout names whatever is crossing front-and-center."
-    },
-    {
-      "slug": "shapeshifter",
-      "name": "Four Selves",
-      "tagline": "Founder · Artist · Engineer · Musician",
-      "summary": "One URL that is four designs. The entire visual language — type, color, layout, motion — morphs live between your four identities. The multi-hyphenate, expressed as a shapeshifting page."
-    },
-    {
-      "slug": "manuscript",
-      "name": "Living Manuscript",
-      "tagline": "Engineer meets poet",
-      "summary": "The page composes itself in kinetic type — bio, a principle, a line of poetry — then invites you to type. A conversational poem-terminal where the portfolio writes itself and answers back."
-    }
+    { "slug": "blooming-flower", "name": "Blooming Flower", "tagline": "A line flower, slowly unfurling", "summary": "A single hand-drawn flower blooms on load beside quietly set serif type, on warm paper-white space." },
+    { "slug": "half-moon", "name": "Half Moon", "tagline": "On-brand, nocturnal", "summary": "A minimal moon with a soft terminator that slowly drifts toward half, over a calm navy sky and a whisper of starlight." },
+    { "slug": "ink-bloom", "name": "Ink Bloom", "tagline": "A drop of ink in still water", "summary": "A single ink drop slowly diffuses behind restrained serif type — sumi-e calm on warm paper." },
+    { "slug": "sunrise-wash", "name": "Sunrise Wash", "tagline": "Light becoming day", "summary": "A slow dawn-to-day light wash and one thin horizon line, behind quiet centered type." },
+    { "slug": "still-water", "name": "Still Water", "tagline": "Ripples on a calm surface", "summary": "Gentle concentric ripples spread across a still surface as type floats quietly above. Meditative." },
+    { "slug": "single-tree", "name": "Single Tree", "tagline": "A tree drawing itself", "summary": "A delicate tree slowly grows fine branches and a few leaves; otherwise spare and paper-white." },
+    { "slug": "drifting-petals", "name": "Drifting Petals", "tagline": "A few petals, drifting", "summary": "A handful of petals drift slowly down across an empty page; quiet type anchored below." },
+    { "slug": "pure-type", "name": "Pure Type", "tagline": "Typography, nothing else", "summary": "No imagery — impeccable type and generous whitespace are the entire design. The most minimal of all." },
+    { "slug": "breathing-circle", "name": "Breathing Circle", "tagline": "A circle that breathes", "summary": "A soft circle expands and contracts at a calm breathing pace, echoing a daily meditation." },
+    { "slug": "paper-unfold", "name": "Paper Unfold", "tagline": "Content that unfolds", "summary": "Soft paper / origami folds gently reveal the page; warm paper texture and subtle fold shadows." },
+    { "slug": "brushstroke", "name": "Brushstroke", "tagline": "One confident stroke", "summary": "A single sumi-e brushstroke paints itself once, slowly, in vast white space. Zen." },
+    { "slug": "pressed-botanical", "name": "Pressed Botanical", "tagline": "A naturalist's page", "summary": "Herbarium elegance: delicate botanical line art, hairline rules, and archival serif labels." },
+    { "slug": "dewdrop", "name": "Dewdrop", "tagline": "A single dewdrop", "summary": "One luminous dewdrop rests on a hairline with the faintest refraction; otherwise extremely spare." },
+    { "slug": "tide", "name": "Tide", "tagline": "A slow tide", "summary": "A tideline gently rises and recedes at the foot of the page; patient and rhythmic." },
+    { "slug": "candle-flame", "name": "Candle Flame", "tagline": "A flame in the dark", "summary": "A soft candle flame flickers gently in a quiet dark; type emerges softly near the light." }
   ]
 }

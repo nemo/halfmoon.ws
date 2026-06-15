@@ -1,0 +1,296 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<GalleryShell title="Nima Gardideh" trend="Brushstroke">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <header class="masthead">
+      <span class="domain">halfmoon.ws</span>
+    </header>
+
+    <section class="hero">
+      <!-- The single gesture: one sumi-e brushstroke that paints itself once.
+           A filled, tapered shape — thin at the entry, weighted through the
+           middle, lifting off dry at the end — revealed by a slow wipe. -->
+      <svg
+        class="stroke"
+        viewBox="0 0 520 130"
+        fill="none"
+        aria-hidden="true"
+        role="presentation"
+      >
+        <clipPath id="reveal">
+          <rect class="wipe" x="0" y="0" width="520" height="130" />
+        </clipPath>
+        <path
+          class="ink"
+          clip-path="url(#reveal)"
+          fill="#1c1a17"
+          d="M16 92
+             C 64 60, 116 46, 176 50
+             C 232 54, 272 74, 322 78
+             C 380 83, 438 66, 502 34
+             C 444 76, 384 96, 322 92
+             C 270 89, 232 71, 176 66
+             C 118 61, 66 76, 16 92 Z"
+        />
+      </svg>
+
+      <h1 class="wordmark">Nima Gardideh</h1>
+      <p class="line">
+        a founder, artist, engineer, and musician based in Brooklyn.
+      </p>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </section>
+
+    <section class="work" aria-label="Selected work">
+      <ul class="projects">
+        {
+          projects.map((p) => (
+            <li class="project">
+              <a href={`/projects/${p.slug}`}>
+                <span class="name">{p.data.name}</span>
+                <span class="role">{p.data.role}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <nav class="nav" aria-label="Sections">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(html),
+    :global(body) {
+      margin: 0;
+      padding: 0;
+    }
+    :global(body) {
+      background: #f5f2ec;
+      color: #1c1a17;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      min-height: 100vh;
+      box-sizing: border-box;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: clamp(2.5rem, 6vw, 5.5rem) clamp(1.75rem, 6vw, 3rem);
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .masthead {
+      flex: 0 0 auto;
+    }
+    .domain {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #9a958c;
+      font-weight: 500;
+    }
+
+    /* Hero — the gesture leads, the words follow */
+    .hero {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(3rem, 9vw, 6rem) 0;
+    }
+
+    .stroke {
+      width: clamp(220px, 56vw, 360px);
+      height: auto;
+      margin: 0 0 clamp(1.75rem, 4vw, 2.75rem);
+      overflow: visible;
+    }
+
+    .wipe {
+      transform: scaleX(0);
+      transform-origin: left center;
+      animation: paint 3.6s cubic-bezier(0.33, 0.7, 0.32, 1) 0.6s forwards;
+    }
+
+    @keyframes paint {
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .wordmark {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(2.6rem, 8vw, 4.25rem);
+      line-height: 1.02;
+      letter-spacing: 0.005em;
+      margin: 0 0 1.25rem;
+      opacity: 0;
+      animation: rise 1.6s ease 1.8s forwards;
+    }
+
+    .line {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(1.15rem, 3.2vw, 1.5rem);
+      line-height: 1.5;
+      color: #4a463f;
+      max-width: 30ch;
+      margin: 0 0 0.85rem;
+      opacity: 0;
+      animation: rise 1.6s ease 2.15s forwards;
+    }
+
+    .about {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+      color: #8c877d;
+      margin: 0;
+      opacity: 0;
+      animation: rise 1.6s ease 2.45s forwards;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Work — a quiet index, not cards */
+    .work {
+      flex: 0 0 auto;
+      border-top: 1px solid #e0dccf;
+      padding-top: clamp(2rem, 5vw, 3rem);
+      opacity: 0;
+      animation: rise 1.6s ease 2.75s forwards;
+    }
+    .projects {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .project + .project {
+      margin-top: 0.1rem;
+    }
+    .project a {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0.7rem 0;
+      text-decoration: none;
+      color: inherit;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.5s ease;
+    }
+    .project a:hover {
+      border-bottom-color: #c9c3b4;
+    }
+    .name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.01em;
+    }
+    .role {
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: #9a958c;
+      text-align: right;
+    }
+
+    /* Footer — unobtrusive */
+    .foot {
+      flex: 0 0 auto;
+      margin-top: clamp(3rem, 8vw, 5rem);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem 2rem;
+      opacity: 0;
+      animation: rise 1.6s ease 3s forwards;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .nav a,
+    .social {
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #8c877d;
+      transition: color 0.4s ease;
+    }
+    .nav a:hover,
+    .social:hover {
+      color: #1c1a17;
+    }
+
+    @media (max-width: 480px) {
+      .project a {
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+      .role {
+        text-align: left;
+      }
+      .foot {
+        flex-direction: column;
+      }
+    }
+
+    /* Serene static fallback — no painting, no rising; composed at rest */
+    @media (prefers-reduced-motion: reduce) {
+      .wipe {
+        transform: scaleX(1);
+        animation: none;
+      }
+      .wordmark,
+      .line,
+      .about,
+      .work,
+      .foot {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+    }
+  </style>
+</GalleryShell>

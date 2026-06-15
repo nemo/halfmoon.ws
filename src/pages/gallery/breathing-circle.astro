@@ -1,0 +1,283 @@
+---
+import { getCollection } from 'astro:content';
+import GalleryShell from '../../layouts/GalleryShell.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<GalleryShell title="Nima Gardideh" trend="Breathing Circle">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Inter:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <header class="masthead">
+      <span class="wordmark">Nima Gardideh</span>
+      <span class="domain">halfmoon.ws</span>
+    </header>
+
+    <section class="stage" aria-label="A slowly breathing circle">
+      <svg class="breath" viewBox="0 0 400 400" role="presentation" aria-hidden="true">
+        <circle class="halo" cx="200" cy="200" r="120" />
+        <circle class="ring" cx="200" cy="200" r="120" />
+      </svg>
+
+      <p class="lede">
+        a founder, artist, engineer, and musician<br />
+        based in Brooklyn.
+      </p>
+
+      <p class="about">I write poetry, build companies, and dance.</p>
+
+      <p class="cadence" aria-hidden="true">breathe</p>
+    </section>
+
+    <section class="work" aria-label="Selected work">
+      <ul class="projects">
+        {projects.map((p) => (
+          <li>
+            <a href={`/projects/${p.slug}`}>
+              <span class="name">{p.data.name}</span>
+              <span class="role">{p.data.role}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <nav class="nav" aria-label="Site">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(:root) {
+      --paper: #f5f3ee;
+      --ink: #2b2824;
+      --ink-soft: #6f6a62;
+      --line: #d6d1c6;
+    }
+
+    :global(*) {
+      box-sizing: border-box;
+    }
+
+    :global(body) {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      min-height: 100vh;
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 6vw, 5rem)
+        clamp(2.5rem, 5vw, 4rem);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Masthead */
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .wordmark {
+      color: var(--ink);
+    }
+
+    /* Stage — the single motif */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: clamp(3rem, 12vh, 7rem) 0;
+      position: relative;
+    }
+
+    .breath {
+      width: clamp(220px, 42vw, 360px);
+      height: clamp(220px, 42vw, 360px);
+      margin-bottom: clamp(2rem, 5vw, 3.25rem);
+      overflow: visible;
+    }
+    .ring {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 1;
+      opacity: 0.75;
+      transform-origin: 200px 200px;
+      animation: breathe 11s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+    .halo {
+      fill: var(--ink);
+      opacity: 0.04;
+      transform-origin: 200px 200px;
+      animation: breathe 11s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        transform: scale(0.58);
+      }
+      50% {
+        transform: scale(1);
+      }
+    }
+
+    .lede {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(1.65rem, 4.4vw, 2.65rem);
+      line-height: 1.32;
+      letter-spacing: 0.005em;
+      margin: 0 0 1.5rem;
+      color: var(--ink);
+    }
+    .about {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .cadence {
+      margin: clamp(3rem, 7vw, 4.25rem) 0 0;
+      font-size: 0.66rem;
+      letter-spacing: 0.52em;
+      text-transform: uppercase;
+      text-indent: 0.52em;
+      color: var(--ink-soft);
+      animation: fade 11s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+    @keyframes fade {
+      0%,
+      100% {
+        opacity: 0.18;
+      }
+      50% {
+        opacity: 0.55;
+      }
+    }
+
+    /* Work */
+    .work {
+      margin-top: clamp(3rem, 9vh, 6rem);
+      padding-top: clamp(2rem, 4vw, 2.75rem);
+      border-top: 1px solid var(--line);
+    }
+    .projects {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .projects li + li {
+      margin-top: 0.15rem;
+    }
+    .projects a {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1.5rem;
+      padding: 0.7rem 0;
+      text-decoration: none;
+      color: var(--ink);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.6s ease, color 0.6s ease;
+    }
+    .projects a:hover {
+      border-bottom-color: var(--line);
+    }
+    .name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.3rem, 3vw, 1.6rem);
+    }
+    .role {
+      font-size: 0.74rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      text-align: right;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: clamp(3rem, 9vh, 5.5rem);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .footer a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.5s ease;
+    }
+    .footer a:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 30rem) {
+      .projects a {
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+      .role {
+        text-align: left;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ring,
+      .halo,
+      .cadence {
+        animation: none;
+      }
+      .ring,
+      .halo {
+        transform: scale(0.82);
+      }
+      .cadence {
+        opacity: 0.4;
+      }
+    }
+  </style>
+</GalleryShell>

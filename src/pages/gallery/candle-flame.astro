@@ -1,0 +1,321 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+// Pull real project data where available; fall back to the canonical list so
+// the page stays serene even if the collection shifts.
+let projects: { slug: string; name: string; role: string }[] = [];
+try {
+  const entries = await getCollection('projects');
+  projects = entries
+    .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99))
+    .map((e) => ({ slug: e.slug, name: e.data.name, role: e.data.role }));
+} catch (e) {
+  projects = [];
+}
+if (projects.length === 0) {
+  projects = [
+    { slug: 'pearmill', name: 'Pearmill', role: 'Cofounder, President, CTO' },
+    { slug: 'suto', name: 'Suto', role: 'Cofounder' },
+    { slug: 'venio', name: 'Venio', role: 'Founder' },
+    { slug: 'sound-hallucinations', name: 'Sound Hallucinations', role: 'Creator / Performer' },
+  ];
+}
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Candle Flame">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <!-- The single motif: one small, warm candle flame in the dark. -->
+    <div class="lamp" aria-hidden="true">
+      <div class="halo"></div>
+      <svg class="flame" viewBox="0 0 60 130" width="60" height="130" role="presentation">
+        <defs>
+          <radialGradient id="cf-core" cx="50%" cy="64%" r="58%">
+            <stop offset="0%" stop-color="#fff8ea" />
+            <stop offset="38%" stop-color="#ffd58a" />
+            <stop offset="100%" stop-color="#ef8f2a" />
+          </radialGradient>
+        </defs>
+        <!-- a single warm flame -->
+        <path
+          class="body"
+          d="M30 20 C 43 46, 47 70, 30 95 C 13 70, 17 46, 30 20 Z"
+          fill="url(#cf-core)"
+        />
+        <!-- the bright heart -->
+        <path
+          class="core"
+          d="M30 56 C 36 68, 36 82, 30 93 C 24 82, 24 68, 30 56 Z"
+          fill="#fff6e2"
+        />
+        <!-- wick -->
+        <line x1="30" y1="93" x2="30" y2="110" stroke="#241a10" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </div>
+
+    <header class="words">
+      <p class="kicker">halfmoon.ws</p>
+      <h1 class="name">Nima Gardideh</h1>
+      <p class="hero">a founder, artist, engineer, and musician based in Brooklyn.</p>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </header>
+
+    <section class="work" aria-label="Selected work">
+      <ul class="list">
+        {projects.map((p) => (
+          <li>
+            <a href={`/projects/${p.slug}`}>
+              <span class="proj-name">{p.name}</span>
+              <span class="proj-role">{p.role}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <nav class="nav" aria-label="Site">
+        {nav.map((n) => (
+          <a href={n.href}>{n.label}</a>
+        ))}
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me noopener">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(html) {
+      background: #0a0907;
+    }
+    :global(body) {
+      margin: 0;
+      background:
+        radial-gradient(120% 90% at 50% 30%, #161210 0%, #0a0907 58%, #060504 100%);
+      color: #c9bfb0;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      min-height: 100vh;
+      min-height: 100dvh;
+      box-sizing: border-box;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: clamp(3rem, 9vh, 7rem) 1.6rem clamp(2.5rem, 6vh, 4rem);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(2.4rem, 6vh, 4rem);
+      position: relative;
+    }
+
+    /* ---- the flame ---- */
+    .lamp {
+      position: relative;
+      width: 60px;
+      height: 130px;
+      display: flex;
+      justify-content: center;
+    }
+    .halo {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      width: 540px;
+      height: 540px;
+      transform: translate(-50%, -32%);
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle,
+        rgba(255, 198, 116, 0.26) 0%,
+        rgba(255, 174, 86, 0.12) 24%,
+        rgba(255, 150, 60, 0.04) 44%,
+        rgba(0, 0, 0, 0) 62%
+      );
+      animation: breathe 9s ease-in-out infinite;
+      will-change: opacity, transform;
+    }
+    .flame {
+      position: relative;
+      transform-origin: 50% 92%;
+      filter: drop-shadow(0 0 14px rgba(255, 168, 64, 0.5));
+      animation: sway 8s ease-in-out infinite;
+      will-change: transform;
+    }
+    .flame .body {
+      transform-origin: 50% 80%;
+      animation: flicker 6s ease-in-out infinite;
+    }
+    .flame .core {
+      opacity: 0.92;
+      transform-origin: 50% 80%;
+      animation: flicker 4.5s ease-in-out infinite reverse;
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(-0.8deg) translateX(-0.4px); }
+      50%      { transform: rotate(0.9deg) translateX(0.4px); }
+    }
+    @keyframes flicker {
+      0%, 100% { transform: scaleY(1) scaleX(1); }
+      35%      { transform: scaleY(1.04) scaleX(0.98); }
+      70%      { transform: scaleY(0.98) scaleX(1.01); }
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.8; transform: translate(-50%, -32%) scale(1); }
+      50%      { opacity: 1;   transform: translate(-50%, -32%) scale(1.04); }
+    }
+
+    /* ---- words ---- */
+    .words {
+      text-align: center;
+      max-width: 34rem;
+    }
+    .kicker {
+      margin: 0 0 1.6rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: #6e6354;
+    }
+    .name {
+      margin: 0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(2.6rem, 8vw, 4.2rem);
+      line-height: 1.04;
+      letter-spacing: 0.01em;
+      color: #f3e6d0;
+    }
+    .hero {
+      margin: 1.5rem auto 0;
+      max-width: 26rem;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(1.15rem, 3.4vw, 1.5rem);
+      line-height: 1.5;
+      color: #b6a892;
+    }
+    .about {
+      margin: 0.9rem 0 0;
+      font-size: 0.92rem;
+      letter-spacing: 0.01em;
+      color: #807461;
+    }
+
+    /* ---- quiet project index ---- */
+    .work {
+      width: 100%;
+      max-width: 30rem;
+    }
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .list li + li {
+      border-top: 1px solid rgba(190, 160, 110, 0.10);
+    }
+    .list a {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0.95rem 0.2rem;
+      text-decoration: none;
+      color: inherit;
+      transition: color 0.5s ease, opacity 0.5s ease;
+    }
+    .proj-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.3rem;
+      color: #d8cab2;
+      transition: color 0.5s ease;
+    }
+    .proj-role {
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: right;
+      color: #6b604f;
+    }
+    .list a:hover .proj-name,
+    .list a:focus-visible .proj-name {
+      color: #ffdc9c;
+    }
+    .list a:focus-visible {
+      outline: 1px solid rgba(255, 200, 120, 0.4);
+      outline-offset: 4px;
+    }
+
+    /* ---- footer nav ---- */
+    .foot {
+      margin-top: auto;
+      width: 100%;
+      max-width: 30rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem 1.4rem;
+      padding-top: 1.4rem;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+    }
+    .foot a {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      color: #6e6354;
+      transition: color 0.5s ease;
+    }
+    .foot a:hover,
+    .foot a:focus-visible {
+      color: #d8c5a5;
+    }
+    .social {
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 430px) {
+      .list a { gap: 0.4rem; }
+      .foot { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+
+    /* ---- reduced motion: a still, composed flame ---- */
+    @media (prefers-reduced-motion: reduce) {
+      .halo,
+      .flame,
+      .flame .body,
+      .flame .core {
+        animation: none;
+      }
+      .halo {
+        opacity: 0.92;
+        transform: translate(-50%, -32%);
+      }
+    }
+  </style>
+</GalleryShell>

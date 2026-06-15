@@ -1,0 +1,329 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => (a.data.order ?? 99) - (b.data.order ?? 99),
+);
+
+const links = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Tide">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <header class="masthead">
+      <a class="wordmark" href="/">Nima Gardideh</a>
+      <nav class="nav" aria-label="Sections">
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+      </nav>
+    </header>
+
+    <section class="hero">
+      <p class="lede">
+        a founder, artist, engineer, and musician
+        <span class="place">based in Brooklyn.</span>
+      </p>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </section>
+
+    <section class="works" aria-label="Selected work">
+      <ol class="list">
+        {
+          projects.map((p) => (
+            <li>
+              <a href={`/projects/${p.slug}`}>
+                <span class="name">{p.data.name}</span>
+                <span class="role">{p.data.role}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <footer class="colophon">
+      <span class="site">halfmoon.ws</span>
+      <a class="social" href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+
+    <!-- The tide: a slow, eased line at the foot of the page -->
+    <div class="tide" aria-hidden="true">
+      <svg class="tide-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path
+          class="wave wave-back"
+          d="M0,176 C240,150 480,196 720,178 C960,160 1200,194 1440,172 L1440,320 L0,320 Z"
+        />
+        <path
+          class="wave wave-front"
+          d="M0,212 C300,188 540,228 780,210 C1020,192 1230,224 1440,206 L1440,320 L0,320 Z"
+        />
+      </svg>
+    </div>
+  </main>
+
+  <style>
+    :root {
+      --paper: #f4f1ea;
+      --ink: #2b3038;
+      --muted: #8a8b86;
+      --sea: #aeb9b6;
+      --sea-deep: #97a6a4;
+      --rule: #d9d4c8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    :global(html) {
+      background: var(--paper);
+    }
+
+    :global(body) {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4.5rem) clamp(1.5rem, 6vw, 5rem)
+        clamp(9rem, 20vh, 13rem);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Masthead */
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+    }
+
+    .wordmark {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .nav {
+      display: flex;
+      gap: clamp(1rem, 2.4vw, 2.1rem);
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.5s ease;
+    }
+
+    .nav a:hover {
+      color: var(--ink);
+    }
+
+    /* Hero */
+    .hero {
+      margin-top: clamp(4rem, 16vh, 11rem);
+      max-width: 22ch;
+    }
+
+    .lede {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-weight: 300;
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      line-height: 1.16;
+      letter-spacing: -0.01em;
+    }
+
+    .lede .place {
+      display: block;
+      font-style: italic;
+      color: var(--sea-deep);
+    }
+
+    .about {
+      margin: 1.6rem 0 0;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 30ch;
+    }
+
+    /* Works */
+    .works {
+      margin-top: clamp(3.5rem, 10vh, 7rem);
+      max-width: 30rem;
+    }
+
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .list li {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .list a {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1.5rem;
+      padding: 1.05rem 0;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .list .name {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: 1.15rem;
+      transition: opacity 0.4s ease;
+    }
+
+    .list .role {
+      font-size: 0.74rem;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .list a:hover .name {
+      opacity: 0.55;
+    }
+
+    /* Colophon */
+    .colophon {
+      margin-top: auto;
+      padding-top: clamp(3rem, 9vh, 6rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.76rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .colophon .social {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.5s ease;
+    }
+
+    .colophon .social:hover {
+      color: var(--ink);
+    }
+
+    /* The tide — anchored to the foot of the page, beneath the content */
+    .tide {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: 100vw;
+      height: clamp(7rem, 18vh, 11rem);
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .tide-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .wave {
+      transform: translateY(0);
+      will-change: transform;
+    }
+
+    .wave-back {
+      fill: var(--sea);
+      opacity: 0.38;
+      animation: tide 28s ease-in-out infinite;
+    }
+
+    .wave-front {
+      fill: var(--sea-deep);
+      opacity: 0.46;
+      animation: tide 38s ease-in-out infinite;
+    }
+
+    /* slow rise and recede */
+    @keyframes tide {
+      0%,
+      100% {
+        transform: translateY(26px);
+      }
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .masthead {
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+      .nav {
+        gap: 1.1rem;
+      }
+      .list a {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .list .role {
+        text-align: left;
+      }
+    }
+
+    /* Serene static fallback */
+    @media (prefers-reduced-motion: reduce) {
+      .wave-back {
+        animation: none;
+        transform: translateY(14px);
+      }
+      .wave-front {
+        animation: none;
+        transform: translateY(12px);
+      }
+    }
+  </style>
+</GalleryShell>

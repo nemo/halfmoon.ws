@@ -1,0 +1,329 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => (a.data.order ?? 99) - (b.data.order ?? 99)
+);
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+
+// A few petals — sparse, varied, slow. Negative delays so petals are already
+// mid-drift on load (the motif is present at any moment, never a blank start).
+const petals = [
+  { left: 16, delay: -4, dur: 28, drift: 34, scale: 0.95, rot: -16 },
+  { left: 34, delay: -19, dur: 34, drift: -28, scale: 0.7, rot: 22 },
+  { left: 52, delay: -11, dur: 30, drift: 24, scale: 1.05, rot: -8 },
+  { left: 71, delay: -25, dur: 36, drift: -22, scale: 0.8, rot: 16 },
+  { left: 86, delay: -7, dur: 32, drift: 30, scale: 0.65, rot: -22 },
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Drifting Petals">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <!-- Petals drift across the whole page, behind the type -->
+    <div class="petals" aria-hidden="true">
+      {petals.map((p) => (
+        <span
+          class="petal"
+          style={`left:${p.left}%;--delay:${p.delay}s;--dur:${p.dur}s;--drift:${p.drift}px;--scale:${p.scale};--rot:${p.rot}deg;`}
+        >
+          <svg viewBox="0 0 24 32" width="22" height="30" fill="none">
+            <path
+              d="M12 1C6 8 2 16 2 22c0 5 4 9 10 9s10-4 10-9C22 16 18 8 12 1Z"
+              fill="#f2d4dc"
+              stroke="#e7b9c5"
+              stroke-width="0.6"
+            />
+            <path d="M12 4C12 12 12 24 12 30" stroke="#e0a9b8" stroke-width="0.5" opacity="0.6" />
+          </svg>
+        </span>
+      ))}
+    </div>
+
+    <div class="content">
+      <header class="intro">
+        <p class="wordmark">Nima Gardideh</p>
+        <h1 class="hero">
+          a founder, artist, engineer,<br />and musician based in Brooklyn.
+        </h1>
+        <p class="about">I write poetry, build companies, and dance.</p>
+      </header>
+
+      <section class="work" aria-label="Selected work">
+        <ul class="projects">
+          {projects.map((p) => (
+            <li>
+              <a href={`/projects/${p.slug}`}>
+                <span class="p-name">{p.data.name}</span>
+                <span class="p-role">{p.data.role}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <footer class="foot">
+        <nav class="links" aria-label="Sections">
+          {nav.map((n) => (
+            <a href={n.href}>{n.label}</a>
+          ))}
+        </nav>
+        <p class="meta">
+          <a href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+          <span class="dot">·</span>
+          <span class="ws">halfmoon.ws</span>
+        </p>
+      </footer>
+    </div>
+  </main>
+
+  <style>
+    :global(html, body) {
+      margin: 0;
+      padding: 0;
+    }
+    :global(body) {
+      background: #fbfaf7;
+      color: #2a2724;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- Petals --- */
+    .petals {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .petal {
+      position: absolute;
+      top: -8%;
+      transform: translateY(-20vh) scale(var(--scale));
+      opacity: 0;
+      will-change: transform, opacity;
+      animation: fall var(--dur) var(--delay) infinite linear;
+    }
+    .petal svg {
+      display: block;
+      transform-origin: center;
+      animation: sway calc(var(--dur) / 3) var(--delay) infinite ease-in-out;
+    }
+    @keyframes fall {
+      0% {
+        transform: translateY(-18vh) translateX(0) scale(var(--scale));
+        opacity: 0;
+      }
+      12% {
+        opacity: 0.7;
+      }
+      85% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(112vh) translateX(var(--drift)) scale(var(--scale));
+        opacity: 0;
+      }
+    }
+    @keyframes sway {
+      0%,
+      100% {
+        transform: rotate(calc(var(--rot) * -1));
+      }
+      50% {
+        transform: rotate(var(--rot));
+      }
+    }
+
+    /* --- Content --- */
+    .content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: clamp(2.5rem, 6vw, 6rem) clamp(1.6rem, 6vw, 5rem);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(3rem, 8vh, 6rem);
+    }
+
+    .intro {
+      max-width: 34ch;
+    }
+    .wordmark {
+      margin: 0 0 1.6rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #8c8478;
+      font-weight: 500;
+    }
+    .hero {
+      margin: 0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(2.4rem, 6.2vw, 4.4rem);
+      line-height: 1.08;
+      letter-spacing: 0.005em;
+      color: #221f1c;
+    }
+    .about {
+      margin: 1.8rem 0 0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+      color: #6f675c;
+      letter-spacing: 0.01em;
+    }
+
+    /* --- Projects: a quiet index --- */
+    .projects {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-width: 30rem;
+    }
+    .projects li {
+      border-top: 1px solid #ece6dc;
+    }
+    .projects li:last-child {
+      border-bottom: 1px solid #ece6dc;
+    }
+    .projects a {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0.95rem 0.1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: color 0.5s ease, padding-left 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .projects a:hover,
+    .projects a:focus-visible {
+      color: #b06579;
+      padding-left: 0.6rem;
+      outline: none;
+    }
+    .p-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.01em;
+    }
+    .p-role {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #9b9286;
+      text-align: right;
+    }
+
+    /* --- Footer --- */
+    .foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.4rem 2rem;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.6rem;
+    }
+    .links a,
+    .meta a {
+      color: #6f675c;
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      transition: color 0.4s ease;
+    }
+    .links a:hover,
+    .links a:focus-visible,
+    .meta a:hover,
+    .meta a:focus-visible {
+      color: #221f1c;
+    }
+    .meta {
+      margin: 0;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      color: #b3aa9d;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .dot {
+      color: #d8cfc2;
+    }
+    .ws {
+      color: #b3aa9d;
+    }
+
+    @media (max-width: 560px) {
+      .content {
+        justify-content: flex-start;
+        padding-top: clamp(3rem, 14vh, 6rem);
+      }
+      .projects a {
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .p-role {
+        text-align: left;
+      }
+      .foot {
+        flex-direction: column;
+      }
+    }
+
+    /* --- Reduced motion: petals settle, composed and still --- */
+    @media (prefers-reduced-motion: reduce) {
+      .petal {
+        animation: none;
+        opacity: 0.6;
+        top: auto;
+      }
+      .petal svg {
+        animation: none;
+        transform: rotate(var(--rot));
+      }
+      /* a few petals come to rest, scattered and still */
+      .petal:nth-child(1) { top: 24%; }
+      .petal:nth-child(2) { top: 58%; }
+      .petal:nth-child(3) { top: 38%; }
+      .petal:nth-child(4) { top: 72%; }
+      .petal:nth-child(5) { top: 16%; }
+    }
+  </style>
+</GalleryShell>

@@ -1,0 +1,263 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const all = await getCollection('projects');
+const order = ['pearmill', 'suto', 'venio', 'sound-hallucinations'];
+const projects = all
+  .map((p) => ({ slug: p.slug, name: p.data.name, role: p.data.role, ord: p.data.order }))
+  .sort((a, b) => a.ord - b.ord);
+---
+
+<GalleryShell title="Nima Gardideh" trend="Dewdrop">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <article class="leaf">
+      <!-- The dewdrop, resting on a hairline -->
+      <figure class="dew" aria-hidden="true">
+        <svg viewBox="0 0 200 200" width="200" height="200" role="presentation">
+          <defs>
+            <radialGradient id="body" cx="42%" cy="36%" r="68%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.96" />
+              <stop offset="38%" stop-color="#eef1f0" stop-opacity="0.5" />
+              <stop offset="100%" stop-color="#c9d2ce" stop-opacity="0.28" />
+            </radialGradient>
+            <radialGradient id="shimmer" cx="60%" cy="70%" r="55%">
+              <stop offset="0%" stop-color="#f6efe6" stop-opacity="0.55" />
+              <stop offset="100%" stop-color="#f6efe6" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <!-- the hairline it rests upon -->
+          <line class="thread" x1="14" y1="118" x2="186" y2="118" />
+
+          <g class="drop">
+            <!-- faint refraction halo -->
+            <circle class="halo" cx="100" cy="100" r="34" fill="url(#shimmer)" />
+            <!-- the body -->
+            <circle class="bead" cx="100" cy="100" r="30" fill="url(#body)" />
+            <!-- inner rim -->
+            <circle cx="100" cy="100" r="30" fill="none" stroke="#b7c2bd" stroke-opacity="0.4" stroke-width="0.6" />
+            <!-- soft highlight -->
+            <ellipse class="glint" cx="89" cy="89" rx="8.5" ry="6" fill="#ffffff" opacity="0.85" />
+          </g>
+        </svg>
+      </figure>
+
+      <header class="say">
+        <p class="kicker">halfmoon.ws</p>
+        <h1>Nima Gardideh</h1>
+        <p class="lede">a founder, artist, engineer, and musician based in Brooklyn.</p>
+        <p class="about">I write poetry, build companies, and dance.</p>
+      </header>
+
+      <section class="works" aria-label="Selected work">
+        <ul>
+          {projects.map((p) => (
+            <li>
+              <a href={`/projects/${p.slug}`}>
+                <span class="w-name">{p.name}</span>
+                <span class="w-role">{p.role}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <nav class="ways" aria-label="Elsewhere">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+        <a href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+      </nav>
+    </article>
+  </main>
+
+  <style>
+    :global(html) {
+      -webkit-text-size-adjust: 100%;
+    }
+    :global(body) {
+      margin: 0;
+      background: #f7f5f0;
+      color: #2a2c2a;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: clamp(2rem, 6vw, 6rem);
+      box-sizing: border-box;
+    }
+
+    .leaf {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      column-gap: clamp(2.5rem, 6vw, 6rem);
+      row-gap: 3rem;
+      align-items: start;
+      max-width: 60rem;
+      width: 100%;
+    }
+
+    /* ---- the motif ---- */
+    .dew {
+      margin: 0;
+      grid-row: 1 / span 3;
+      align-self: center;
+    }
+    .dew svg {
+      display: block;
+      width: clamp(140px, 16vw, 200px);
+      height: auto;
+      overflow: visible;
+    }
+    .thread {
+      stroke: #cdc8bc;
+      stroke-width: 0.75;
+    }
+    /* the slow, occasional swell */
+    .drop {
+      transform-box: fill-box;
+      transform-origin: 100px 100px;
+      animation: swell 16s ease-in-out infinite;
+    }
+    .glint {
+      animation: glint 16s ease-in-out infinite;
+    }
+    @keyframes swell {
+      0%, 68%, 100% { transform: scale(1); }
+      84% { transform: scale(1.045); }
+    }
+    @keyframes glint {
+      0%, 68%, 100% { opacity: 0.85; }
+      84% { opacity: 1; }
+    }
+
+    /* ---- type ---- */
+    .say { grid-column: 2; }
+    .kicker {
+      margin: 0 0 1.4rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #9a958a;
+      font-weight: 400;
+    }
+    h1 {
+      margin: 0;
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 300;
+      font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+      letter-spacing: -0.015em;
+      line-height: 1.04;
+      color: #1f211f;
+    }
+    .lede {
+      margin: 1.1rem 0 0;
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+      color: #56584f;
+      max-width: 24ch;
+      line-height: 1.4;
+    }
+    .about {
+      margin: 1.4rem 0 0;
+      font-size: 0.95rem;
+      color: #7c7c72;
+    }
+
+    .works { grid-column: 2; }
+    .works ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #e4e0d6;
+    }
+    .works li { border-bottom: 1px solid #e4e0d6; }
+    .works a {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1.5rem;
+      padding: 0.85rem 0;
+      text-decoration: none;
+      color: inherit;
+      transition: color 0.5s ease;
+    }
+    .w-name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 400;
+      font-size: 1.1rem;
+      color: #2a2c2a;
+    }
+    .w-role {
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: #9a958a;
+      text-align: right;
+    }
+    .works a:hover .w-name { color: #6b7a72; }
+    .works a:hover .w-role { color: #6b7a72; }
+
+    .ways {
+      grid-column: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.4rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+    .ways a {
+      color: #8a877c;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+      transition: color 0.4s ease, border-color 0.4s ease;
+    }
+    .ways a:hover {
+      color: #2a2c2a;
+      border-color: #c7c2b6;
+    }
+
+    /* ---- small screens ---- */
+    @media (max-width: 640px) {
+      .leaf {
+        grid-template-columns: 1fr;
+        row-gap: 2.4rem;
+        text-align: center;
+      }
+      .dew {
+        grid-row: auto;
+        justify-self: center;
+      }
+      .say, .works, .ways { grid-column: 1; }
+      .lede { max-width: none; margin-inline: auto; }
+      .ways { justify-content: center; }
+      .works a { text-align: left; }
+    }
+
+    /* ---- serene stillness ---- */
+    @media (prefers-reduced-motion: reduce) {
+      .drop, .glint { animation: none; }
+    }
+  </style>
+</GalleryShell>

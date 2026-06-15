@@ -1,0 +1,314 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('projects');
+const order = ['pearmill', 'suto', 'venio', 'sound-hallucinations'];
+const projects = entries
+  .map((e) => ({ slug: e.slug, name: e.data.name, role: e.data.role, ord: e.data.order }))
+  .sort((a, b) => {
+    const ia = order.indexOf(a.slug);
+    const ib = order.indexOf(b.slug);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    return a.ord - b.ord;
+  });
+---
+
+<GalleryShell title="Nima Gardideh" trend="Pure Type">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main>
+    <header class="masthead">
+      <h1 class="wordmark">
+        <span class="given">Nima</span>
+        <span class="family">Gardideh</span>
+      </h1>
+      <span class="rule" aria-hidden="true"></span>
+    </header>
+
+    <section class="hero">
+      <p class="lede">
+        a founder, artist, engineer, and musician
+        based in <span class="place">Brooklyn<span class="moon" aria-hidden="true"></span></span>.
+      </p>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </section>
+
+    <section class="work" aria-label="Selected work">
+      <span class="caption">Work</span>
+      <ol class="index">
+        {projects.map((p) => (
+          <li>
+            <a href={`/projects/${p.slug}`}>
+              <span class="name">{p.name}</span>
+              <span class="role">{p.role}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <footer class="foot">
+      <nav class="nav" aria-label="Site">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me noopener" target="_blank">@ngardideh</a>
+      <span class="domain">halfmoon.ws</span>
+    </footer>
+  </main>
+
+  <style>
+    :global(html) {
+      -webkit-text-size-adjust: 100%;
+    }
+    :global(body) {
+      margin: 0;
+      background: #f6f3ec;
+      color: #1c1a17;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    :global(::selection) {
+      background: #b8543a;
+      color: #f6f3ec;
+    }
+
+    main {
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: clamp(3.5rem, 12vh, 9rem) clamp(1.6rem, 6vw, 4rem)
+        clamp(3rem, 9vh, 6rem);
+      min-height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* — Masthead — */
+    .masthead {
+      margin-bottom: clamp(3.5rem, 11vh, 7.5rem);
+    }
+    .wordmark {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 300;
+      font-size: clamp(2.6rem, 9vw, 5.25rem);
+      line-height: 0.98;
+      letter-spacing: -0.02em;
+      margin: 0;
+      color: #14120f;
+    }
+    .wordmark .given {
+      display: block;
+      font-style: italic;
+      font-weight: 300;
+    }
+    .wordmark .family {
+      display: block;
+      font-weight: 400;
+    }
+    .rule {
+      display: block;
+      width: 3.25rem;
+      height: 1px;
+      margin-top: clamp(1.4rem, 4vh, 2.25rem);
+      background: #b8543a;
+      transform-origin: left center;
+      transform: scaleX(0);
+      animation: draw 1600ms cubic-bezier(0.22, 1, 0.36, 1) 350ms forwards;
+    }
+
+    /* — Hero — */
+    .hero {
+      max-width: 34rem;
+      margin-bottom: auto;
+    }
+    .lede {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 300;
+      font-size: clamp(1.5rem, 4.4vw, 2.35rem);
+      line-height: 1.32;
+      letter-spacing: -0.01em;
+      color: #2a2722;
+      margin: 0 0 1.6rem;
+      text-wrap: balance;
+    }
+    .place {
+      position: relative;
+      white-space: nowrap;
+    }
+    /* The single accent gesture: a quiet half-moon, slowly waxing. */
+    .moon {
+      position: relative;
+      display: inline-block;
+      width: 0.4em;
+      height: 0.4em;
+      margin-left: 0.38em;
+      border-radius: 50%;
+      vertical-align: 0.08em;
+      background: #b8543a;
+      opacity: 0.92;
+      overflow: hidden;
+    }
+    .moon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: #f6f3ec;
+      transform-origin: left center;
+      animation: wane 12s ease-in-out infinite;
+    }
+    .about {
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      color: #6a655c;
+      margin: 0;
+    }
+
+    /* — Work index — */
+    .work {
+      margin-top: clamp(3.5rem, 11vh, 7rem);
+    }
+    .caption {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #a39c8f;
+      margin-bottom: 1.4rem;
+    }
+    .index {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #e2ddd1;
+    }
+    .index a {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 1.05rem 0;
+      border-bottom: 1px solid #e2ddd1;
+      text-decoration: none;
+      color: inherit;
+      transition: color 600ms ease, padding-left 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .index .name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      letter-spacing: -0.01em;
+      color: #1c1a17;
+    }
+    .index .role {
+      font-size: 0.82rem;
+      color: #8d877b;
+      text-align: right;
+      letter-spacing: 0.01em;
+    }
+    .index a:hover {
+      color: #b8543a;
+      padding-left: 0.5rem;
+    }
+    .index a:hover .name {
+      color: #b8543a;
+    }
+    .index a:focus-visible {
+      outline: 1px solid #b8543a;
+      outline-offset: 4px;
+    }
+
+    /* — Footer — */
+    .foot {
+      margin-top: clamp(3.5rem, 12vh, 8rem);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.85rem 1.6rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem 1.5rem;
+    }
+    .foot a {
+      color: #4a463f;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 400ms ease, color 400ms ease;
+    }
+    .foot a:hover,
+    .foot a:focus-visible {
+      color: #b8543a;
+      border-color: #b8543a;
+      outline: none;
+    }
+    .social {
+      margin-left: auto;
+    }
+    .domain {
+      width: 100%;
+      color: #b6afa1;
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
+      margin-top: 0.4rem;
+    }
+
+    @keyframes draw {
+      to {
+        transform: scaleX(1);
+      }
+    }
+    @keyframes wane {
+      0%,
+      100% {
+        transform: scaleX(0.35);
+      }
+      50% {
+        transform: scaleX(0.9);
+      }
+    }
+
+    @media (max-width: 460px) {
+      .index .role {
+        font-size: 0.78rem;
+      }
+      .social {
+        margin-left: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rule {
+        animation: none;
+        transform: scaleX(1);
+      }
+      .moon::after {
+        animation: none;
+        transform: scaleX(0.5);
+      }
+      .index a {
+        transition: color 200ms ease;
+      }
+    }
+  </style>
+</GalleryShell>

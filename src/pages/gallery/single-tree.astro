@@ -1,0 +1,310 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Single Tree">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <header class="wordmark">
+      <span class="name">Nima Gardideh</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span class="site">halfmoon.ws</span>
+    </header>
+
+    <section class="hero">
+      <figure class="tree" aria-hidden="true">
+        <svg viewBox="0 0 200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- trunk + branches: a single calm gesture, drawn slowly on load -->
+          <g class="growth" stroke="#2b2723" stroke-width="1.4"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path class="b b0" d="M100 320 C100 270 98 230 96 196" />
+            <path class="b b1" d="M96 196 C92 178 84 168 70 158 C58 150 50 142 44 130" />
+            <path class="b b2" d="M70 158 C64 152 58 150 50 150" />
+            <path class="b b3" d="M96 196 C100 176 110 166 126 156 C140 148 150 138 156 124" />
+            <path class="b b4" d="M126 156 C132 150 140 148 150 148" />
+            <path class="b b5" d="M97 206 C90 200 82 200 72 204" />
+            <path class="b b6" d="M97 206 C106 202 116 204 124 210" />
+            <path class="b b7" d="M96 196 C95 180 96 168 100 154 C103 142 104 130 102 118" />
+            <path class="b b8" d="M100 154 C94 148 90 140 88 130" />
+            <path class="b b9" d="M100 154 C106 148 112 142 114 132" />
+          </g>
+          <!-- a few leaves: arrive last, the quietest accent -->
+          <g class="leaves" fill="#6b7d63">
+            <circle class="lf l0" cx="44" cy="129" r="2.4" />
+            <circle class="lf l1" cx="50" cy="150" r="2.2" />
+            <circle class="lf l2" cx="156" cy="123" r="2.6" />
+            <circle class="lf l3" cx="150" cy="148" r="2.2" />
+            <circle class="lf l4" cx="102" cy="117" r="2.4" />
+            <circle class="lf l5" cx="88" cy="129" r="2.0" />
+            <circle class="lf l6" cx="114" cy="131" r="2.2" />
+          </g>
+        </svg>
+      </figure>
+
+      <div class="words">
+        <h1 class="lede">
+          a founder, artist, engineer, and musician based in Brooklyn.
+        </h1>
+        <p class="about">I write poetry, build companies, and dance.</p>
+      </div>
+    </section>
+
+    <section class="work" aria-label="Projects">
+      <ul class="list">
+        {
+          projects.map((p) => (
+            <li>
+              <a href={`/projects/${p.slug}`}>
+                <span class="title">{p.data.name}</span>
+                <span class="role">{p.data.role}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <nav class="links" aria-label="Sections">
+        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me noopener">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(html) {
+      background: #f7f5f0;
+    }
+    :global(body) {
+      margin: 0;
+      color: #2b2723;
+      background: #f7f5f0;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .page {
+      min-height: 100vh;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 6vw, 3rem) 3rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wordmark {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8a8278;
+    }
+    .wordmark .name {
+      color: #2b2723;
+    }
+    .wordmark .dot {
+      opacity: 0.5;
+    }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: clamp(3rem, 9vh, 6rem) 0 clamp(2.5rem, 7vh, 4.5rem);
+    }
+
+    .tree {
+      margin: 0 0 clamp(1.75rem, 4vh, 2.75rem);
+      width: clamp(150px, 28vw, 210px);
+    }
+    .tree svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* draw-on: each branch reveals slowly, gently eased */
+    .b {
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      animation: draw 2.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+    .b0 { animation-delay: 0.2s; }
+    .b1 { animation-delay: 1.0s; }
+    .b7 { animation-delay: 1.0s; }
+    .b3 { animation-delay: 1.0s; }
+    .b2 { animation-delay: 1.8s; }
+    .b4 { animation-delay: 1.8s; }
+    .b8 { animation-delay: 1.8s; }
+    .b9 { animation-delay: 1.8s; }
+    .b5 { animation-delay: 1.6s; }
+    .b6 { animation-delay: 1.6s; }
+
+    @keyframes draw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .lf {
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: scale(0.4);
+      animation: bloom 1.8s ease forwards;
+    }
+    .l0 { animation-delay: 3.0s; }
+    .l1 { animation-delay: 3.3s; }
+    .l2 { animation-delay: 3.2s; }
+    .l3 { animation-delay: 3.5s; }
+    .l4 { animation-delay: 3.6s; }
+    .l5 { animation-delay: 3.8s; }
+    .l6 { animation-delay: 3.9s; }
+
+    @keyframes bloom {
+      to { opacity: 0.85; transform: scale(1); }
+    }
+
+    .words {
+      max-width: 28ch;
+      opacity: 0;
+      animation: rise 2s ease 0.6s forwards;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lede {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(1.6rem, 4.6vw, 2.4rem);
+      line-height: 1.34;
+      letter-spacing: 0.01em;
+      margin: 0;
+      text-wrap: balance;
+    }
+    .about {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(1rem, 2.6vw, 1.18rem);
+      color: #7c756a;
+      margin: 1.1rem 0 0;
+    }
+
+    .work {
+      border-top: 1px solid #e3ded4;
+      padding-top: 2.25rem;
+    }
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .list li + li {
+      margin-top: 0.15rem;
+    }
+    .list a {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding: 0.7rem 0;
+      text-decoration: none;
+      color: inherit;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.5s ease, opacity 0.4s ease;
+    }
+    .list a:hover {
+      border-bottom-color: #cfc8bb;
+    }
+    .list .title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      line-height: 1.2;
+    }
+    .list .role {
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9286;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .foot {
+      margin-top: 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 1.75rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .foot a {
+      color: #7c756a;
+      text-decoration: none;
+      transition: color 0.4s ease;
+    }
+    .foot a:hover {
+      color: #2b2723;
+    }
+    .social {
+      color: #9a9286;
+    }
+
+    @media (max-width: 480px) {
+      .list .role {
+        font-size: 0.68rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .b {
+        stroke-dashoffset: 0;
+        animation: none;
+      }
+      .lf {
+        opacity: 0.85;
+        transform: none;
+        animation: none;
+      }
+      .words {
+        opacity: 1;
+        animation: none;
+        transform: none;
+      }
+    }
+  </style>
+</GalleryShell>

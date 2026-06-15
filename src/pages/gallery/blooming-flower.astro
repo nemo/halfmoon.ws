@@ -1,0 +1,318 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const all = await getCollection('projects');
+const order = ['pearmill', 'suto', 'venio', 'sound-hallucinations'];
+const projects = all
+  .sort((a, b) => order.indexOf(a.slug) - order.indexOf(b.slug))
+  .map((p) => ({ slug: p.slug, name: p.data.name, role: p.data.role }));
+---
+
+<GalleryShell title="Nima Gardideh" trend="Blooming Flower">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <header class="masthead">
+      <span class="wordmark">Nima Gardideh</span>
+      <span class="domain">halfmoon.ws</span>
+    </header>
+
+    <section class="stage">
+      <!-- The single motif: a line-drawn flower that blooms on load. -->
+      <figure class="flower" aria-hidden="true">
+        <svg viewBox="0 0 200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- stem: rises from the base up to the flower head -->
+          <path
+            class="draw stem"
+            d="M100 318 C100 250 98 190 100 120"
+            stroke="currentColor"
+            stroke-width="1.1"
+            stroke-linecap="round"
+          />
+          <!-- leaves -->
+          <path
+            class="draw leaf leaf-l"
+            d="M99 240 C70 232 52 242 46 262 C66 266 86 260 99 242"
+            stroke="currentColor"
+            stroke-width="1"
+            stroke-linecap="round"
+          />
+          <path
+            class="draw leaf leaf-r"
+            d="M101 215 C130 208 150 218 156 238 C135 242 115 236 101 217"
+            stroke="currentColor"
+            stroke-width="1"
+            stroke-linecap="round"
+          />
+          <!-- flower head: petals unfurling outward from the center (cx 100, cy 100) -->
+          <g class="bloom">
+            <g class="petal p1"><ellipse cx="100" cy="74" rx="11" ry="26" stroke="currentColor" stroke-width="1" /></g>
+            <g class="petal p2"><ellipse cx="100" cy="74" rx="11" ry="26" stroke="currentColor" stroke-width="1" /></g>
+            <g class="petal p3"><ellipse cx="100" cy="74" rx="11" ry="26" stroke="currentColor" stroke-width="1" /></g>
+            <g class="petal p4"><ellipse cx="100" cy="74" rx="11" ry="26" stroke="currentColor" stroke-width="1" /></g>
+            <g class="petal p5"><ellipse cx="100" cy="74" rx="11" ry="26" stroke="currentColor" stroke-width="1" /></g>
+            <circle class="core" cx="100" cy="100" r="5" stroke="currentColor" stroke-width="1" />
+          </g>
+        </svg>
+      </figure>
+
+      <div class="words">
+        <h1 class="lede">
+          a founder, artist, engineer,<br />
+          and musician based in Brooklyn.
+        </h1>
+        <p class="about">I write poetry, build companies, and dance.</p>
+      </div>
+    </section>
+
+    <section class="index" aria-label="Selected work">
+      <ul class="projects">
+        {projects.map((p) => (
+          <li>
+            <a href={`/projects/${p.slug}`}>
+              <span class="p-name">{p.name}</span>
+              <span class="p-role">{p.role}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <nav class="links" aria-label="Site">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+  </main>
+</GalleryShell>
+
+<style>
+  :root {
+    --paper: #faf8f3;
+    --ink: #2a2724;
+    --soft: #8c857b;
+    --line: #ddd6c9;
+  }
+
+  * { box-sizing: border-box; }
+
+  :global(html) { background: var(--paper); }
+
+  :global(body) {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    min-height: 100vh;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4.5rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* masthead */
+  .masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+  .wordmark { color: var(--ink); font-weight: 500; }
+
+  /* stage: motif + words */
+  .stage {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(180px, 0.7fr) 1fr;
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 6rem);
+    padding: clamp(3rem, 9vw, 7rem) 0;
+  }
+
+  .flower {
+    margin: 0;
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+  }
+  .flower svg {
+    width: clamp(150px, 22vw, 240px);
+    height: auto;
+    overflow: visible;
+  }
+
+  .words { max-width: 30ch; }
+
+  .lede {
+    margin: 0;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+    line-height: 1.18;
+    letter-spacing: 0.005em;
+  }
+  .about {
+    margin: 1.4rem 0 0;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+    color: var(--soft);
+  }
+
+  /* quiet project index */
+  .index { margin-top: auto; padding-top: 2.5rem; }
+  .projects {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+    max-width: 30rem;
+  }
+  .projects li { border-bottom: 1px solid var(--line); }
+  .projects a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding: 0.85rem 0;
+    text-decoration: none;
+    color: var(--ink);
+    transition: opacity 0.5s ease, padding-left 0.5s ease;
+  }
+  .projects a:hover { opacity: 0.55; padding-left: 0.4rem; }
+  .p-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.35rem;
+  }
+  .p-role {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--soft);
+    text-align: right;
+  }
+
+  /* footer */
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    font-size: 0.78rem;
+  }
+  .links { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  .foot a {
+    color: var(--soft);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.4s ease;
+  }
+  .foot a:hover { color: var(--ink); }
+  .social { font-variant-numeric: tabular-nums; }
+
+  /* ── the bloom: draw-on + petal unfurl ─────────────────────── */
+  .draw {
+    stroke-dasharray: var(--len, 400);
+    stroke-dashoffset: var(--len, 400);
+    animation: draw 2.4s ease forwards;
+  }
+  .stem   { --len: 210; animation-delay: 0.3s; animation-duration: 2.8s; }
+  .leaf-l { --len: 110; animation-delay: 1.8s; }
+  .leaf-r { --len: 110; animation-delay: 2.1s; }
+
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* Each petal sits in a <g> rotated + scaled about the flower centre (100,100).
+     transform-box: view-box keeps transform-origin in SVG user units, so the
+     rotation and the unfurl scale compose cleanly. */
+  .petal {
+    transform-box: view-box;
+    transform-origin: 100px 100px;
+    opacity: 0;
+    animation-duration: 2.6s;
+    animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+    animation-fill-mode: forwards;
+  }
+  .p1 { animation-name: unfurl1; animation-delay: 2.8s; }
+  .p2 { animation-name: unfurl2; animation-delay: 3.0s; }
+  .p3 { animation-name: unfurl3; animation-delay: 3.2s; }
+  .p4 { animation-name: unfurl4; animation-delay: 3.4s; }
+  .p5 { animation-name: unfurl5; animation-delay: 3.6s; }
+  .core {
+    transform-box: view-box;
+    transform-origin: 100px 100px;
+    opacity: 0;
+    transform: scale(0);
+    animation: core 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    animation-delay: 4s;
+  }
+
+  @keyframes unfurl1 { 0% { opacity: 0; transform: rotate(0deg)   scale(0.04); } 55% { opacity: 1; } 100% { opacity: 1; transform: rotate(0deg)   scale(1); } }
+  @keyframes unfurl2 { 0% { opacity: 0; transform: rotate(72deg)  scale(0.04); } 55% { opacity: 1; } 100% { opacity: 1; transform: rotate(72deg)  scale(1); } }
+  @keyframes unfurl3 { 0% { opacity: 0; transform: rotate(144deg) scale(0.04); } 55% { opacity: 1; } 100% { opacity: 1; transform: rotate(144deg) scale(1); } }
+  @keyframes unfurl4 { 0% { opacity: 0; transform: rotate(216deg) scale(0.04); } 55% { opacity: 1; } 100% { opacity: 1; transform: rotate(216deg) scale(1); } }
+  @keyframes unfurl5 { 0% { opacity: 0; transform: rotate(288deg) scale(0.04); } 55% { opacity: 1; } 100% { opacity: 1; transform: rotate(288deg) scale(1); } }
+  @keyframes core { to { opacity: 1; transform: scale(1); } }
+
+  /* gentle entrance for the words, in cadence with the bloom */
+  .words { opacity: 0; animation: rise 2.2s ease forwards; animation-delay: 0.6s; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── responsive ────────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    .stage {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 2.5rem;
+      padding: 2.5rem 0 3.5rem;
+    }
+    .words { max-width: none; margin: 0 auto; }
+    .flower svg { width: 150px; }
+    .projects { margin: 0 auto; }
+    .foot { flex-direction: column; gap: 1.25rem; }
+  }
+
+  /* ── reduced motion: composed, fully bloomed, still ────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .draw {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+    .petal { opacity: 1; animation: none; }
+    .p1 { transform: rotate(0deg); }
+    .p2 { transform: rotate(72deg); }
+    .p3 { transform: rotate(144deg); }
+    .p4 { transform: rotate(216deg); }
+    .p5 { transform: rotate(288deg); }
+    .core { opacity: 1; transform: scale(1); animation: none; }
+    .words { opacity: 1; transform: none; animation: none; }
+    .projects a { transition: none; }
+  }
+</style>

@@ -1,0 +1,336 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Half Moon">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="sky">
+    <!-- a whisper of starlight -->
+    <div class="stars" aria-hidden="true">
+      <span style="--x: 12%; --y: 18%; --d: 0s; --o: .5"></span>
+      <span style="--x: 24%; --y: 64%; --d: 3s; --o: .35"></span>
+      <span style="--x: 38%; --y: 30%; --d: 6s; --o: .6"></span>
+      <span style="--x: 71%; --y: 22%; --d: 1.5s; --o: .4"></span>
+      <span style="--x: 83%; --y: 58%; --d: 4.5s; --o: .55"></span>
+      <span style="--x: 90%; --y: 38%; --d: 7s; --o: .3"></span>
+      <span style="--x: 58%; --y: 78%; --d: 2.2s; --o: .45"></span>
+      <span style="--x: 16%; --y: 84%; --d: 5.5s; --o: .3"></span>
+    </div>
+
+    <!-- the motif: a minimal moon, slowly drifting toward half -->
+    <figure class="moon" aria-hidden="true">
+      <svg viewBox="0 0 200 200" role="presentation">
+        <defs>
+          <radialGradient id="disc" cx="42%" cy="40%" r="72%">
+            <stop offset="0%" stop-color="#f4f1e8" />
+            <stop offset="100%" stop-color="#dcd7c6" />
+          </radialGradient>
+          <clipPath id="circle">
+            <circle cx="100" cy="100" r="84" />
+          </clipPath>
+        </defs>
+        <circle cx="100" cy="100" r="84" fill="url(#disc)" />
+        <!-- the terminator: a soft shadow that shifts phase -->
+        <g clip-path="url(#circle)">
+          <ellipse class="terminator" cx="100" cy="100" rx="84" ry="84" />
+        </g>
+        <circle
+          cx="100"
+          cy="100"
+          r="84"
+          fill="none"
+          stroke="#f4f1e8"
+          stroke-opacity="0.08"
+          stroke-width="1"
+        />
+      </svg>
+    </figure>
+
+    <header class="masthead">
+      <p class="domain">halfmoon.ws</p>
+    </header>
+
+    <section class="intro">
+      <h1>Nima Gardideh</h1>
+      <p class="lede">
+        a founder, artist, engineer, and musician based in Brooklyn.
+      </p>
+      <p class="about">I write poetry, build companies, and dance.</p>
+    </section>
+
+    <section class="works" aria-label="Selected work">
+      <ul>
+        {
+          projects.map((p) => (
+            <li>
+              <a href={`/projects/${p.slug}`}>
+                <span class="name">{p.data.name}</span>
+                <span class="role">{p.data.role}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <nav aria-label="Site">
+        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      </nav>
+      <a class="social" href="https://x.com/ngardideh" rel="me">@ngardideh</a>
+    </footer>
+  </main>
+
+  <style>
+    :global(html) {
+      -webkit-text-size-adjust: 100%;
+    }
+    :global(body) {
+      margin: 0;
+      background: #0d1119;
+      color: #e7e3d6;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .sky {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow: hidden;
+      /* deep calm navy, lighter near the moon */
+      background:
+        radial-gradient(
+          120% 90% at 72% 24%,
+          #1b2230 0%,
+          #131927 38%,
+          #0d1119 78%
+        );
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      box-sizing: border-box;
+      padding: clamp(1.75rem, 4vw, 3.5rem);
+      gap: clamp(2.5rem, 6vh, 5rem);
+    }
+
+    /* Starlight */
+    .stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .stars span {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: #f4f1e8;
+      opacity: var(--o);
+      animation: twinkle 9s ease-in-out var(--d) infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: calc(var(--o) * 0.4); }
+      50% { opacity: var(--o); }
+    }
+
+    /* The moon */
+    .moon {
+      position: absolute;
+      top: clamp(-2rem, 2vw, 2rem);
+      right: clamp(-7rem, -4vw, -2rem);
+      width: clamp(380px, 46vw, 720px);
+      margin: 0;
+      filter: drop-shadow(0 0 90px rgba(244, 241, 232, 0.06));
+      pointer-events: none;
+      z-index: 0;
+    }
+    .moon svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    /* the shadow body sits to the right; its horizontal radius
+       slowly shrinks and grows, sliding the terminator toward half */
+    .terminator {
+      fill: #0d1119;
+      transform-box: fill-box;
+      transform-origin: 0% 50%;
+      animation: phase 64s ease-in-out infinite alternate;
+    }
+    @keyframes phase {
+      /* near gibbous: shadow thin, hugging the right edge */
+      0% { transform: translateX(67%) scaleX(0.6); }
+      /* toward half: shadow broad, terminator near centre */
+      100% { transform: translateX(2%) scaleX(1.02); }
+    }
+
+    /* Type */
+    .masthead { position: relative; z-index: 1; }
+    .domain {
+      margin: 0;
+      font-size: 0.72rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #8a8f9c;
+      font-weight: 400;
+    }
+
+    .intro {
+      position: relative;
+      z-index: 1;
+      align-self: center;
+      max-width: 30ch;
+    }
+    .intro h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 300;
+      font-optical-sizing: auto;
+      font-size: clamp(2.6rem, 7vw, 5.25rem);
+      line-height: 1.02;
+      letter-spacing: -0.015em;
+      margin: 0 0 1.1rem;
+      color: #f4f1e8;
+    }
+    .lede {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+      line-height: 1.55;
+      color: #cfcbbd;
+      margin: 0 0 0.85rem;
+      max-width: 26ch;
+    }
+    .about {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #9aa0ac;
+      margin: 0;
+      letter-spacing: 0.005em;
+    }
+
+    /* Quiet work index */
+    .works {
+      position: relative;
+      z-index: 1;
+      align-self: end;
+    }
+    .works ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-width: 24rem;
+    }
+    .works li + li {
+      border-top: 1px solid rgba(231, 227, 214, 0.08);
+    }
+    .works a {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1.5rem;
+      padding: 0.85rem 0;
+      text-decoration: none;
+      color: inherit;
+      transition: opacity 0.5s ease;
+    }
+    .works .name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.1rem;
+      color: #e7e3d6;
+      letter-spacing: 0.005em;
+    }
+    .works .role {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7d8290;
+      text-align: right;
+      white-space: nowrap;
+    }
+    @media (hover: hover) {
+      .works ul:hover a { opacity: 0.4; }
+      .works ul:hover a:hover { opacity: 1; }
+    }
+
+    /* Footer */
+    .foot {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(231, 227, 214, 0.07);
+    }
+    .foot nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .foot a {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8a8f9c;
+      text-decoration: none;
+      transition: color 0.4s ease;
+    }
+    .foot a:hover { color: #f4f1e8; }
+    .foot .social {
+      font-feature-settings: 'tnum';
+      letter-spacing: 0.06em;
+      text-transform: none;
+    }
+
+    /* 390 — keep it serene; let the moon rest high, clear of the type */
+    @media (max-width: 640px) {
+      .sky { gap: clamp(2.25rem, 6vh, 3.25rem); }
+      .moon {
+        width: 62vw;
+        top: -14vw;
+        right: -20vw;
+        opacity: 0.5;
+        filter: drop-shadow(0 0 60px rgba(244, 241, 232, 0.05));
+      }
+      .intro { align-self: start; margin-top: 6vh; }
+      .works { align-self: start; }
+      .foot { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* A still, composed fallback */
+    @media (prefers-reduced-motion: reduce) {
+      .terminator {
+        animation: none;
+        transform: translateX(34%) scaleX(0.82);
+      }
+      .stars span { animation: none; }
+    }
+  </style>
+</GalleryShell>
