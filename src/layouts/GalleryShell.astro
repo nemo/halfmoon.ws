@@ -1,0 +1,35 @@
+---
+/**
+ * GalleryShell — a minimal, standalone HTML document for /gallery concept
+ * variants. Deliberately does NOT import the site's global tokens/box theme,
+ * so each concept expresses its own aesthetic on a clean slate.
+ *
+ * Usage:
+ *   <GalleryShell title="Brutalist" trend="Neo-brutalism">
+ *     <Fragment slot="head">
+ *       <link rel="preconnect" href="https://fonts.googleapis.com" />
+ *       <link href="https://fonts.googleapis.com/css2?family=...&display=swap" rel="stylesheet" />
+ *     </Fragment>
+ *     ...page markup + a scoped <style> ...
+ *   </GalleryShell>
+ */
+export interface Props {
+  title?: string;
+  trend?: string;
+}
+const { title = 'Halfmoon — concept', trend } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{title}{trend ? ` · ${trend}` : ''}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

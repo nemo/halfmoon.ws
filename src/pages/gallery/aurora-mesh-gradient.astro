@@ -1,0 +1,712 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+
+// Pearmill carries no heroImage in frontmatter — supply the known asset.
+const imageFor = (p: (typeof projects)[number]) =>
+  p.data.heroImage ?? (p.slug === 'pearmill' ? '/media/pearmill/pearmill.png' : null);
+---
+
+<GalleryShell title="Nima Gardideh" trend="Aurora / Mesh Gradients">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <!-- Ambient aurora field: drifting, morphing mesh blobs over a near-black canvas. -->
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+    <span class="blob b4"></span>
+    <span class="blob b5"></span>
+  </div>
+  <!-- Film-grain overlay to give tactility and kill banding. -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a class="wordmark" href="/">
+      <span class="dot" aria-hidden="true"></span>
+      NIMA GARDIDEH
+    </a>
+    <nav class="links" aria-label="Primary">
+      {nav.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+    <a class="social" href="https://x.com/ngardideh" rel="me noopener" target="_blank">@ngardideh</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Brooklyn, NY</p>
+      <h1>
+        a founder, artist, engineer,
+        <span class="amp">&amp;</span> musician based in Brooklyn.
+      </h1>
+      <div class="hero-cta">
+        <a class="btn primary" href="/projects">See the work</a>
+        <a class="btn ghost" href="/about">Find me <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <section class="about" aria-labelledby="about-h">
+      <h2 id="about-h" class="sr-eyebrow">About</h2>
+      <p>
+        I spend most of my time at <span class="hl">Pearmill</span>, where we help companies
+        grow through art and technology — the only place I've felt like an artist, entrepreneur,
+        and engineer at once. Beyond that I write poetry, blog, and dance.
+      </p>
+    </section>
+
+    <section class="work" aria-labelledby="work-h">
+      <div class="work-head">
+        <h2 id="work-h">Selected work</h2>
+        <span class="count">{projects.length} projects</span>
+      </div>
+      <ul class="grid">
+        {
+          projects.map((p) => {
+            const img = imageFor(p);
+            const fit = p.data.imageFit ?? 'cover';
+            return (
+              <li class="card" style={`--brand:${p.data.brandColor}`}>
+                <a
+                  class="card-link"
+                  href={p.data.link ?? `/projects/${p.slug}`}
+                  target={p.data.link ? '_blank' : undefined}
+                  rel={p.data.link ? 'noopener' : undefined}
+                >
+                  <div class={`thumb fit-${fit}`}>
+                    <span class="glow" aria-hidden="true"></span>
+                    {img ? (
+                      <img src={img} alt={`${p.data.name} preview`} loading="lazy" />
+                    ) : (
+                      <span class="thumb-fallback" aria-hidden="true">
+                        {p.data.name}
+                      </span>
+                    )}
+                  </div>
+                  <div class="card-body">
+                    <div class="card-top">
+                      <h3>{p.data.name}</h3>
+                      <span class="period">{p.data.period}</span>
+                    </div>
+                    <p class="role">{p.data.role}</p>
+                    <p class="summary">{p.data.summary}</p>
+                    <span class="more">
+                      {p.data.link ? 'Visit' : 'Read more'} <span aria-hidden="true">→</span>
+                    </span>
+                  </div>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="f-mark">NIMA GARDIDEH</span>
+    <span class="f-mid">art &amp; technology, from Brooklyn</span>
+    <a class="f-social" href="https://x.com/ngardideh" rel="me noopener" target="_blank">@ngardideh</a>
+  </footer>
+
+  <style>
+    /* ---------- Tokens (scoped, no global import) ---------- */
+    :global(:root) {
+      --bg: #0b0b12;
+      --ink: #f4f3fb;
+      --muted: #a7a4c2;
+      --violet: #8b5cf6;
+      --indigo: #6366f1;
+      --teal: #2dd4bf;
+      --pink: #f472b6;
+      --peach: #fca78d;
+      --line: rgba(255, 255, 255, 0.1);
+      --shell: clamp(20px, 5vw, 84px);
+    }
+
+    :global(html) {
+      scroll-behavior: smooth;
+    }
+
+    :global(body) {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    :global(*),
+    :global(*::before),
+    :global(*::after) {
+      box-sizing: border-box;
+    }
+
+    :global(::selection) {
+      background: rgba(139, 92, 246, 0.45);
+      color: #fff;
+    }
+
+    /* ---------- Aurora field ---------- */
+    .aurora {
+      position: fixed;
+      inset: -20vmax;
+      z-index: -2;
+      filter: blur(70px) saturate(135%);
+      pointer-events: none;
+    }
+    .blob {
+      position: absolute;
+      width: 62vmax;
+      height: 62vmax;
+      border-radius: 50%;
+      opacity: 0.9;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .b1 {
+      top: -10%;
+      left: -6%;
+      background: radial-gradient(circle at 30% 30%, var(--violet), transparent 62%);
+      animation: drift1 26s ease-in-out infinite alternate;
+    }
+    .b2 {
+      top: -4%;
+      right: -10%;
+      background: radial-gradient(circle at 50% 50%, var(--indigo), transparent 60%);
+      animation: drift2 31s ease-in-out infinite alternate;
+    }
+    .b3 {
+      top: 22%;
+      left: 2%;
+      background: radial-gradient(circle at 50% 50%, var(--teal), transparent 58%);
+      animation: drift3 35s ease-in-out infinite alternate;
+    }
+    .b4 {
+      top: 2%;
+      right: 18%;
+      background: radial-gradient(circle at 50% 50%, var(--pink), transparent 60%);
+      animation: drift4 29s ease-in-out infinite alternate;
+    }
+    .b5 {
+      top: 18%;
+      left: 18%;
+      width: 50vmax;
+      height: 50vmax;
+      background: radial-gradient(circle at 50% 50%, var(--peach), transparent 64%);
+      animation: drift5 38s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift1 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(14vmax, 10vmax, 0) scale(1.18); }
+    }
+    @keyframes drift2 {
+      0% { transform: translate3d(0, 0, 0) scale(1.1); }
+      100% { transform: translate3d(-12vmax, 16vmax, 0) scale(0.92); }
+    }
+    @keyframes drift3 {
+      0% { transform: translate3d(0, 0, 0) scale(0.95); }
+      100% { transform: translate3d(10vmax, -12vmax, 0) scale(1.2); }
+    }
+    @keyframes drift4 {
+      0% { transform: translate3d(0, 0, 0) scale(1.05); }
+      100% { transform: translate3d(-14vmax, -8vmax, 0) scale(0.9); }
+    }
+    @keyframes drift5 {
+      0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.55; }
+      100% { transform: translate3d(8vmax, -14vmax, 0) scale(1.25); opacity: 0.8; }
+    }
+
+    /* Film grain — inline SVG fractal noise, no external request. */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.5;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    }
+
+    /* Soft vignette so type stays legible over the glow. */
+    :global(body)::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(120% 95% at 50% 22%, transparent 38%, rgba(11, 11, 18, 0.5) 100%);
+    }
+
+    /* ---------- Nav ---------- */
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 28px var(--shell) 0;
+      animation: fade-down 0.9s 0.05s both cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .wordmark .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--violet), var(--teal), var(--pink), var(--peach), var(--violet));
+      box-shadow: 0 0 14px rgba(139, 92, 246, 0.8);
+      animation: spin 9s linear infinite;
+    }
+    .links {
+      display: flex;
+      gap: 28px;
+      margin-left: auto;
+      font-size: 14px;
+    }
+    .links a {
+      color: var(--muted);
+      text-decoration: none;
+      position: relative;
+      transition: color 0.25s ease;
+    }
+    .links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      height: 1px;
+      width: 0;
+      background: linear-gradient(90deg, var(--violet), var(--teal));
+      transition: width 0.28s ease;
+    }
+    .links a:hover {
+      color: var(--ink);
+    }
+    .links a:hover::after {
+      width: 100%;
+    }
+    .social {
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 7px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      transition: border-color 0.25s ease, background 0.25s ease;
+      white-space: nowrap;
+    }
+    .social:hover {
+      border-color: transparent;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* ---------- Hero ---------- */
+    main {
+      padding: 0 var(--shell);
+    }
+    .hero {
+      min-height: min(78vh, 720px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: clamp(40px, 9vh, 120px) 0 clamp(40px, 7vh, 90px);
+    }
+    .eyebrow {
+      margin: 0 0 22px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--teal);
+      animation: fade-up 0.9s 0.15s both cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    h1 {
+      margin: 0;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: clamp(2.6rem, 7.2vw, 6rem);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+      max-width: 16ch;
+      animation: fade-up 1s 0.25s both cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    h1 .amp {
+      font-weight: 300;
+      font-style: italic;
+      background: linear-gradient(100deg, var(--pink), var(--peach), var(--violet));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: clamp(28px, 5vh, 48px);
+      animation: fade-up 1s 0.4s both cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.01em;
+      text-decoration: none;
+      padding: 13px 24px;
+      border-radius: 999px;
+      transition: transform 0.25s ease, box-shadow 0.3s ease, background 0.3s ease;
+    }
+    .btn.primary {
+      color: #0b0b12;
+      background: linear-gradient(105deg, var(--peach), var(--pink) 42%, var(--violet));
+      box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.7);
+    }
+    .btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 52px -10px rgba(244, 114, 182, 0.8);
+    }
+    .btn.ghost {
+      color: var(--ink);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .btn.ghost:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    /* ---------- About ---------- */
+    .about {
+      max-width: 760px;
+      margin: clamp(20px, 6vh, 70px) auto clamp(60px, 12vh, 140px);
+      padding-left: 22px;
+      border-left: 1px solid var(--line);
+    }
+    .sr-eyebrow {
+      margin: 0 0 18px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .about p {
+      margin: 0;
+      font-size: clamp(1.15rem, 2.1vw, 1.6rem);
+      line-height: 1.55;
+      font-weight: 300;
+      color: #eceaf6;
+      text-shadow: 0 1px 24px rgba(11, 11, 18, 0.6);
+    }
+    .about .hl {
+      color: var(--ink);
+      font-weight: 500;
+      background: linear-gradient(transparent 62%, rgba(244, 114, 182, 0.3) 0);
+    }
+
+    /* ---------- Work ---------- */
+    .work {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding-bottom: clamp(60px, 12vh, 140px);
+    }
+    .work-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 34px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .work-head h2 {
+      margin: 0;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      font-size: clamp(1.4rem, 3vw, 2.1rem);
+      letter-spacing: -0.02em;
+    }
+    .work-head .count {
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .grid {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(18px, 2.5vw, 30px);
+    }
+    .card {
+      animation: fade-up 0.9s both cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.13s; }
+    .card:nth-child(3) { animation-delay: 0.21s; }
+    .card:nth-child(4) { animation-delay: 0.29s; }
+
+    .card-link {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.025);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), border-color 0.4s ease,
+        box-shadow 0.5s ease;
+    }
+    .card-link:hover {
+      transform: translateY(-6px);
+      border-color: color-mix(in srgb, var(--brand) 60%, transparent);
+      box-shadow: 0 30px 70px -28px color-mix(in srgb, var(--brand) 75%, transparent);
+    }
+    .card-link:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 3px;
+    }
+
+    .thumb {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--brand) 28%, #0b0b12), #0b0b12 75%);
+      display: grid;
+      place-items: center;
+    }
+    .thumb .glow {
+      position: absolute;
+      inset: -30%;
+      background: radial-gradient(circle at 50% 50%, var(--brand), transparent 60%);
+      opacity: 0.45;
+      filter: blur(36px);
+      transform: scale(0.9);
+      transition: opacity 0.5s ease, transform 0.6s ease;
+    }
+    .card-link:hover .thumb .glow {
+      opacity: 0.8;
+      transform: scale(1.15);
+    }
+    .thumb img {
+      position: relative;
+      z-index: 1;
+      max-width: 82%;
+      max-height: 82%;
+      object-fit: contain;
+      transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .thumb.fit-cover img {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      object-fit: cover;
+    }
+    .card-link:hover .thumb img {
+      transform: scale(1.045);
+    }
+    .thumb-fallback {
+      position: relative;
+      z-index: 1;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: #fff;
+    }
+
+    .card-body {
+      padding: 22px 24px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      flex: 1;
+    }
+    .card-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-body h3 {
+      margin: 0;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+    }
+    .period {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .role {
+      margin: 0;
+      font-family: 'Manrope', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--brand) 72%, #ffffff);
+    }
+    .summary {
+      margin: 0;
+      font-size: 14.5px;
+      line-height: 1.55;
+      font-weight: 300;
+      color: var(--muted);
+    }
+    .more {
+      margin-top: auto;
+      padding-top: 8px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .more span {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    .card-link:hover .more span {
+      transform: translateX(5px);
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 30px var(--shell) 48px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .f-mark {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--ink);
+    }
+    .f-mid {
+      margin: 0 auto;
+    }
+    .f-social {
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.25s ease;
+    }
+    .f-social:hover {
+      border-color: var(--pink);
+    }
+
+    /* ---------- Keyframes ---------- */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(22px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-down {
+      from { opacity: 0; transform: translateY(-14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 880px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 680px) {
+      .nav {
+        flex-wrap: wrap;
+        gap: 14px 18px;
+      }
+      .links {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .social {
+        margin-left: auto;
+      }
+      h1 {
+        font-size: clamp(2.3rem, 11vw, 3.4rem);
+      }
+      .f-mid {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .blob,
+      .wordmark .dot {
+        animation: none !important;
+      }
+      .card,
+      .nav,
+      .hero,
+      .eyebrow,
+      h1,
+      .hero-cta {
+        animation: none !important;
+      }
+      :global(html) {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</GalleryShell>

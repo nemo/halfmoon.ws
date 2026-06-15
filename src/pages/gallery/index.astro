@@ -1,0 +1,191 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import data from '../../data/gallery-trends.json';
+
+const trends = data.trends ?? [];
+---
+
+<GalleryShell title="Halfmoon — 10 concepts">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="wrap">
+    <header class="masthead">
+      <p class="eyebrow">halfmoon.ws · concept gallery</p>
+      <h1>Ten directions for the site.</h1>
+      <p class="lede">
+        Each concept reinterprets the homepage in a distinct design trend from
+        the last five years, using the real content. Open any one full-screen,
+        then tell me which to build out across the whole site.
+      </p>
+      <p class="back"><a href="/">← back to the current site</a></p>
+    </header>
+
+    <ul class="grid">
+      {
+        trends.map((t, i) => (
+          <li class="card">
+            <a class="card__link" href={`/gallery/${t.slug}`}>
+              <span class="card__shot">
+                <img
+                  src={`/gallery-thumbs/${t.slug}.png`}
+                  alt={`${t.name} concept preview`}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+              <span class="card__meta">
+                <span class="card__no">{String(i + 1).padStart(2, '0')}</span>
+                <span class="card__name">{t.name}</span>
+                <span class="card__era">{t.era}</span>
+                <span class="card__summary">{t.summary}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+
+  <style>
+    :global(html) {
+      background: #0d0d0f;
+    }
+    :global(body) {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #e9e9ec;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: clamp(32px, 6vw, 80px) clamp(20px, 4vw, 48px) 96px;
+    }
+
+    .masthead {
+      max-width: 720px;
+      margin-bottom: clamp(32px, 5vw, 56px);
+    }
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8a8a93;
+      margin: 0 0 16px;
+    }
+    .masthead h1 {
+      font-size: clamp(28px, 4.5vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 14px;
+      color: #fff;
+    }
+    .lede {
+      font-size: 16px;
+      line-height: 1.55;
+      color: #b6b6bd;
+      margin: 0 0 16px;
+    }
+    .back a {
+      color: #9a9aa3;
+      font-size: 14px;
+      text-decoration: none;
+      border-bottom: 1px solid #3a3a40;
+      padding-bottom: 1px;
+    }
+    .back a:hover {
+      color: #fff;
+    }
+
+    .grid {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 22px;
+    }
+
+    .card__link {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      background: #161618;
+      border: 1px solid #232327;
+      border-radius: 14px;
+      overflow: hidden;
+      height: 100%;
+      transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+    .card__link:hover {
+      transform: translateY(-4px);
+      border-color: #3a3a42;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .card__shot {
+      display: block;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: #0d0d0f;
+      border-bottom: 1px solid #232327;
+    }
+    .card__shot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .card__meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 18px 20px 22px;
+    }
+    .card__no {
+      font-size: 12px;
+      color: #6f6f78;
+      letter-spacing: 0.1em;
+    }
+    .card__name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .card__era {
+      font-size: 12px;
+      color: #8a8a93;
+      letter-spacing: 0.04em;
+    }
+    .card__summary {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #a7a7af;
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card__link {
+        transition: none;
+      }
+    }
+  </style>
+</GalleryShell>

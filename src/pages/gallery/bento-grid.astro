@@ -1,0 +1,685 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const PEARMILL_IMG = '/media/pearmill/pearmill.png';
+
+const nav = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+
+// Resolve hero image per project (Pearmill has none in frontmatter).
+const withImages = projects.map((p) => ({
+  slug: p.slug,
+  name: p.data.name,
+  role: p.data.role,
+  period: p.data.period,
+  summary: p.data.summary,
+  brandColor: p.data.brandColor,
+  link: p.data.link,
+  image: p.data.heroImage ?? (p.slug === 'pearmill' ? PEARMILL_IMG : undefined),
+  fit: p.data.imageFit ?? 'cover',
+}));
+
+const hero = withImages.find((p) => p.slug === 'pearmill')!;
+const rest = withImages.filter((p) => p.slug !== 'pearmill');
+---
+
+<GalleryShell title="Nima Gardideh" trend="Bento Grid">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="page">
+    <div class="shell">
+      <!-- Top bar -->
+      <header class="bar">
+        <a class="wordmark" href="#">
+          <span class="dot" aria-hidden="true"></span>
+          NIMA&nbsp;GARDIDEH
+        </a>
+        <nav class="nav">
+          {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+        </nav>
+        <a class="social" href="https://x.com/ngardideh" target="_blank" rel="noopener">
+          @ngardideh
+        </a>
+      </header>
+
+      <!-- Bento grid -->
+      <section class="grid" aria-label="Overview">
+        <!-- HERO TILE -->
+        <article class="tile tile--hero" style={`--brand:${hero.brandColor}`}>
+          <span class="mono tag">/ intro</span>
+          <h1 class="hero-h">
+            a founder, artist, engineer, and musician based in
+            <span class="hl"> Brooklyn.</span>
+          </h1>
+          <p class="hero-sub">
+            I build companies, ship software, write poetry, and perform sound.
+            A constellation of work below.
+          </p>
+          <div class="hero-foot">
+            <a class="cta" href="/projects">
+              See the work
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 11L11 3M11 3H5M11 3v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <span class="mono since">est. brooklyn · ny</span>
+          </div>
+          <div class="hero-orb" aria-hidden="true"></div>
+        </article>
+
+        <!-- ABOUT TILE -->
+        <article class="tile tile--about">
+          <span class="mono tag">/ about</span>
+          <p class="about-copy">
+            I spend most of my time at <strong>Pearmill</strong>, where we help
+            companies grow through art and technology — the only place I've felt
+            like an artist, entrepreneur, and engineer at once. Beyond that I
+            write poetry, blog, and dance.
+          </p>
+        </article>
+
+        <!-- STAT TILES -->
+        <article class="tile tile--stat">
+          <span class="mono tag">/ since</span>
+          <div class="stat-top">
+            <div class="stat-num">2019</div>
+            <div class="stat-label">building Pearmill</div>
+          </div>
+          <span class="stat-bars" aria-hidden="true">
+            <i style="--h:38%"></i><i style="--h:55%"></i><i style="--h:46%"></i>
+            <i style="--h:72%"></i><i style="--h:64%"></i><i style="--h:90%"></i>
+            <i style="--h:100%"></i>
+          </span>
+        </article>
+
+        <article class="tile tile--stat">
+          <span class="mono tag">/ status</span>
+          <div class="stat-top">
+            <div class="stat-num">4</div>
+            <div class="stat-label">ventures shipped</div>
+          </div>
+          <span class="stat-live" aria-hidden="true">
+            <span class="live-dot"></span>shipping now
+          </span>
+        </article>
+
+        <!-- PROJECT TILES -->
+        {rest.map((p, i) => (
+          <a
+            class={`tile tile--proj proj-${p.slug}`}
+            href={p.link}
+            target="_blank"
+            rel="noopener"
+            style={`--brand:${p.brandColor}; --i:${i}`}
+          >
+            <div class="proj-media" data-fit={p.fit}>
+              {p.image ? (
+                <img src={p.image} alt={`${p.name}`} loading="lazy" />
+              ) : (
+                <span class="proj-block" />
+              )}
+              <span class="proj-swatch" aria-hidden="true"></span>
+            </div>
+            <div class="proj-body">
+              <div class="proj-head">
+                <h3 class="proj-name">{p.name}</h3>
+                <span class="mono proj-period">{p.period}</span>
+              </div>
+              <span class="mono proj-role">{p.role}</span>
+              <p class="proj-sum">{p.summary}</p>
+            </div>
+            <span class="proj-arrow" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+                <path d="M3 11L11 3M11 3H5M11 3v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
+        ))}
+
+        <!-- CONTACT / SOCIAL TILE -->
+        <a class="tile tile--social" href="https://x.com/ngardideh" target="_blank" rel="noopener">
+          <span class="mono tag">/ say hi</span>
+          <div class="social-handle">@ngardideh</div>
+          <div class="social-foot">
+            <span>Find me on X</span>
+            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M3 11L11 3M11 3H5M11 3v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </a>
+      </section>
+
+      <footer class="foot">
+        <span class="mono">© {new Date().getFullYear()} Nima Gardideh</span>
+        <span class="mono dim">Brooklyn, NY · 40.6782° N, 73.9442° W</span>
+        <a class="mono" href="https://x.com/ngardideh" target="_blank" rel="noopener">@ngardideh ↗</a>
+      </footer>
+    </div>
+  </main>
+</GalleryShell>
+
+<style>
+  /* ---- reset / base ---- */
+  :global(*) { box-sizing: border-box; }
+  :global(html) { scroll-behavior: smooth; }
+  :global(body) {
+    margin: 0;
+    background: #0a0a0a;
+    color: #ededed;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .page {
+    --bg: #0a0a0a;
+    --panel: #131316;
+    --panel-2: #18181c;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.14);
+    --txt: #ededed;
+    --muted: #9a9aa3;
+    --faint: #6a6a72;
+    --accent: #6366f1;
+    --radius: 22px;
+    --gap: 18px;
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 34px);
+    background:
+      radial-gradient(900px 600px at 80% -10%, rgba(99, 102, 241, 0.12), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(242, 102, 139, 0.08), transparent 55%),
+      var(--bg);
+  }
+
+  .shell {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  /* ---- top bar ---- */
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: clamp(20px, 3vw, 34px);
+    flex-wrap: wrap;
+  }
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Inter Tight', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    color: var(--txt);
+    text-decoration: none;
+  }
+  .dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: conic-gradient(from 200deg, var(--accent), #f2668b, #7a4dff, var(--accent));
+    box-shadow: 0 0 14px rgba(99, 102, 241, 0.7);
+    animation: spin 7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .nav {
+    display: flex;
+    gap: 4px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px;
+  }
+  .nav a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 999px;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .nav a:hover { color: var(--txt); background: var(--panel-2); }
+  .social {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 14px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .social:hover { color: var(--txt); border-color: var(--line-strong); }
+
+  /* ---- mono utility ---- */
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  /* ---- grid ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(150px, auto);
+    gap: var(--gap);
+  }
+
+  /* shared tile shell */
+  .tile {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--txt);
+    transition:
+      transform 0.32s cubic-bezier(0.2, 0.7, 0.2, 1),
+      border-color 0.32s ease,
+      box-shadow 0.32s ease;
+    /* load-in */
+    opacity: 0;
+    transform: translateY(16px);
+    animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--faint);
+    margin-bottom: 14px;
+  }
+
+  /* hover lift for interactive tiles */
+  a.tile:hover {
+    transform: translateY(-5px) scale(1.012);
+    border-color: color-mix(in srgb, var(--brand, var(--accent)) 55%, transparent);
+    box-shadow:
+      0 18px 40px -18px rgba(0, 0, 0, 0.7),
+      0 0 0 1px color-mix(in srgb, var(--brand, var(--accent)) 30%, transparent),
+      0 0 60px -20px color-mix(in srgb, var(--brand, var(--accent)) 60%, transparent);
+  }
+
+  /* ---- HERO TILE ---- */
+  .tile--hero {
+    grid-column: span 2;
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(26px, 3vw, 38px);
+    background:
+      linear-gradient(155deg, rgba(99, 102, 241, 0.16), transparent 45%),
+      radial-gradient(120% 100% at 100% 100%, rgba(242, 102, 139, 0.07), transparent 55%),
+      var(--panel);
+    border-color: var(--line-strong);
+    min-height: 360px;
+  }
+  /* faint bento grid texture inside hero */
+  .tile--hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 38px 38px;
+    -webkit-mask-image: radial-gradient(120% 120% at 80% 0%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(120% 120% at 80% 0%, #000 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .tile--hero > * { position: relative; z-index: 1; }
+  .hero-h {
+    font-family: 'Inter Tight', 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: clamp(30px, 4.2vw, 50px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 0 0 16px;
+    max-width: 14ch;
+  }
+  .hl {
+    background: linear-gradient(100deg, #6366f1, #a78bfa, #f2668b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-sub {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 38ch;
+    margin: 0;
+  }
+  .hero-foot {
+    margin-top: auto;
+    padding-top: 26px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--txt);
+    color: #0a0a0a;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cta svg { transition: transform 0.25s ease; }
+  .cta:hover { box-shadow: 0 0 30px -6px rgba(255, 255, 255, 0.4); }
+  .cta:hover svg { transform: translate(2px, -2px); }
+  .since { font-size: 11.5px; color: var(--faint); }
+  .hero-orb {
+    position: absolute;
+    right: -90px;
+    top: -90px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, rgba(99, 102, 241, 0.55), transparent 65%);
+    filter: blur(14px);
+    pointer-events: none;
+    animation: float 9s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-18px, 14px); }
+  }
+
+  /* ---- ABOUT TILE ---- */
+  .tile--about {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+  }
+  .about-copy {
+    font-size: clamp(15px, 1.4vw, 17px);
+    line-height: 1.6;
+    color: #c9c9d0;
+    margin: 0;
+  }
+  .about-copy strong {
+    color: var(--txt);
+    font-weight: 600;
+  }
+
+  /* ---- STAT TILES ---- */
+  .tile--stat {
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(120% 120% at 100% 0%, rgba(99, 102, 241, 0.1), transparent 50%),
+      var(--panel);
+  }
+  .stat-num {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700;
+    font-size: clamp(38px, 5vw, 54px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .stat-top { margin-top: auto; }
+  .stat-label {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .stat-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 30px;
+    margin-top: 16px;
+  }
+  .stat-bars i {
+    flex: 1;
+    height: var(--h);
+    border-radius: 3px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--accent) 70%, transparent), color-mix(in srgb, var(--accent) 25%, transparent));
+    transform-origin: bottom;
+    animation: grow 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  }
+  .stat-bars i:nth-child(1) { animation-delay: 0.30s; }
+  .stat-bars i:nth-child(2) { animation-delay: 0.36s; }
+  .stat-bars i:nth-child(3) { animation-delay: 0.42s; }
+  .stat-bars i:nth-child(4) { animation-delay: 0.48s; }
+  .stat-bars i:nth-child(5) { animation-delay: 0.54s; }
+  .stat-bars i:nth-child(6) { animation-delay: 0.60s; }
+  .stat-bars i:nth-child(7) { animation-delay: 0.66s; }
+  @keyframes grow { from { transform: scaleY(0); opacity: 0; } }
+  .stat-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+    animation: pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5); }
+    70% { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  }
+
+  /* ---- PROJECT TILES ---- */
+  .tile--proj {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 18px;
+    align-items: stretch;
+    padding: 16px;
+  }
+  .proj-media {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--brand) 16%, #0d0d10);
+    min-height: 132px;
+  }
+  .proj-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .proj-media[data-fit='contain'] img {
+    object-fit: contain;
+    padding: 16px;
+  }
+  .proj-block {
+    position: absolute;
+    inset: 0;
+    background: var(--brand);
+  }
+  .proj-swatch {
+    position: absolute;
+    left: 9px; bottom: 9px;
+    width: 16px; height: 16px;
+    border-radius: 5px;
+    background: var(--brand);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35), 0 0 16px -2px var(--brand);
+  }
+  a.tile--proj:hover .proj-media img { transform: scale(1.06); }
+  .proj-body {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 8px 6px 0;
+  }
+  .proj-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .proj-name {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .proj-period { font-size: 11px; color: var(--faint); white-space: nowrap; }
+  .proj-role {
+    font-size: 11px;
+    color: var(--brand);
+    filter: brightness(1.35);
+    margin: 5px 0 9px;
+  }
+  .proj-sum {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .proj-arrow {
+    position: absolute;
+    top: 16px; right: 16px;
+    color: var(--faint);
+    opacity: 0;
+    transform: translate(-4px, 4px);
+    transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+  }
+  a.tile--proj:hover .proj-arrow {
+    opacity: 1;
+    transform: translate(0, 0);
+    color: var(--txt);
+  }
+
+  /* ---- SOCIAL TILE ---- */
+  .tile--social {
+    grid-column: span 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background:
+      linear-gradient(115deg, rgba(99, 102, 241, 0.16), rgba(122, 77, 255, 0.06) 60%, transparent),
+      var(--panel);
+    --brand: var(--accent);
+    min-height: 130px;
+  }
+  .social-handle {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 700;
+    font-size: clamp(32px, 5vw, 56px);
+    letter-spacing: -0.03em;
+    margin-top: 8px;
+    background: linear-gradient(100deg, #ffffff, #b9b9ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .social-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+    transition: gap 0.25s ease;
+  }
+  .tile--social:hover .social-foot { gap: 14px; color: var(--txt); }
+
+  /* ---- footer ---- */
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 26px;
+    padding: 0 6px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    color: var(--faint);
+  }
+  .foot a { color: var(--muted); text-decoration: none; }
+  .foot a:hover { color: var(--txt); }
+  .foot .dim { color: var(--faint); }
+
+  /* ---- staggered load-in ---- */
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .tile--hero  { animation-delay: 0.05s; }
+  .tile--about { animation-delay: 0.12s; }
+  .grid > .tile--stat:nth-of-type(3) { animation-delay: 0.18s; }
+  .grid > .tile--stat:nth-of-type(4) { animation-delay: 0.22s; }
+  .proj-suto    { animation-delay: 0.26s; }
+  .proj-venio   { animation-delay: 0.30s; }
+  .proj-sound-hallucinations { animation-delay: 0.34s; }
+  .tile--social { animation-delay: 0.40s; }
+
+  /* ---- responsive ---- */
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .tile--hero { grid-column: span 2; grid-row: span 1; min-height: 300px; }
+    .tile--about { grid-column: span 2; }
+    .tile--proj { grid-column: span 2; }
+    .tile--social { grid-column: span 2; }
+  }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .tile,
+    .tile--hero,
+    .tile--about,
+    .tile--stat,
+    .tile--proj,
+    .tile--social { grid-column: span 1; }
+    .nav { order: 3; width: 100%; justify-content: space-between; }
+    .nav a { padding: 7px 10px; }
+    .bar { gap: 12px; }
+    .tile--proj { grid-template-columns: 100px 1fr; }
+    .proj-media { min-height: 100px; }
+    .proj-sum { -webkit-line-clamp: 3; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile { animation: none; opacity: 1; transform: none; }
+    .dot, .hero-orb { animation: none; }
+    a.tile:hover { transform: none; }
+    :global(html) { scroll-behavior: auto; }
+  }
+</style>
+</GalleryShell>

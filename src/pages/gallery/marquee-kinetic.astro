@@ -1,0 +1,1119 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+// Pearmill has no heroImage in frontmatter — supply the canonical asset.
+const imageFor = (p: (typeof projects)[number]) =>
+  p.data.heroImage ?? (p.slug === 'pearmill' ? '/media/pearmill/pearmill.png' : null);
+
+const navLinks = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+
+const tickerItems = [
+  'BASED IN BROOKLYN',
+  'FOUNDER',
+  'ARTIST',
+  'ENGINEER',
+  'MUSICIAN',
+  'EST. SINCE FOREVER',
+  'CURRENTLY @ PEARMILL',
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Marquee / Kinetic">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <!-- ================= ANNOUNCEMENT BAR ================= -->
+  <div class="topbar">
+    <div class="topbar__track" data-marquee data-speed="38" aria-hidden="true">
+      {Array.from({ length: 2 }).map(() => (
+        <span class="topbar__group">
+          {tickerItems.map((t) => (
+            <>
+              <span class="topbar__item">{t}</span>
+              <span class="topbar__sep">✳</span>
+            </>
+          ))}
+        </span>
+      ))}
+    </div>
+  </div>
+
+  <!-- ================= NAV ================= -->
+  <header class="nav">
+    <a class="nav__mark" href="#top">
+      NIMA GARDIDEH<sup class="nav__reg">©</sup>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      {navLinks.map((l, i) => (
+        <a class="nav__link" href={l.href}>
+          <span class="nav__idx">{String(i + 1).padStart(2, '0')}</span>
+          {l.label}
+        </a>
+      ))}
+    </nav>
+    <a class="nav__social" href="https://x.com/ngardideh" target="_blank" rel="noopener">
+      @ngardideh ↗
+    </a>
+  </header>
+
+  <main id="top">
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      <span class="hero__asterisk" aria-hidden="true">✳</span>
+      <div class="hero__main">
+        <p class="hero__kick">
+          <span class="dot"></span> PORTFOLIO — 2026 EDITION
+        </p>
+        <h1 class="hero__head">
+          <span class="reveal" style="--d:.05s">A FOUNDER,</span>
+          <span class="reveal accent" style="--d:.12s">ARTIST,</span>
+          <span class="reveal" style="--d:.19s">ENGINEER,</span>
+          <span class="reveal" style="--d:.26s">&amp; MUSICIAN</span>
+          <span class="reveal hero__tail" style="--d:.33s">based in Brooklyn.</span>
+        </h1>
+        <div class="hero__foot reveal" style="--d:.42s">
+          <span class="hero__yr">'26</span>
+          <span class="hero__scroll">
+            <span class="hero__scrollArrow">↓</span> SCROLL TO EXPLORE
+          </span>
+        </div>
+      </div>
+      <div class="hero__rail" aria-hidden="true">
+        <div class="hero__railTrack" data-marquee data-speed="34" data-dir="-1" data-axis="y">
+          {Array.from({ length: 3 }).map(() => (
+            <span class="hero__railGroup">
+              <span class="hero__railItem">CREATIVE TECHNOLOGIST</span>
+              <span class="hero__railSep">✳</span>
+              <span class="hero__railItem">BROOKLYN, NY</span>
+              <span class="hero__railSep">✳</span>
+              <span class="hero__railItem">EST. 2026</span>
+              <span class="hero__railSep">✳</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HERO MARQUEE BAND (LIME) ================= -->
+    <div class="band band--lime">
+      <div class="band__track" data-marquee data-speed="22" data-dir="-1" aria-hidden="true">
+        {Array.from({ length: 4 }).map(() => (
+          <span class="band__group">
+            <span class="band__word">NIMA GARDIDEH</span>
+            <span class="band__star">✳</span>
+            <span class="band__word band__word--outline">BROOKLYN</span>
+            <span class="band__star">✳</span>
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <!-- ================= PROJECTS ================= -->
+    <section class="work">
+      <div class="work__sticky" aria-hidden="true">
+        <span class="work__pinned">SELECTED&nbsp;WORK</span>
+      </div>
+
+      <ol class="work__list">
+        {projects.map((p, i) => {
+          const img = imageFor(p);
+          return (
+            <li
+              class="proj"
+              style={`--brand:${p.data.brandColor}`}
+            >
+              <a class="proj__row" href={p.data.link ?? `/projects/${p.slug}`} target={p.data.link ? '_blank' : undefined} rel={p.data.link ? 'noopener' : undefined}>
+                <span class="proj__num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="proj__media">
+                  {img ? (
+                    <img
+                      src={img}
+                      alt={`${p.data.name} preview`}
+                      loading="lazy"
+                      class={`proj__img proj__img--${p.data.imageFit}`}
+                    />
+                  ) : (
+                    <span class="proj__swatch" />
+                  )}
+                </span>
+                <span class="proj__name">{p.data.name}</span>
+                <span class="proj__meta">
+                  <span class="proj__role">{p.data.role}</span>
+                  <span class="proj__period">{p.data.period}</span>
+                </span>
+                <span class="proj__go">VIEW ↗</span>
+              </a>
+              <p class="proj__summary">{p.data.summary}</p>
+
+              <!-- per-project mini kinetic ticker, brand-colored -->
+              <div class="proj__ticker" aria-hidden="true">
+                <div class="proj__tickerTrack" data-marquee data-speed="30" data-dir={i % 2 === 0 ? '1' : '-1'}>
+                  {Array.from({ length: 6 }).map(() => (
+                    <>
+                      <span class="proj__tickerItem">{p.data.name}</span>
+                      <span class="proj__tickerSep">/</span>
+                      <span class="proj__tickerItem proj__tickerItem--muted">{p.data.role}</span>
+                      <span class="proj__tickerSep">/</span>
+                    </>
+                  ))}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+
+    <!-- ================= ABOUT BAND (RED) ================= -->
+    <div class="band band--red">
+      <div class="band__track" data-marquee data-speed="26" data-dir="1" aria-hidden="true">
+        {Array.from({ length: 5 }).map(() => (
+          <span class="band__group">
+            <span class="band__word">ART &amp; TECHNOLOGY</span>
+            <span class="band__star">✳</span>
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <!-- ================= ABOUT ================= -->
+    <section class="about">
+      <div class="about__sticky" aria-hidden="true">
+        <span class="work__pinned">ABOUT</span>
+      </div>
+      <div class="about__body">
+        <p class="about__lead">
+          I spend most of my time at <em>Pearmill</em>, where we help companies grow
+          through art and technology — the only place I've felt like an artist,
+          entrepreneur, and engineer at once.
+        </p>
+        <p class="about__sub">
+          Beyond that I write poetry, blog, and dance.
+        </p>
+        <a class="about__cta" href="/about">
+          MORE ABOUT ME <span class="about__ctaArrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ================= OUTRO BAND (BLUE) ================= -->
+    <div class="band band--blue">
+      <div class="band__track" data-marquee data-speed="20" data-dir="-1" aria-hidden="true">
+        {Array.from({ length: 4 }).map(() => (
+          <span class="band__group">
+            <span class="band__word band__word--outline">SAY HELLO</span>
+            <span class="band__star">✳</span>
+            <span class="band__word">@NGARDIDEH</span>
+            <span class="band__star">✳</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="foot">
+    <div class="foot__mark">NIMA<br />GARDIDEH</div>
+    <div class="foot__cols">
+      <div class="foot__col">
+        <span class="foot__h">MENU</span>
+        {navLinks.map((l) => <a class="foot__link" href={l.href}>{l.label}</a>)}
+      </div>
+      <div class="foot__col">
+        <span class="foot__h">ELSEWHERE</span>
+        <a class="foot__link" href="https://x.com/ngardideh" target="_blank" rel="noopener">X / @ngardideh ↗</a>
+      </div>
+      <div class="foot__col">
+        <span class="foot__h">COLOPHON</span>
+        <span class="foot__note">Set in Anton, Bebas Neue<br />&amp; Space Mono.</span>
+        <span class="foot__note">© 2026 — Brooklyn, NY</span>
+      </div>
+    </div>
+  </footer>
+
+  <style>
+    :global(html) {
+      scroll-behavior: smooth;
+      overflow-x: clip;
+    }
+    :global(body) {
+      margin: 0;
+      background: #f4f3ee;
+      color: #000;
+      font-family: 'Space Mono', ui-monospace, monospace;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: clip;
+      max-width: 100%;
+    }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ---------- TOP ANNOUNCEMENT BAR ---------- */
+    .topbar {
+      position: relative;
+      background: #000;
+      color: #c6ff00;
+      overflow: hidden;
+      border-bottom: 2px solid #000;
+      font-family: 'Space Mono', monospace;
+      height: 34px;
+    }
+    .topbar__track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      width: max-content;
+      white-space: nowrap;
+      will-change: transform;
+    }
+    .topbar__group {
+      display: inline-flex;
+      align-items: center;
+    }
+    .topbar__item {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      padding: 0 14px;
+    }
+    .topbar__sep {
+      color: #fff;
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    /* ---------- NAV ---------- */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px clamp(16px, 4vw, 40px);
+      background: #f4f3ee;
+      border-bottom: 2px solid #000;
+    }
+    .nav__mark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(20px, 2.4vw, 28px);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .nav__reg {
+      font-size: 0.45em;
+      vertical-align: super;
+      margin-left: 2px;
+    }
+    .nav__links {
+      display: flex;
+      gap: clamp(10px, 1.6vw, 26px);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .nav__link {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 5px;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .nav__idx {
+      font-size: 9px;
+      opacity: 0.45;
+    }
+    .nav__link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      height: 2px;
+      width: 0;
+      background: #ff2d2d;
+      transition: width 0.25s ease;
+    }
+    .nav__link:hover::after {
+      width: 100%;
+    }
+    .nav__social {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      background: #000;
+      color: #c6ff00;
+      padding: 7px 12px;
+      white-space: nowrap;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .nav__social:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 #ff2d2d;
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 52px;
+      align-items: stretch;
+      padding: clamp(40px, 8vw, 96px) 0 0 clamp(16px, 4vw, 40px);
+      border-bottom: 2px solid #000;
+      overflow: hidden;
+    }
+    .hero__main {
+      position: relative;
+      z-index: 2;
+      padding-bottom: clamp(28px, 4vw, 54px);
+      padding-right: clamp(16px, 4vw, 40px);
+    }
+    .hero__asterisk {
+      position: absolute;
+      top: 50%;
+      right: -4vw;
+      transform: translateY(-50%);
+      font-size: clamp(280px, 46vw, 760px);
+      line-height: 0;
+      color: #ff2d2d;
+      opacity: 0.08;
+      z-index: 0;
+      pointer-events: none;
+      animation: spin 28s linear infinite;
+      transform-origin: center;
+    }
+    .hero__foot {
+      display: flex;
+      align-items: baseline;
+      gap: clamp(16px, 3vw, 40px);
+      margin-top: clamp(28px, 4vw, 46px);
+      border-top: 2px solid #000;
+      padding-top: 16px;
+    }
+    .hero__yr {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(40px, 6vw, 88px);
+      line-height: 0.8;
+      letter-spacing: -0.01em;
+    }
+    .hero__scroll {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.78;
+    }
+    .hero__scrollArrow {
+      display: inline-block;
+      animation: bob 1.6s ease-in-out infinite;
+    }
+
+    /* vertical kinetic rail on hero right edge */
+    .hero__rail {
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      color: #c6ff00;
+      border-left: 2px solid #000;
+    }
+    .hero__railTrack {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: max-content;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      will-change: transform;
+    }
+    .hero__railGroup {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero__railItem {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      padding: 18px 0;
+      white-space: nowrap;
+    }
+    .hero__railSep {
+      color: #fff;
+      opacity: 0.55;
+      font-size: 12px;
+      padding: 8px 0;
+    }
+    .hero__kick {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin: 0 0 clamp(20px, 3vw, 34px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      opacity: 0;
+      animation: fade 0.7s ease forwards 0.05s;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff2d2d;
+      display: inline-block;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    .hero__head {
+      font-family: 'Anton', sans-serif;
+      font-weight: 400;
+      text-transform: uppercase;
+      font-size: clamp(46px, 11.5vw, 168px);
+      line-height: 0.86;
+      letter-spacing: -0.01em;
+      margin: 0;
+      max-width: 17ch;
+    }
+    .hero__head .reveal {
+      display: block;
+      opacity: 0;
+      transform: translateY(0.42em);
+      animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: var(--d);
+    }
+    .hero__head .accent {
+      color: #ff2d2d;
+    }
+    .hero__tail {
+      font-family: 'Bebas Neue', sans-serif;
+      text-transform: none;
+      font-size: clamp(26px, 5.4vw, 78px);
+      line-height: 1;
+      letter-spacing: 0.01em;
+      margin-top: 0.12em;
+      opacity: 0.92;
+    }
+
+    /* ---------- KINETIC BANDS ---------- */
+    .band {
+      position: relative;
+      overflow: hidden;
+      border-top: 3px solid #000;
+      border-bottom: 3px solid #000;
+      height: clamp(64px, 9vw, 124px);
+    }
+    .band--lime {
+      background: #c6ff00;
+      color: #000;
+    }
+    .band--red {
+      background: #ff2d2d;
+      color: #000;
+    }
+    .band--blue {
+      background: #1e5bff;
+      color: #fff;
+    }
+    .band__track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      width: max-content;
+      white-space: nowrap;
+      align-items: center;
+      will-change: transform;
+    }
+    .band__group {
+      display: inline-flex;
+      align-items: center;
+    }
+    .band__word {
+      font-family: 'Anton', sans-serif;
+      text-transform: uppercase;
+      font-size: clamp(34px, 7vw, 92px);
+      letter-spacing: 0.01em;
+      padding: 0 0.32em;
+      line-height: 1;
+    }
+    .band__word--outline {
+      color: transparent;
+      -webkit-text-stroke: 2px currentColor;
+    }
+    .band--blue .band__word--outline {
+      -webkit-text-stroke-color: #fff;
+    }
+    .band__star {
+      font-size: clamp(18px, 3vw, 36px);
+      opacity: 0.85;
+    }
+
+    /* ---------- WORK / PROJECTS ---------- */
+    .work {
+      position: relative;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+    }
+    .work__sticky {
+      border-right: 2px solid #000;
+    }
+    .work__pinned {
+      position: sticky;
+      top: 64px;
+      display: block;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(20px, 2.2vw, 30px);
+      letter-spacing: 0.18em;
+      padding: 22px 0;
+      margin-left: 14px;
+    }
+    .work__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .proj {
+      border-bottom: 2px solid #000;
+      padding: clamp(20px, 3.2vw, 38px) clamp(16px, 4vw, 40px);
+      position: relative;
+      transition: background 0.3s ease;
+    }
+    .proj:hover {
+      background: #000;
+      color: #f4f3ee;
+    }
+    .proj__row {
+      display: grid;
+      grid-template-columns: auto 96px 1fr auto auto;
+      align-items: center;
+      gap: clamp(14px, 2.4vw, 34px);
+    }
+    .proj__num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(30px, 4vw, 56px);
+      line-height: 1;
+      color: var(--brand);
+      min-width: 1.6ch;
+    }
+    .proj__media {
+      width: 96px;
+      height: 64px;
+      border: 2px solid #000;
+      background: var(--brand);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    }
+    .proj:hover .proj__media {
+      transform: rotate(-3deg) scale(1.08);
+      border-color: var(--brand);
+    }
+    .proj__img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .proj__img--cover {
+      object-fit: cover;
+    }
+    .proj__img--contain {
+      object-fit: contain;
+      padding: 6px;
+      background: #fff;
+    }
+    .proj__swatch {
+      width: 100%;
+      height: 100%;
+      background: var(--brand);
+    }
+    .proj__name {
+      font-family: 'Anton', sans-serif;
+      text-transform: uppercase;
+      font-size: clamp(28px, 4.6vw, 64px);
+      line-height: 0.92;
+      letter-spacing: -0.005em;
+      transition: transform 0.3s ease;
+    }
+    .proj:hover .proj__name {
+      transform: translateX(8px);
+    }
+    .proj__meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: right;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+    }
+    .proj__role {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .proj__period {
+      opacity: 0.6;
+    }
+    .proj__go {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      border: 2px solid currentColor;
+      padding: 8px 12px;
+      white-space: nowrap;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .proj:hover .proj__go {
+      background: var(--brand);
+      color: #000;
+      border-color: var(--brand);
+    }
+    .proj__summary {
+      margin: 16px 0 0;
+      max-width: 70ch;
+      font-size: 13.5px;
+      line-height: 1.6;
+      padding-left: calc(clamp(30px, 4vw, 56px) + clamp(14px, 2.4vw, 34px));
+      opacity: 0.78;
+    }
+
+    /* per-project ticker */
+    .proj__ticker {
+      position: relative;
+      overflow: hidden;
+      margin-top: 0;
+      border-top: 0 solid currentColor;
+      border-bottom: 0 solid currentColor;
+      opacity: 0;
+      height: 0;
+      transition: opacity 0.35s ease, height 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        margin-top 0.4s ease, border-width 0.4s ease;
+    }
+    .proj:hover .proj__ticker {
+      opacity: 1;
+      height: 46px;
+      margin-top: 18px;
+      border-top-width: 1px;
+      border-bottom-width: 1px;
+    }
+    .proj__tickerTrack {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      width: max-content;
+      white-space: nowrap;
+      align-items: center;
+      will-change: transform;
+    }
+    .proj__tickerItem {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      color: var(--brand);
+      padding: 0 10px;
+    }
+    .proj__tickerItem--muted {
+      color: inherit;
+      opacity: 0.5;
+    }
+    .proj__tickerSep {
+      opacity: 0.4;
+    }
+
+    /* ---------- ABOUT ---------- */
+    .about {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      background: #f4f3ee;
+    }
+    .about__sticky {
+      border-right: 2px solid #000;
+    }
+    .about__body {
+      padding: clamp(40px, 7vw, 96px) clamp(16px, 5vw, 64px);
+      max-width: 1100px;
+    }
+    .about__lead {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(30px, 5.4vw, 78px);
+      line-height: 1.02;
+      letter-spacing: 0.01em;
+      margin: 0;
+    }
+    .about__lead em {
+      font-style: normal;
+      color: #ff2d2d;
+    }
+    .about__sub {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(13px, 1.6vw, 16px);
+      line-height: 1.6;
+      margin: clamp(20px, 3vw, 34px) 0 0;
+      max-width: 46ch;
+      opacity: 0.8;
+    }
+    .about__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: clamp(26px, 3vw, 40px);
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      background: #000;
+      color: #c6ff00;
+      padding: 13px 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .about__cta:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 6px 6px 0 #1e5bff;
+    }
+    .about__ctaArrow {
+      transition: transform 0.2s ease;
+    }
+    .about__cta:hover .about__ctaArrow {
+      transform: translateX(4px);
+    }
+
+    /* ---------- FOOTER ---------- */
+    .foot {
+      background: #000;
+      color: #f4f3ee;
+      padding: clamp(40px, 6vw, 80px) clamp(16px, 4vw, 40px);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: space-between;
+    }
+    .foot__mark {
+      font-family: 'Anton', sans-serif;
+      text-transform: uppercase;
+      font-size: clamp(48px, 9vw, 128px);
+      line-height: 0.82;
+      color: #c6ff00;
+    }
+    .foot__cols {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(28px, 5vw, 72px);
+    }
+    .foot__col {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .foot__h {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      opacity: 0.5;
+      margin-bottom: 4px;
+    }
+    .foot__link {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.05em;
+      transition: color 0.2s ease;
+    }
+    .foot__link:hover {
+      color: #ff2d2d;
+    }
+    .foot__note {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      line-height: 1.7;
+      opacity: 0.6;
+    }
+
+    /* ---------- KEYFRAMES ---------- */
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fade {
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(0.65);
+        opacity: 0.6;
+      }
+    }
+    @keyframes spin {
+      to {
+        transform: translateY(-50%) rotate(360deg);
+      }
+    }
+    @keyframes bob {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(4px);
+      }
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 860px) {
+      .nav {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .nav__links {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .proj__row {
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+          'num name'
+          'media name'
+          'meta meta'
+          'go go';
+        gap: 12px 16px;
+      }
+      .proj__num {
+        grid-area: num;
+      }
+      .proj__media {
+        grid-area: media;
+      }
+      .proj__name {
+        grid-area: name;
+        font-size: clamp(30px, 9vw, 48px);
+      }
+      .proj__meta {
+        grid-area: meta;
+        flex-direction: row;
+        gap: 14px;
+        text-align: left;
+        align-items: baseline;
+        padding-top: 4px;
+      }
+      .proj__go {
+        grid-area: go;
+        justify-self: start;
+      }
+      .proj__summary {
+        padding-left: 0;
+      }
+      .work,
+      .about {
+        grid-template-columns: 36px 1fr;
+      }
+      .work__pinned {
+        font-size: 16px;
+        margin-left: 8px;
+        top: 80px;
+      }
+      .hero {
+        grid-template-columns: 1fr;
+        padding-right: 0;
+      }
+      .hero__rail {
+        display: none;
+      }
+      .hero__main {
+        padding-right: clamp(16px, 4vw, 40px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav__mark {
+        font-size: 18px;
+      }
+      .proj:hover .proj__name {
+        transform: none;
+      }
+      .proj:hover .proj__media {
+        transform: none;
+      }
+    }
+
+    /* ---------- REDUCED MOTION ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      :global(html) {
+        scroll-behavior: auto;
+      }
+      .topbar__track,
+      .band__track,
+      .proj__tickerTrack,
+      .hero__railTrack {
+        transform: none !important;
+        animation: none !important;
+      }
+      .hero__asterisk,
+      .hero__scrollArrow {
+        animation: none !important;
+      }
+      .hero__head .reveal,
+      .hero__kick {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+      }
+      .dot {
+        animation: none !important;
+      }
+    }
+  </style>
+
+  <script>
+    // Kinetic marquee engine: each [data-marquee] loops infinitely via
+    // requestAnimationFrame, and its speed + direction respond to scroll
+    // velocity — restless when you scroll, calm when you stop.
+    type Track = {
+      el: HTMLElement;
+      base: number; // px/sec baseline
+      dir: number; // 1 or -1
+      axis: 'x' | 'y';
+      half: number; // half the content extent (one duplicated set)
+      offset: number;
+    };
+
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    function init() {
+      if (prefersReduced) return;
+      const nodes = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-marquee]')
+      );
+
+      const extent = (el: HTMLElement, axis: 'x' | 'y') =>
+        axis === 'y' ? el.scrollHeight : el.scrollWidth;
+
+      const tracks: Track[] = nodes.map((el) => {
+        const axis: 'x' | 'y' = el.dataset.axis === 'y' ? 'y' : 'x';
+        // Duplicate children so the loop is seamless.
+        el.innerHTML = el.innerHTML + el.innerHTML;
+        return {
+          el,
+          base: parseFloat(el.dataset.speed || '24'),
+          dir: parseFloat(el.dataset.dir || '1'),
+          axis,
+          half: extent(el, axis) / 2,
+          offset: Math.random() * 60,
+        };
+      });
+
+      const recalc = () =>
+        tracks.forEach((t) => (t.half = extent(t.el, t.axis) / 2));
+      window.addEventListener('resize', recalc);
+
+      // scroll velocity -> boost
+      let lastY = window.scrollY;
+      let velocity = 0;
+      let scrollDir = 1;
+      window.addEventListener(
+        'scroll',
+        () => {
+          const y = window.scrollY;
+          const dy = y - lastY;
+          if (dy !== 0) scrollDir = dy > 0 ? 1 : -1;
+          velocity = Math.min(Math.abs(dy) * 8, 900);
+          lastY = y;
+        },
+        { passive: true }
+      );
+
+      let last = performance.now();
+      function frame(now: number) {
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
+        velocity *= 0.9; // decay back to calm
+
+        for (const t of tracks) {
+          // Scroll velocity adds speed; scroll direction can flip the ribbon.
+          const speed = (t.base + velocity) * t.dir * scrollDir;
+          t.offset += speed * dt;
+          if (t.half > 0) {
+            // wrap within [0, half) so motion is seamless either direction
+            t.offset = ((t.offset % t.half) + t.half) % t.half;
+          }
+          t.el.style.transform =
+            t.axis === 'y'
+              ? `translate3d(0,${-t.offset}px,0)`
+              : `translate3d(${-t.offset}px,0,0)`;
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+    // Fonts can change width; recalc once they load.
+    if ((document as any).fonts?.ready) {
+      (document as any).fonts.ready.then(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+    }
+  </script>
+</GalleryShell>
