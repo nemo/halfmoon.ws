@@ -1,0 +1,954 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+// Pull the real portfolio out of the content collection so the planet is built
+// from truth, not a hardcoded list.
+const projectsRaw = await getCollection('projects');
+const projects = projectsRaw
+  .map((p) => ({ slug: p.slug, ...p.data }))
+  .sort((a, b) => a.order - b.order);
+
+// Shape the data the client needs. These become the orbiting satellites.
+const satellites = projects.map((p) => ({
+  slug: p.slug,
+  name: p.name,
+  role: p.role,
+  period: p.period,
+  summary: p.summary,
+  color: p.brandColor,
+  link: p.link ?? null,
+  image: p.heroImage ?? `/media/${p.slug}/${p.slug}.png`,
+}));
+
+// His multi-city life — surface nodes. Hand-placed lat/lng for the cities a
+// "Home is Planet Earth" life actually touches.
+const cities = [
+  { name: 'Brooklyn', lat: 40.68, lng: -73.94, home: true },
+  { name: 'San Francisco', lat: 37.77, lng: -122.42 },
+  { name: 'Toronto', lat: 43.65, lng: -79.38 },
+  { name: 'Tehran', lat: 35.69, lng: 51.39 },
+  { name: 'Lisbon', lat: 38.72, lng: -9.14 },
+  { name: 'Mexico City', lat: 19.43, lng: -99.13 },
+];
+
+// The worldview that circles the world.
+const principles = [
+  'Life is struggle',
+  'We share a collective imagination',
+  'We are made of the narratives we believe',
+  'Free will is limited — so make the years count',
+];
+---
+
+<GalleryShell title="Nima Gardideh" trend="Home is Planet Earth">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main class="world" aria-label="Nima Gardideh — an interactive planet of his life and work">
+    <canvas id="stage" aria-hidden="true"></canvas>
+
+    <!-- Masthead -->
+    <header class="masthead">
+      <div class="sig">
+        <span class="sig-mark">◐</span>
+        <span class="sig-name">Nima Gardideh</span>
+      </div>
+      <nav class="orbit-nav" aria-label="Sections">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+        <a class="social" href="https://x.com/ngardideh" target="_blank" rel="noopener">@ngardideh ↗</a>
+      </nav>
+    </header>
+
+    <!-- Hero wrapping the horizon -->
+    <div class="hero">
+      <p class="hero-kicker">Home is Planet Earth</p>
+      <h1 class="hero-line">
+        <span>a founder,</span>
+        <span>artist, engineer,</span>
+        <span>&amp; musician</span>
+        <span class="hero-place">based in Brooklyn.</span>
+      </h1>
+      <p class="hero-sub">An entire life rendered as a small planet. Drag to spin it. Scroll to fall toward the surface.</p>
+    </div>
+
+    <!-- Live readout of what's crossing the meridian -->
+    <aside class="readout" id="readout" aria-live="polite">
+      <span class="readout-eyebrow">at the meridian</span>
+      <span class="readout-body">spinning…</span>
+    </aside>
+
+    <!-- Project dossier — blooms when a satellite crosses front-center / on tap -->
+    <section class="dossier" id="dossier" aria-hidden="true">
+      <button class="dossier-close" id="dossierClose" aria-label="Return to orbit">✕</button>
+      <div class="dossier-frame">
+        <img id="dossierImg" alt="" />
+      </div>
+      <div class="dossier-text">
+        <span class="dossier-period" id="dossierPeriod"></span>
+        <h2 id="dossierName"></h2>
+        <p class="dossier-role" id="dossierRole"></p>
+        <p class="dossier-summary" id="dossierSummary"></p>
+        <a class="dossier-link" id="dossierLink" target="_blank" rel="noopener">Open transmission ↗</a>
+      </div>
+    </section>
+
+    <!-- Sound toggle -->
+    <button class="audio-toggle" id="audioToggle" aria-pressed="false">
+      <span class="wave"><i></i><i></i><i></i><i></i></span>
+      <span class="audio-label">drone off</span>
+    </button>
+
+    <p class="hint" id="hint">drag the world →</p>
+
+    <!-- Static, screen-reader + reduced-motion legible content. Always in DOM. -->
+    <div class="sr-manifest">
+      <h2>Projects orbiting this world</h2>
+      <ul>
+        {satellites.map((s) => (
+          <li>
+            <strong style={`color:${s.color}`}>{s.name}</strong> — {s.role}, {s.period}. {s.summary}
+            {s.link && <a href={s.link}> Visit ↗</a>}
+          </li>
+        ))}
+      </ul>
+      <h2>Principles</h2>
+      <ul>{principles.map((p) => <li>{p}</li>)}</ul>
+    </div>
+  </main>
+
+  <script
+    is:inline
+    define:vars={{ satellites, cities, principles }}
+  >
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d');
+    const readoutBody = document.querySelector('#readout .readout-body');
+    const dossier = document.getElementById('dossier');
+    const hintEl = document.getElementById('hint');
+
+    let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let cx = 0, cy = 0, R = 0;
+
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = W * DPR;
+      canvas.height = H * DPR;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      // Planet sits in the lower-right field on desktop so the hero owns the
+      // upper-left — a deliberate diagonal composition, not dead-center default.
+      cx = W < 760 ? W * 0.5 : W * 0.62;
+      cy = H * (W < 760 ? 0.66 : 0.54);
+      R = W < 760 ? Math.min(W, H) * 0.40 : Math.min(W, H) * 0.36;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ---- Starfield (parallax) -------------------------------------------
+    const STAR_N = reduced ? 140 : 320;
+    const stars = Array.from({ length: STAR_N }, () => ({
+      x: Math.random(), y: Math.random(),
+      z: Math.random() * 0.8 + 0.2,
+      tw: Math.random() * Math.PI * 2,
+    }));
+
+    // ---- Planet surface "land" via deterministic noise dots --------------
+    // Pseudo-random but stable points on the sphere = continents of light.
+    function hash(n) { const s = Math.sin(n) * 43758.5453; return s - Math.floor(s); }
+    const LAND_N = reduced ? 600 : 1900;
+    const land = Array.from({ length: LAND_N }, (_, i) => {
+      const u = hash(i * 12.9898);
+      const v = hash(i * 78.233);
+      // Bias toward clustered "landmasses" using layered noise.
+      const cluster = hash(Math.floor(u * 9) * 4.1 + Math.floor(v * 9) * 7.7);
+      const theta = Math.acos(2 * v - 1);       // polar 0..PI
+      const phi = u * Math.PI * 2;               // azimuth
+      return { theta, phi, lit: cluster, s: hash(i * 3.3) * 1.1 + 0.4 };
+    });
+
+    function toLatLngVec(lat, lng) {
+      const t = (90 - lat) * Math.PI / 180;
+      const p = (lng + 180) * Math.PI / 180;
+      return sphereVec(t, p);
+    }
+    function sphereVec(theta, phi) {
+      return {
+        x: Math.sin(theta) * Math.cos(phi),
+        y: Math.cos(theta),
+        z: Math.sin(theta) * Math.sin(phi),
+      };
+    }
+
+    // Rotation state
+    let rotY = 0.6;          // spin around vertical axis
+    let rotX = -0.32;        // tilt
+    let spinVel = reduced ? 0 : 0.0016;  // idle drift
+    let zoom = 1;            // scroll dolly
+    let targetZoom = 1;
+
+    function rotate(v) {
+      // rotate around Y then around X
+      const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      let x = v.x * cosY + v.z * sinY;
+      let z = -v.x * sinY + v.z * cosY;
+      let y = v.y;
+      const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+      const y2 = y * cosX - z * sinX;
+      const z2 = y * sinX + z * cosX;
+      return { x, y: y2, z: z2 };
+    }
+
+    // Light direction (sun) — slightly upper-left, fixed in screen space.
+    const LIGHT = (() => { const l = { x: -0.55, y: -0.5, z: 0.66 }; const m = Math.hypot(l.x, l.y, l.z); return { x: l.x/m, y: l.y/m, z: l.z/m }; })();
+
+    // ---- Satellites: elliptical orbits, each project a glowing node ------
+    const sats = satellites.map((s, i) => ({
+      ...s,
+      a: 1.55 + i * 0.32,             // semi-major (in planet radii)
+      ecc: 0.18 + i * 0.04,
+      incl: (-0.5 + i * 0.34),        // orbital inclination
+      phase: (i / satellites.length) * Math.PI * 2,
+      speed: (reduced ? 0 : 1) * (0.0042 - i * 0.0006),
+      ang: (i / satellites.length) * Math.PI * 2,
+      screen: { x: 0, y: 0, front: false, r: 6 },
+      trail: [],
+    }));
+
+    let meridianSlug = null;     // which sat is currently centered/front
+    let lastReadout = '';
+
+    function projectSat(s) {
+      const a = s.a;
+      const b = a * Math.sqrt(1 - s.ecc * s.ecc);
+      // point on orbit ellipse in its own plane
+      const ox = Math.cos(s.ang) * a;
+      const oz = Math.sin(s.ang) * b;
+      // apply inclination (rotate around X axis of orbit)
+      const ci = Math.cos(s.incl), si = Math.sin(s.incl);
+      let v = { x: ox, y: oz * si, z: oz * ci };
+      v = rotate(v);
+      return v;
+    }
+
+    // ---- Interaction -----------------------------------------------------
+    let dragging = false, lastX = 0, lastY = 0, hasInteracted = false;
+    let velX = 0, velY = 0;
+
+    function pointerDown(e) {
+      dragging = true;
+      const p = e.touches ? e.touches[0] : e;
+      lastX = p.clientX; lastY = p.clientY;
+      spinVel = 0;
+      markInteracted();
+    }
+    function pointerMove(e) {
+      if (!dragging) return;
+      const p = e.touches ? e.touches[0] : e;
+      const dx = p.clientX - lastX;
+      const dy = p.clientY - lastY;
+      lastX = p.clientX; lastY = p.clientY;
+      rotY += dx * 0.006;
+      rotX = Math.max(-1.2, Math.min(1.2, rotX + dy * 0.004));
+      velX = dx * 0.006; velY = dy * 0.004;
+    }
+    function pointerUp() { dragging = false; }
+
+    function markInteracted() {
+      if (hasInteracted) return;
+      hasInteracted = true;
+      hintEl && hintEl.classList.add('gone');
+    }
+
+    canvas.addEventListener('mousedown', pointerDown);
+    window.addEventListener('mousemove', pointerMove);
+    window.addEventListener('mouseup', pointerUp);
+    canvas.addEventListener('touchstart', pointerDown, { passive: true });
+    canvas.addEventListener('touchmove', pointerMove, { passive: true });
+    canvas.addEventListener('touchend', pointerUp);
+
+    window.addEventListener('wheel', (e) => {
+      if (dossierOpen) return;
+      targetZoom = Math.max(0.85, Math.min(2.0, targetZoom - e.deltaY * 0.0011));
+      markInteracted();
+    }, { passive: true });
+
+    // Tap a satellite to open its dossier.
+    canvas.addEventListener('click', (e) => {
+      const mx = e.clientX, my = e.clientY;
+      for (const s of sats) {
+        if (!s.screen.front) continue;
+        const d = Math.hypot(mx - s.screen.x, my - s.screen.y);
+        if (d < Math.max(26, s.screen.r + 16)) { openDossier(s); return; }
+      }
+    });
+
+    // ---- Dossier ---------------------------------------------------------
+    let dossierOpen = false;
+    const dEls = {
+      img: document.getElementById('dossierImg'),
+      period: document.getElementById('dossierPeriod'),
+      name: document.getElementById('dossierName'),
+      role: document.getElementById('dossierRole'),
+      summary: document.getElementById('dossierSummary'),
+      link: document.getElementById('dossierLink'),
+    };
+    function openDossier(s) {
+      dossierOpen = true;
+      dossier.setAttribute('aria-hidden', 'false');
+      dossier.classList.add('open');
+      dossier.style.setProperty('--accent', s.color);
+      dEls.img.src = s.image; dEls.img.alt = s.name;
+      dEls.period.textContent = s.period;
+      dEls.name.textContent = s.name;
+      dEls.role.textContent = s.role;
+      dEls.summary.textContent = s.summary;
+      if (s.link) { dEls.link.href = s.link; dEls.link.style.display = ''; }
+      else { dEls.link.style.display = 'none'; }
+      tuneAudio(s.color);
+    }
+    function closeDossier() {
+      dossierOpen = false;
+      dossier.setAttribute('aria-hidden', 'true');
+      dossier.classList.remove('open');
+      tuneAudio(null);
+    }
+    document.getElementById('dossierClose').addEventListener('click', closeDossier);
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dossierOpen) closeDossier(); });
+
+    // ---- Web Audio: ambient drone, pitch follows the meridian color ------
+    let audioCtx = null, master = null, osc1 = null, osc2 = null, lfo = null, audioOn = false;
+    const audioToggle = document.getElementById('audioToggle');
+    const audioLabel = audioToggle.querySelector('.audio-label');
+
+    function hexHue(hex) {
+      const c = hex.replace('#', '');
+      const r = parseInt(c.substr(0,2),16)/255, g = parseInt(c.substr(2,2),16)/255, b = parseInt(c.substr(4,2),16)/255;
+      const mx = Math.max(r,g,b), mn = Math.min(r,g,b); let h = 0;
+      if (mx !== mn) {
+        const d = mx - mn;
+        if (mx === r) h = ((g-b)/d) % 6; else if (mx === g) h = (b-r)/d + 2; else h = (r-g)/d + 4;
+        h *= 60; if (h < 0) h += 360;
+      }
+      return h;
+    }
+    function startAudio() {
+      if (audioCtx) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = new AC();
+      master = audioCtx.createGain();
+      master.gain.value = 0.0;
+      master.connect(audioCtx.destination);
+      osc1 = audioCtx.createOscillator(); osc1.type = 'sine'; osc1.frequency.value = 110;
+      osc2 = audioCtx.createOscillator(); osc2.type = 'triangle'; osc2.frequency.value = 165.5;
+      const g1 = audioCtx.createGain(); g1.gain.value = 0.5;
+      const g2 = audioCtx.createGain(); g2.gain.value = 0.22;
+      const filt = audioCtx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 700; filt.Q.value = 0.7;
+      lfo = audioCtx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.07;
+      const lfoG = audioCtx.createGain(); lfoG.gain.value = 180;
+      lfo.connect(lfoG); lfoG.connect(filt.frequency);
+      osc1.connect(g1); osc2.connect(g2); g1.connect(filt); g2.connect(filt); filt.connect(master);
+      osc1.start(); osc2.start(); lfo.start();
+    }
+    function tuneAudio(hex) {
+      if (!audioCtx || !audioOn) return;
+      const t = audioCtx.currentTime;
+      let base = 110;
+      if (hex) {
+        const hue = hexHue(hex);
+        // Map hue (0..360) to a pentatonic-ish set of base frequencies.
+        const notes = [98, 110, 130.8, 146.8, 164.8, 196];
+        base = notes[Math.round((hue / 360) * (notes.length - 1))];
+      }
+      osc1.frequency.setTargetAtTime(base, t, 0.6);
+      osc2.frequency.setTargetAtTime(base * 1.5, t, 0.6);
+    }
+    audioToggle.addEventListener('click', () => {
+      startAudio();
+      if (!audioCtx) return;
+      audioOn = !audioOn;
+      audioToggle.setAttribute('aria-pressed', String(audioOn));
+      audioToggle.classList.toggle('on', audioOn);
+      audioLabel.textContent = audioOn ? 'drone on' : 'drone off';
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      master.gain.setTargetAtTime(audioOn ? 0.16 : 0.0, audioCtx.currentTime, 0.5);
+    });
+
+    // ---- Drawing helpers -------------------------------------------------
+    let frame = 0;
+    function draw() {
+      frame++;
+      // ease zoom + apply momentum
+      zoom += (targetZoom - zoom) * 0.08;
+      if (!dragging && !reduced) {
+        rotY += velX; rotX = Math.max(-1.2, Math.min(1.2, rotX + velY));
+        velX *= 0.94; velY *= 0.94;
+        if (Math.abs(velX) < 0.0004) velX = 0;
+        if (Math.abs(velY) < 0.0004) velY = 0;
+        rotY += spinVel;
+      }
+      const Rz = R * zoom;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // background gradient
+      const bg = ctx.createRadialGradient(cx, cy - Rz * 0.4, Rz * 0.2, cx, cy, Math.max(W, H));
+      bg.addColorStop(0, '#0a0b16');
+      bg.addColorStop(0.5, '#060710');
+      bg.addColorStop(1, '#020207');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // stars (parallax shift with rotY)
+      for (const st of stars) {
+        const px = ((st.x + rotY * 0.02 * st.z) % 1 + 1) % 1;
+        const x = px * W, y = st.y * H * 0.9;
+        const tw = reduced ? 0.7 : (0.55 + 0.45 * Math.sin(frame * 0.02 * st.z + st.tw));
+        ctx.globalAlpha = tw * st.z;
+        ctx.fillStyle = '#cdd6ff';
+        ctx.fillRect(x, y, st.z * 1.4, st.z * 1.4);
+      }
+      ctx.globalAlpha = 1;
+
+      // atmosphere glow
+      const atmo = ctx.createRadialGradient(cx, cy, Rz * 0.9, cx, cy, Rz * 1.35);
+      atmo.addColorStop(0, 'rgba(90,120,255,0.0)');
+      atmo.addColorStop(0.55, 'rgba(80,110,255,0.10)');
+      atmo.addColorStop(0.8, 'rgba(120,90,255,0.16)');
+      atmo.addColorStop(1, 'rgba(120,90,255,0)');
+      ctx.fillStyle = atmo;
+      ctx.beginPath(); ctx.arc(cx, cy, Rz * 1.35, 0, Math.PI * 2); ctx.fill();
+
+      // planet base sphere (dark ocean, terminator-shaded toward the light)
+      const sph = ctx.createRadialGradient(
+        cx + LIGHT.x * Rz * 0.55, cy + LIGHT.y * Rz * 0.55, Rz * 0.05,
+        cx, cy, Rz
+      );
+      sph.addColorStop(0, '#1b2c52');
+      sph.addColorStop(0.45, '#0e1733');
+      sph.addColorStop(0.82, '#070b1c');
+      sph.addColorStop(1, '#03040c');
+      ctx.beginPath(); ctx.arc(cx, cy, Rz, 0, Math.PI * 2);
+      ctx.fillStyle = sph; ctx.fill();
+
+      // graticule — latitude/longitude wireframe so it reads instantly as a globe
+      drawGraticule(Rz);
+
+      // draw orbits (behind) — pass 1: far halves
+      drawOrbits(Rz, 'back');
+
+      // satellites behind the planet
+      const projected = sats.map((s) => {
+        if (!dragging && !reduced) s.ang += s.speed;
+        const v = projectSat(s);
+        return { s, v };
+      });
+      projected.forEach(({ s, v }) => {
+        if (v.z < 0) drawSat(s, v, Rz, false);
+      });
+
+      // ---- surface dots (land of light) ----
+      // Day side: cool teal landmasses. Night side: warm city-lights speckle —
+      // the classic "Earth at night" read that makes it unmistakably a planet.
+      let bestSat = null, bestScore = -Infinity;
+      const ROTL = LIGHT;
+      for (const d of land) {
+        let v = sphereVec(d.theta, d.phi);
+        v = rotate(v);
+        if (v.z <= 0) continue; // back hemisphere
+        const sx = cx + v.x * Rz;
+        const sy = cy - v.y * Rz;
+        // lambert lighting using rotated normal vs fixed screen light
+        const lam = Math.max(0, v.x * ROTL.x + (-v.y) * ROTL.y + v.z * ROTL.z);
+        const lit = d.lit > 0.6; // landmass threshold
+        const rr = d.s * (Rz / 300) * 1.8 + 0.5;
+        if (lit) {
+          if (lam > 0.06) {
+            // daylight land: luminous teal/cyan
+            ctx.globalAlpha = 0.22 + lam * 0.78;
+            ctx.fillStyle = lam > 0.45 ? '#5fe6d6' : '#2f8fa8';
+            ctx.beginPath(); ctx.arc(sx, sy, rr, 0, Math.PI * 2); ctx.fill();
+          } else if (d.lit > 0.78) {
+            // night land: warm city lights flicker
+            const fl = reduced ? 0.7 : (0.55 + 0.45 * Math.sin(frame * 0.08 + d.theta * 9));
+            ctx.globalAlpha = 0.5 + fl * 0.45;
+            ctx.fillStyle = '#ffcf7a';
+            ctx.beginPath(); ctx.arc(sx, sy, rr * 0.8, 0, Math.PI * 2); ctx.fill();
+          }
+        } else if (lam > 0.2) {
+          // ocean: faint cool sheen on lit side only
+          ctx.globalAlpha = lam * 0.08;
+          ctx.fillStyle = '#1a2f63';
+          ctx.beginPath(); ctx.arc(sx, sy, 0.8, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      // ---- city beacons: vertical light-pillars rising off the surface ----
+      // The signature move — each city of his multi-city life fires a beam of
+      // light straight off the globe like a signal flare.
+      for (const c of cities) {
+        let v = toLatLngVec(c.lat, c.lng);
+        v = rotate(v);
+        if (v.z <= -0.05) continue;
+        const sx = cx + v.x * Rz;
+        const sy = cy - v.y * Rz;
+        // surface-normal direction projected to screen = pillar direction
+        const nx = v.x, ny = -v.y;
+        const nmag = Math.hypot(nx, ny) || 1;
+        const ux = nx / nmag, uy = ny / nmag;
+        const pulse = reduced ? 0.7 : (0.5 + 0.5 * Math.sin(frame * 0.045 + c.lng));
+        const facing = Math.max(0, v.z);              // dim beams near limb
+        const pillarLen = (c.home ? 0.62 : 0.36) * Rz * (0.7 + facing * 0.6);
+        const tipX = sx + ux * pillarLen, tipY = sy + uy * pillarLen;
+        const col = c.home ? '255,213,128' : '120,214,255';
+        // beam — soft wide glow under a bright thin core
+        const beam = ctx.createLinearGradient(sx, sy, tipX, tipY);
+        beam.addColorStop(0, `rgba(${col},${(0.9 + pulse * 0.1) * (0.45 + facing * 0.55)})`);
+        beam.addColorStop(0.4, `rgba(${col},${(0.5 + pulse * 0.3) * (0.45 + facing * 0.55)})`);
+        beam.addColorStop(1, `rgba(${col},0)`);
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = beam;
+        ctx.lineWidth = (c.home ? 7 : 4.5);
+        ctx.globalAlpha = 0.4;
+        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tipX, tipY); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = (c.home ? 2.4 : 1.4);
+        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tipX, tipY); ctx.stroke();
+        // base bloom
+        const rr = (c.home ? 3.2 : 2.0) * (Rz / 200) + 1.0;
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rr * 5);
+        g.addColorStop(0, `rgba(${col},${(0.6 + pulse * 0.4) * (0.4 + facing * 0.6)})`);
+        g.addColorStop(1, `rgba(${col},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(sx, sy, rr * 5, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 0.5 + facing * 0.5;
+        ctx.fillStyle = c.home ? '#fff0d0' : '#e2f4ff';
+        ctx.beginPath(); ctx.arc(sx, sy, rr, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        // label at the pillar tip when facing front
+        if (v.z > 0.35) {
+          ctx.globalAlpha = Math.min(1, (v.z - 0.35) * 3);
+          ctx.font = '500 11px "Space Mono", monospace';
+          ctx.fillStyle = c.home ? '#ffe6b0' : 'rgba(220,235,255,0.92)';
+          ctx.textAlign = ux >= 0 ? 'left' : 'right';
+          ctx.fillText(c.home ? c.name.toUpperCase() + ' · HOME' : c.name.toUpperCase(),
+            tipX + (ux >= 0 ? 6 : -6), tipY + 3);
+          ctx.globalAlpha = 1;
+        }
+      }
+      ctx.textAlign = 'left';
+
+      // terminator soft shadow (night side darkening)
+      const term = ctx.createRadialGradient(
+        cx + LIGHT.x * Rz, cy + LIGHT.y * Rz, Rz * 0.2,
+        cx + LIGHT.x * Rz, cy + LIGHT.y * Rz, Rz * 1.9
+      );
+      term.addColorStop(0, 'rgba(0,0,0,0)');
+      term.addColorStop(1, 'rgba(2,3,10,0.82)');
+      ctx.beginPath(); ctx.arc(cx, cy, Rz, 0, Math.PI * 2);
+      ctx.fillStyle = term; ctx.fill();
+
+      // rim light
+      ctx.beginPath(); ctx.arc(cx, cy, Rz, 0, Math.PI * 2);
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(140,170,255,0.35)';
+      ctx.stroke();
+
+      // ---- principles circling the horizon (kinetic type) ----
+      drawPrinciples(Rz);
+
+      // orbits front halves + satellites in front
+      drawOrbits(Rz, 'front');
+      projected.forEach(({ s, v }) => {
+        if (v.z >= 0) {
+          drawSat(s, v, Rz, true);
+          // find the one nearest screen-center-front = the meridian crossing
+          const score = v.z - Math.hypot((cx + v.x*Rz) - cx, 0) * 0.001;
+          // prefer high z and near vertical center line
+          const horiz = Math.abs(v.x);
+          const s2 = v.z * 2 - horiz;
+          if (s2 > bestScore) { bestScore = s2; bestSat = s; }
+        }
+      });
+
+      // meridian readout
+      if (bestSat && bestSat.slug !== meridianSlug) {
+        meridianSlug = bestSat.slug;
+        const txt = `${bestSat.name} — ${bestSat.role}`;
+        if (txt !== lastReadout) {
+          lastReadout = txt;
+          if (readoutBody) {
+            readoutBody.style.opacity = '0';
+            setTimeout(() => {
+              readoutBody.textContent = txt;
+              readoutBody.style.color = bestSat.color;
+              readoutBody.style.opacity = '1';
+            }, 160);
+          }
+          // gentle pitch nudge as projects cross, even without dossier
+          if (audioOn) tuneAudio(bestSat.color);
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    // Latitude / longitude wireframe. Front-facing arcs only, lit toward sun.
+    function drawGraticule(Rz) {
+      const ROTL = LIGHT;
+      ctx.lineWidth = 1;
+      // longitude meridians
+      for (let m = 0; m < 12; m++) {
+        const phi = (m / 12) * Math.PI * 2;
+        let started = false;
+        ctx.beginPath();
+        for (let k = 0; k <= 48; k++) {
+          const theta = (k / 48) * Math.PI;
+          let v = sphereVec(theta, phi); v = rotate(v);
+          if (v.z < 0) { started = false; continue; }
+          const sx = cx + v.x * Rz, sy = cy - v.y * Rz;
+          if (!started) { ctx.moveTo(sx, sy); started = true; } else ctx.lineTo(sx, sy);
+        }
+        ctx.strokeStyle = 'rgba(95,150,210,0.10)';
+        ctx.stroke();
+      }
+      // latitude parallels
+      for (let p = 1; p < 12; p++) {
+        const theta = (p / 12) * Math.PI;
+        let started = false;
+        ctx.beginPath();
+        for (let k = 0; k <= 64; k++) {
+          const phi = (k / 64) * Math.PI * 2;
+          let v = sphereVec(theta, phi); v = rotate(v);
+          if (v.z < 0) { started = false; continue; }
+          const sx = cx + v.x * Rz, sy = cy - v.y * Rz;
+          if (!started) { ctx.moveTo(sx, sy); started = true; } else ctx.lineTo(sx, sy);
+        }
+        ctx.strokeStyle = (p === 6) ? 'rgba(95,210,200,0.20)' : 'rgba(95,150,210,0.09)';
+        ctx.lineWidth = (p === 6) ? 1.2 : 1;
+        ctx.stroke();
+      }
+    }
+
+    function drawOrbits(Rz, side) {
+      for (const s of sats) {
+        const a = s.a, b = a * Math.sqrt(1 - s.ecc * s.ecc);
+        ctx.beginPath();
+        let started = false;
+        const STEPS = 90;
+        for (let k = 0; k <= STEPS; k++) {
+          const ang = (k / STEPS) * Math.PI * 2;
+          const ci = Math.cos(s.incl), si = Math.sin(s.incl);
+          let v = { x: Math.cos(ang) * a, y: Math.sin(ang) * b * si, z: Math.sin(ang) * b * ci };
+          v = rotate(v);
+          const inFront = v.z >= 0;
+          if ((side === 'front') !== inFront) { started = false; continue; }
+          const sx = cx + v.x * Rz, sy = cy - v.y * Rz;
+          if (!started) { ctx.moveTo(sx, sy); started = true; } else ctx.lineTo(sx, sy);
+        }
+        ctx.strokeStyle = side === 'front'
+          ? `rgba(${hexToRgb(s.color)},0.30)`
+          : `rgba(${hexToRgb(s.color)},0.10)`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    function hexToRgb(hex) {
+      const c = hex.replace('#',''); return `${parseInt(c.substr(0,2),16)},${parseInt(c.substr(2,2),16)},${parseInt(c.substr(4,2),16)}`;
+    }
+
+    function drawSat(s, v, Rz, front) {
+      const sx = cx + v.x * Rz;
+      const sy = cy - v.y * Rz;
+      const depth = (v.z + s.a) / (s.a * 2);
+      const rr = (front ? 5.5 : 3.5) * (Rz / 200) + 2;
+      s.screen = { x: sx, y: sy, front, r: rr };
+      const rgb = hexToRgb(s.color);
+
+      // record + draw comet trail (built once per frame on the front pass)
+      if (front) {
+        s.trail.push({ x: sx, y: sy });
+        if (s.trail.length > 26) s.trail.shift();
+      }
+      if (s.trail.length > 1) {
+        for (let i = 1; i < s.trail.length; i++) {
+          const a = (i / s.trail.length);
+          ctx.strokeStyle = `rgba(${rgb},${a * (front ? 0.5 : 0.18)})`;
+          ctx.lineWidth = a * (front ? 2.4 : 1.4);
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(s.trail[i - 1].x, s.trail[i - 1].y);
+          ctx.lineTo(s.trail[i].x, s.trail[i].y);
+          ctx.stroke();
+        }
+      }
+
+      // halo
+      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rr * (front ? 8 : 4));
+      g.addColorStop(0, `rgba(${rgb},${front ? 0.95 : 0.4})`);
+      g.addColorStop(0.4, `rgba(${rgb},${front ? 0.5 : 0.18})`);
+      g.addColorStop(1, `rgba(${rgb},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(sx, sy, rr * (front ? 8 : 4), 0, Math.PI * 2); ctx.fill();
+      // core
+      ctx.fillStyle = front ? '#fff' : s.color;
+      ctx.beginPath(); ctx.arc(sx, sy, rr * (front ? 0.6 : 0.5), 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = s.color; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(sx, sy, rr, 0, Math.PI * 2); ctx.stroke();
+      // label for front sats
+      if (front && depth > 0.5) {
+        ctx.globalAlpha = Math.min(1, (depth - 0.5) * 2.4);
+        ctx.font = '500 12px "Space Grotesk", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.textAlign = 'left';
+        ctx.fillText(s.name, sx + rr + 8, sy + 4);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Principles wrap the rim — text follows an arc above the planet horizon.
+    function drawPrinciples(Rz) {
+      const radius = Rz * 1.16;
+      const baseAngle = -Math.PI / 2 + (reduced ? 0.2 : rotY * 0.5);
+      ctx.save();
+      ctx.font = '300 13px "Fraunces", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const spread = Math.PI * 1.15;
+      const startA = baseAngle - spread / 2;
+      let totalChars = principles.reduce((n, p) => n + p.length + 3, 0);
+      let charIdx = 0;
+      for (let pi = 0; pi < principles.length; pi++) {
+        const text = principles[pi] + '  •  ';
+        for (let i = 0; i < text.length; i++) {
+          const frac = charIdx / totalChars;
+          const ang = startA + frac * spread;
+          const ch = text[i];
+          const x = cx + Math.cos(ang) * radius;
+          const y = cy + Math.sin(ang) * radius;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(ang + Math.PI / 2);
+          ctx.fillStyle = ch === '•' ? 'rgba(140,170,255,0.9)' : 'rgba(205,215,255,0.55)';
+          ctx.fillText(ch, 0, 0);
+          ctx.restore();
+          charIdx++;
+        }
+      }
+      ctx.restore();
+    }
+
+    // Kick off
+    if (reduced) {
+      // one static render, then no rAF loop churn — but we still draw once.
+      draw.__once = true;
+    }
+    requestAnimationFrame(draw);
+
+    // Auto-fade hint after a while
+    setTimeout(() => { if (!hasInteracted && hintEl) hintEl.classList.add('breathe'); }, 2500);
+  </script>
+
+  <style is:global>
+    :root {
+      --ink: #e9ecff;
+      --dim: rgba(233,236,255,0.55);
+      --faint: rgba(233,236,255,0.32);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #04050c; }
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      color: var(--ink);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    .world { position: fixed; inset: 0; }
+    #stage { position: fixed; inset: 0; display: block; touch-action: none; cursor: grab; }
+    #stage:active { cursor: grabbing; }
+
+    /* ---- Masthead ---- */
+    .masthead {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px clamp(20px, 4vw, 48px);
+      mix-blend-mode: screen;
+    }
+    .sig { display: flex; align-items: center; gap: 11px; }
+    .sig-mark { font-size: 20px; color: #aeb8ff; animation: spinmark 14s linear infinite; }
+    @keyframes spinmark { to { transform: rotate(360deg); } }
+    .sig-name {
+      font-family: 'Fraunces', serif; font-size: 16px; letter-spacing: 0.01em;
+      font-weight: 400;
+    }
+    .orbit-nav { display: flex; gap: clamp(12px, 2vw, 26px); align-items: center; }
+    .orbit-nav a {
+      color: var(--dim); text-decoration: none; font-size: 13px; letter-spacing: 0.03em;
+      transition: color 0.3s ease; position: relative;
+    }
+    .orbit-nav a::after {
+      content: ''; position: absolute; left: 0; bottom: -4px; height: 1px; width: 0;
+      background: currentColor; transition: width 0.35s cubic-bezier(.2,.8,.2,1);
+    }
+    .orbit-nav a:hover { color: var(--ink); }
+    .orbit-nav a:hover::after { width: 100%; }
+    .orbit-nav a.social { color: #aeb8ff; }
+
+    /* ---- Hero ---- */
+    .hero {
+      position: fixed; z-index: 8; left: clamp(20px, 5vw, 64px);
+      top: clamp(96px, 13vh, 150px); max-width: min(640px, 80vw);
+      pointer-events: none;
+    }
+    .hero-kicker {
+      font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 0.32em;
+      text-transform: uppercase; color: #8fa0ff; margin: 0 0 18px;
+    }
+    .hero-line {
+      font-family: 'Fraunces', serif; font-weight: 300;
+      font-size: clamp(34px, 6.6vw, 78px); line-height: 0.98; margin: 0;
+      letter-spacing: -0.02em;
+    }
+    .hero-line span { display: block; }
+    .hero-line .hero-place {
+      font-style: italic; font-weight: 400;
+      background: linear-gradient(100deg, #ffd9a0, #ff9ec4 40%, #9d8bff 75%, #7be0ff);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      margin: 26px 0 0; font-size: 14px; line-height: 1.6; color: var(--dim);
+      max-width: 34ch;
+    }
+
+    /* ---- Readout ---- */
+    .readout {
+      position: fixed; z-index: 8; right: clamp(20px, 4vw, 48px);
+      top: 50%; transform: translateY(-50%);
+      text-align: right; pointer-events: none; max-width: 260px;
+    }
+    .readout-eyebrow {
+      display: block; font-family: 'Space Mono', monospace; font-size: 10px;
+      letter-spacing: 0.28em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px;
+    }
+    .readout-body {
+      display: block; font-family: 'Fraunces', serif; font-size: 19px; font-style: italic;
+      color: var(--ink); transition: opacity 0.16s ease, color 0.5s ease;
+    }
+
+    /* ---- Hint ---- */
+    .hint {
+      position: fixed; z-index: 8; left: 50%; bottom: 28px; transform: translateX(-50%);
+      font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+      color: var(--faint); pointer-events: none; transition: opacity 0.6s ease;
+    }
+    .hint.breathe { animation: breathe 2.6s ease-in-out infinite; }
+    @keyframes breathe { 0%,100% { opacity: 0.25; } 50% { opacity: 0.7; } }
+    .hint.gone { opacity: 0; }
+
+    /* ---- Audio toggle ---- */
+    .audio-toggle {
+      position: fixed; z-index: 10; left: clamp(20px, 4vw, 48px); bottom: 26px;
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(174,184,255,0.2);
+      color: var(--dim); padding: 9px 14px; border-radius: 100px; cursor: pointer;
+      font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.12em;
+      backdrop-filter: blur(8px); transition: all 0.3s ease;
+    }
+    .audio-toggle:hover { border-color: rgba(174,184,255,0.5); color: var(--ink); }
+    .audio-toggle.on { border-color: #aeb8ff; color: var(--ink); }
+    .wave { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+    .wave i { width: 2px; height: 3px; background: currentColor; border-radius: 2px; }
+    .audio-toggle.on .wave i { animation: bar 0.9s ease-in-out infinite; }
+    .wave i:nth-child(2) { animation-delay: 0.15s; }
+    .wave i:nth-child(3) { animation-delay: 0.3s; }
+    .wave i:nth-child(4) { animation-delay: 0.45s; }
+    @keyframes bar { 0%,100% { height: 3px; } 50% { height: 12px; } }
+
+    /* ---- Dossier ---- */
+    .dossier {
+      position: fixed; z-index: 20; inset: 0; display: flex; align-items: center;
+      justify-content: center; gap: clamp(24px, 5vw, 64px); padding: 8vh 6vw;
+      background: radial-gradient(ellipse at center, rgba(4,5,12,0.72), rgba(2,3,8,0.94));
+      backdrop-filter: blur(10px);
+      opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+      flex-wrap: wrap;
+    }
+    .dossier.open { opacity: 1; pointer-events: auto; }
+    .dossier-close {
+      position: absolute; top: 28px; right: 32px; background: none; border: none;
+      color: var(--dim); font-size: 22px; cursor: pointer; transition: color 0.2s;
+    }
+    .dossier-close:hover { color: var(--ink); }
+    .dossier-frame {
+      width: min(420px, 44vw); aspect-ratio: 4/3; border-radius: 14px; overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+      box-shadow: 0 0 80px -10px var(--accent), inset 0 0 60px -20px var(--accent);
+      background: #08091a; display: grid; place-items: center;
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
+    }
+    .dossier.open .dossier-frame { transform: none; }
+    .dossier-frame img { width: 100%; height: 100%; object-fit: contain; padding: 18px; }
+    .dossier-text { max-width: 420px; }
+    .dossier-period {
+      font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+      color: var(--accent); text-transform: uppercase;
+    }
+    .dossier-text h2 {
+      font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(34px, 5vw, 56px);
+      margin: 10px 0 6px; line-height: 1; letter-spacing: -0.02em;
+    }
+    .dossier-role { margin: 0 0 18px; font-size: 14px; color: var(--dim); }
+    .dossier-summary { margin: 0 0 26px; font-size: 15px; line-height: 1.65; color: rgba(233,236,255,0.78); }
+    .dossier-link {
+      display: inline-block; color: var(--ink); text-decoration: none;
+      font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+      border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+      padding: 11px 18px; border-radius: 100px; transition: all 0.3s ease;
+    }
+    .dossier-link:hover { background: var(--accent); color: #06070f; }
+
+    /* ---- Screen-reader / reduced fallback manifest ---- */
+    .sr-manifest {
+      position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0 0 0 0); white-space: nowrap;
+    }
+
+    @media (max-width: 760px) {
+      .masthead { flex-direction: column; gap: 14px; align-items: flex-start; }
+      .orbit-nav { flex-wrap: wrap; gap: 14px; }
+      .readout { top: auto; bottom: 88px; transform: none; max-width: 50vw; }
+      .hero { top: 132px; }
+      .dossier { flex-direction: column; padding: 8vh 24px; }
+      .dossier-frame { width: min(320px, 80vw); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sig-mark, .audio-toggle.on .wave i, .hint.breathe { animation: none !important; }
+      .sr-manifest {
+        position: static; width: auto; height: auto; clip: auto;
+        white-space: normal; padding: 120px clamp(20px,5vw,64px) 60px; max-width: 720px;
+      }
+      .sr-manifest h2 { font-family: 'Fraunces', serif; font-weight: 300; }
+      .sr-manifest li { margin-bottom: 14px; line-height: 1.6; color: var(--dim); }
+      body { overflow: auto; }
+    }
+  </style>
+</GalleryShell>

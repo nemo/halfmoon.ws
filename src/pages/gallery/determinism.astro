@@ -1,0 +1,1031 @@
+---
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+// Agents: identity words + projects. Each carries a predetermined "fate".
+const identityWords = [
+  'a', 'founder,', 'artist,', 'engineer,', 'and', 'musician',
+  'based', 'in', 'Brooklyn.',
+];
+
+const projectAgents = projects.map((p) => ({
+  name: p.data.name,
+  color: p.data.brandColor,
+  link: p.data.link ?? '#',
+  role: p.data.role,
+  period: p.data.period,
+  img: p.data.heroImage ?? `/media/${p.slug}/${p.slug}.png`,
+}));
+
+const navAgents = [
+  { label: 'Find Me', href: '/about' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Principles', href: '/principles' },
+];
+
+const dataPayload = JSON.stringify({
+  words: identityWords,
+  projects: projectAgents,
+  nav: navAgents,
+});
+---
+
+<GalleryShell title="Determinism" trend="Free will is limited">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <div id="det-root" data-payload={dataPayload}>
+    <canvas id="forcefield"></canvas>
+    <canvas id="field"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <!-- HUD: the argument, rendered as instrumentation -->
+    <header class="hud hud-top">
+      <div class="mark">
+        <span class="mark-dot"></span>
+        <span>NIMA GARDIDEH</span>
+      </div>
+      <div class="thesis">
+        <span class="thesis-num">PRINCIPLE 04</span>
+        <span class="thesis-text">Free will is limited.</span>
+      </div>
+    </header>
+
+    <!-- Agency meter: the philosophical instrument. -->
+    <div class="hud hud-meter" aria-hidden="true">
+      <div class="meter-label">
+        <span>AGENCY</span>
+        <span id="agency-readout">0.18</span>
+      </div>
+      <div class="meter-track">
+        <span class="meter-floor"></span>
+        <span class="meter-ceil"></span>
+        <span class="meter-fill" id="agency-fill"></span>
+      </div>
+      <div class="meter-caption">
+        bounded. <span id="meter-state">at rest</span>
+      </div>
+    </div>
+
+    <footer class="hud hud-bottom">
+      <p class="instruct">
+        <span class="pulse"></span>
+        Grab the words. Scatter them. They return to their fate.
+      </p>
+      <a class="social" href="https://x.com/ngardideh" target="_blank" rel="noopener">
+        @ngardideh
+      </a>
+    </footer>
+
+    <!-- Calm, fully-readable fallback for reduced motion / no-JS -->
+    <noscript>
+      <style>#field, .hud { display: none; }</style>
+    </noscript>
+    <section class="fallback" id="fallback" aria-hidden="false">
+      <p class="fallback-hero">
+        Nima Gardideh is a founder, artist, engineer, and musician based in
+        Brooklyn.
+      </p>
+      <p class="fallback-sub">
+        Free will is limited — agency lives inside forces mostly out of our
+        control. So does this page.
+      </p>
+      <nav class="fallback-nav">
+        <a href="/about">Find Me</a>
+        <a href="/projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/principles">Principles</a>
+        <a href="https://x.com/ngardideh">@ngardideh</a>
+      </nav>
+      <ul class="fallback-projects">
+        {projectAgents.map((p) => (
+          <li>
+            <a href={p.link} style={`--c:${p.color}`}>
+              <strong>{p.name}</strong>
+              <span>{p.role} · {p.period}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+
+  <style>
+    :root {
+      --ink: #06060a;
+      --ink-2: #0b0b12;
+      --paper: #e9e6dd;
+      --paper-dim: #8b897f;
+      --line: rgba(233, 230, 221, 0.14);
+      --hot: #f2668b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--ink);
+      color: var(--paper);
+      overflow: hidden;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #det-root {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(120% 90% at 50% 38%, #101019 0%, #07070c 55%, #040406 100%);
+      cursor: crosshair;
+      overflow: hidden;
+    }
+
+    #field, #forcefield {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #forcefield { z-index: 0; opacity: 0.9; }
+    #field { z-index: 2; }
+
+    /* the field is observed through a tightening aperture */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background:
+        radial-gradient(135% 120% at 50% 42%,
+          transparent 0%,
+          transparent 46%,
+          rgba(4,4,6,0.55) 78%,
+          rgba(2,2,4,0.95) 100%);
+    }
+
+    /* ---------- HUD ---------- */
+    .hud {
+      position: absolute;
+      z-index: 5;
+      pointer-events: none;
+      mix-blend-mode: normal;
+    }
+    .hud a, .hud .social { pointer-events: auto; }
+
+    .hud-top {
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: clamp(18px, 3vw, 34px) clamp(18px, 4vw, 48px);
+      gap: 16px;
+    }
+
+    .mark {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      color: var(--paper);
+    }
+    .mark-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--hot);
+      box-shadow: 0 0 12px var(--hot);
+      animation: breathe 3.4s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .thesis {
+      text-align: right;
+      max-width: 50vw;
+    }
+    .thesis-num {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--paper-dim);
+    }
+    .thesis-text {
+      display: block;
+      font-family: 'Newsreader', serif;
+      font-style: italic;
+      font-size: clamp(15px, 1.5vw, 19px);
+      color: var(--paper);
+      margin-top: 3px;
+    }
+
+    /* ---------- Agency meter ---------- */
+    .hud-meter {
+      left: clamp(18px, 4vw, 48px);
+      bottom: clamp(74px, 12vh, 120px);
+      width: clamp(160px, 18vw, 220px);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      letter-spacing: 0.26em;
+      color: var(--paper-dim);
+      margin-bottom: 7px;
+    }
+    #agency-readout { color: var(--paper); }
+    .meter-track {
+      position: relative;
+      height: 3px;
+      background: rgba(233, 230, 221, 0.1);
+      border-radius: 2px;
+      overflow: visible;
+    }
+    .meter-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 18%;
+      background: linear-gradient(90deg, #6c5ce7, var(--hot));
+      border-radius: 2px;
+      transition: width 0.12s linear;
+    }
+    .meter-floor, .meter-ceil {
+      position: absolute;
+      top: -3px; bottom: -3px;
+      width: 1px;
+      background: var(--paper-dim);
+      opacity: 0.55;
+    }
+    .meter-floor { left: 12%; }   /* agency never reaches zero */
+    .meter-ceil { left: 82%; }    /* nor does it reach full */
+    .meter-caption {
+      margin-top: 8px;
+      font-size: 9.5px;
+      letter-spacing: 0.2em;
+      color: var(--paper-dim);
+      text-transform: uppercase;
+    }
+    #meter-state { color: var(--paper); }
+
+    /* ---------- bottom ---------- */
+    .hud-bottom {
+      left: 0; right: 0; bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: clamp(16px, 3vw, 30px) clamp(18px, 4vw, 48px);
+      gap: 16px;
+    }
+    .instruct {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--paper-dim);
+    }
+    .pulse {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--paper);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 0.9; }
+    }
+    .social {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--paper);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 2px;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .social:hover { border-color: var(--hot); color: var(--hot); }
+
+    /* ---------- fallback ---------- */
+    .fallback {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(28px, 8vw, 120px);
+      background:
+        radial-gradient(120% 90% at 50% 40%, #101019 0%, #07070c 60%, #040406 100%);
+    }
+    .fallback-hero {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(28px, 5vw, 64px);
+      line-height: 1.08;
+      max-width: 16ch;
+      letter-spacing: -0.01em;
+    }
+    .fallback-sub {
+      margin-top: 22px;
+      font-size: clamp(14px, 1.6vw, 18px);
+      color: var(--paper-dim);
+      max-width: 46ch;
+      line-height: 1.5;
+    }
+    .fallback-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+    }
+    .fallback-nav a { color: var(--paper); text-decoration: none; border-bottom: 1px solid var(--line); }
+    .fallback-nav a:hover { border-color: var(--hot); }
+    .fallback-projects {
+      list-style: none;
+      margin-top: 36px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      max-width: 760px;
+    }
+    .fallback-projects a {
+      display: block;
+      text-decoration: none;
+      color: var(--paper);
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--c);
+    }
+    .fallback-projects strong { display: block; font-weight: 500; }
+    .fallback-projects span { font-size: 11px; color: var(--paper-dim); font-family: 'JetBrains Mono', monospace; }
+
+    /* reduced motion -> calm, legible state */
+    @media (prefers-reduced-motion: reduce) {
+      #field, .hud-meter, .hud-bottom .instruct { display: none; }
+      .fallback { display: flex; }
+      #det-root { cursor: auto; }
+    }
+
+    @media (max-width: 560px) {
+      .thesis { max-width: 58vw; }
+      .hud-meter { bottom: 88px; }
+      .instruct { font-size: 10px; }
+    }
+  </style>
+
+  <script is:inline define:vars={{ dataPayload }}>
+    (function () {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fallback = document.getElementById('fallback');
+      if (reduce) {
+        if (fallback) fallback.style.display = 'flex';
+        return;
+      }
+
+      const root = document.getElementById('det-root');
+      const canvas = document.getElementById('field');
+      const ctx = canvas.getContext('2d');
+      const fieldCanvas = document.getElementById('forcefield');
+      const fctx = fieldCanvas.getContext('2d');
+      const data = JSON.parse(dataPayload);
+
+      let DPR = Math.min(window.devicePixelRatio || 1, 2);
+      let W = 0, H = 0;
+
+      // ---- pointer state ----
+      const pointer = { x: -9999, y: -9999, active: false, down: false };
+      let grabbed = null;          // agent being dragged
+      let lastFlingEnergy = 0;     // for the meter
+
+      // ---- agency meter state (the argument) ----
+      const AGENCY_FLOOR = 0.12;   // agency never zero
+      const AGENCY_CEIL = 0.82;    // agency never full
+      let agency = AGENCY_FLOOR;   // 0..1, decays toward floor
+      const agencyFill = document.getElementById('agency-fill');
+      const agencyReadout = document.getElementById('agency-readout');
+      const meterState = document.getElementById('meter-state');
+
+      // ---------------------------------------------------------------
+      // AGENTS. Each has a *fate* (fx,fy) it is sprung toward, plus an
+      // orbital phase so its fate slowly precesses on a fixed ring — a
+      // predetermined path. You can fling it; it always returns.
+      // ---------------------------------------------------------------
+      const agents = [];
+
+      function layout() {
+        const rect = root.getBoundingClientRect();
+        W = rect.width; H = rect.height;
+        canvas.width = W * DPR;
+        canvas.height = H * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        fieldCanvas.width = W * DPR;
+        fieldCanvas.height = H * DPR;
+        fctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+        const cx = W / 2;
+        const cy = H * 0.44;
+        const small = Math.min(W, H);
+
+        // --- identity sentence: words on a gentle arc through center ---
+        const words = data.words;
+        const baseSize = Math.max(15, Math.min(44, small * 0.048));
+        // measure widths to lay out the sentence as a flowing line
+        ctx.font = `300 ${baseSize}px Newsreader, serif`;
+        const widths = words.map((w) => ctx.measureText(w).width);
+        const space = baseSize * 0.30;
+        const maxLineW = Math.min(W * 0.74, 720);
+
+        // wrap into lines
+        const lines = [];
+        let line = [], lineW = 0;
+        words.forEach((w, i) => {
+          const ww = widths[i];
+          if (lineW + ww > maxLineW && line.length) {
+            lines.push({ items: line, w: lineW });
+            line = []; lineW = 0;
+          }
+          line.push({ w, ww, i });
+          lineW += ww + space;
+        });
+        if (line.length) lines.push({ items: line, w: lineW });
+
+        const lineH = baseSize * 1.18;
+        const totalH = lines.length * lineH;
+        let startY = cy - totalH / 2 + lineH / 2;
+
+        let wIdx = 0;
+        lines.forEach((ln) => {
+          let x = cx - (ln.w - space) / 2;
+          ln.items.forEach((it) => {
+            const fx = x + it.ww / 2;
+            const fy = startY;
+            assignFate('word', wIdx, fx, fy, { text: it.w, size: baseSize });
+            x += it.ww + space;
+            wIdx++;
+          });
+          startY += lineH;
+        });
+
+        // --- projects: orbit on a flat ellipse below the sentence ---
+        const projs = data.projects;
+        const portrait = W < 720;
+        const ringR = Math.min(W, H) * (portrait ? 0.32 : 0.30);
+        const ringCy = cy + totalH / 2 + Math.min(H * 0.18, 168);
+        // on narrow screens, pull the ellipse in so edge labels stay on-canvas
+        const ringSX = portrait ? 0.92 : 1.42;
+        const ringSY = portrait ? 0.78 : 0.40;
+        projs.forEach((p, i) => {
+          const ang = (-Math.PI / 2) + (i / projs.length) * Math.PI * 2;
+          const fx = cx + Math.cos(ang) * ringR * ringSX;
+          const fy = ringCy + Math.sin(ang) * ringR * ringSY;
+          assignFate('project', i, fx, fy, {
+            text: p.name, color: p.color, link: p.link,
+            role: p.role, period: p.period, ang, ringR, ringCy, cx,
+            ringSX, ringSY,
+            size: Math.max(14, baseSize * 0.48),
+          });
+        });
+
+        // --- nav: pinned to a fixed lower band, clear of the ring ---
+        const nav = data.nav;
+        const navY = H - Math.max(64, H * 0.085);
+        const navSize = Math.max(11, baseSize * 0.34);
+        ctx.font = `500 ${navSize}px 'JetBrains Mono', monospace`;
+        const navW = nav.map((n) => ctx.measureText(n.label.toUpperCase()).width + 26);
+        const navTotal = navW.reduce((a, b) => a + b, 0) + (nav.length - 1) * 18;
+        let nx = cx - navTotal / 2;
+        nav.forEach((n, i) => {
+          const fx = nx + navW[i] / 2;
+          assignFate('nav', i, fx, navY, {
+            text: n.label.toUpperCase(), href: n.href, size: navSize, w: navW[i],
+          });
+          nx += navW[i] + 18;
+        });
+      }
+
+      function assignFate(kind, idx, fx, fy, meta) {
+        const key = kind + idx;
+        let a = agents.find((x) => x.key === key);
+        if (!a) {
+          a = {
+            key, kind,
+            x: W / 2 + (Math.random() - 0.5) * 80,
+            y: H / 2 + (Math.random() - 0.5) * 80,
+            vx: 0, vy: 0,
+            seed: Math.random() * Math.PI * 2,
+            born: performance.now() + idx * 26,
+          };
+          agents.push(a);
+        }
+        a.fx = fx; a.fy = fy;
+        Object.assign(a, meta);
+      }
+
+      // ---------------------------------------------------------------
+      // PHYSICS — spring to fate + cursor repulsion/drag + orbital drift.
+      // ---------------------------------------------------------------
+      function step(now, dt) {
+        const STIFF = 0.034;      // pull toward fate — fate reasserts firmly
+        const DAMP = 0.82;        // velocity damping — settles with authority
+        const REPEL = 1.0;
+        const REPEL_R = 124;
+
+        let totalDisp = 0;        // how far the system is from its fate
+        let maxV = 0;
+
+        for (const a of agents) {
+          if (now < a.born) continue;
+
+          // orbital precession of the fate point (the predetermined path)
+          let tfx = a.fx, tfy = a.fy;
+          if (a.kind === 'project') {
+            const t = now * 0.00009;
+            const ang = a.ang + t;
+            tfx = a.cx + Math.cos(ang) * a.ringR * a.ringSX;
+            tfy = a.ringCy + Math.sin(ang) * a.ringR * a.ringSY;
+            a.fx = tfx; a.fy = tfy;
+          } else {
+            // words breathe almost imperceptibly around fate — alive but fated.
+            // kept tiny so the sentence reads as a clean composed line at rest.
+            tfx = a.fx + Math.sin(now * 0.0005 + a.seed) * 1.1;
+            tfy = a.fy + Math.cos(now * 0.0004 + a.seed) * 1.1;
+          }
+
+          if (a === grabbed) {
+            a.x = pointer.x;
+            a.y = pointer.y;
+            a.vx = (a.x - (a.px ?? a.x));
+            a.vy = (a.y - (a.py ?? a.y));
+            a.px = a.x; a.py = a.y;
+          } else {
+            // spring toward fate
+            a.vx += (tfx - a.x) * STIFF;
+            a.vy += (tfy - a.y) * STIFF;
+
+            // cursor as a force field — repel when near (but not grabbed)
+            if (pointer.active && !pointer.down) {
+              const dx = a.x - pointer.x;
+              const dy = a.y - pointer.y;
+              const d2 = dx * dx + dy * dy;
+              if (d2 < REPEL_R * REPEL_R && d2 > 1) {
+                const d = Math.sqrt(d2);
+                const f = (1 - d / REPEL_R) * REPEL * 4.2;
+                a.vx += (dx / d) * f;
+                a.vy += (dy / d) * f;
+              }
+            }
+
+            a.vx *= DAMP;
+            a.vy *= DAMP;
+            a.x += a.vx;
+            a.y += a.vy;
+            a.px = a.x; a.py = a.y;
+          }
+
+          const ddx = a.x - tfx, ddy = a.y - tfy;
+          totalDisp += Math.sqrt(ddx * ddx + ddy * ddy);
+          const sp = Math.hypot(a.vx, a.vy);
+          if (sp > maxV) maxV = sp;
+        }
+
+        // ---- AGENCY METER ----
+        // displacement raises agency; it always decays back to the floor
+        // and is hard-capped below full. The argument, as a number.
+        const norm = Math.min(1, totalDisp / (agents.length * 120));
+        const struggle = Math.min(1, norm + maxV * 0.012);
+        const target = AGENCY_FLOOR + struggle * (AGENCY_CEIL - AGENCY_FLOOR);
+        // rise fast, decay slow — fate reasserts itself
+        if (target > agency) agency += (target - agency) * 0.25;
+        else agency += (target - agency) * 0.03;
+        agency = Math.max(AGENCY_FLOOR, Math.min(AGENCY_CEIL, agency));
+
+        return { totalDisp, maxV };
+      }
+
+      // ---------------------------------------------------------------
+      // RENDER
+      // ---------------------------------------------------------------
+      let hoverAgent = null;
+
+      // ---------------------------------------------------------------
+      // FORCE FIELD — the invisible determinism, made faintly visible.
+      // A flow field whose vectors point toward the nearest fate-anchor,
+      // bent by the cursor. Rendered on its own canvas so it can fade
+      // across frames (motion trails) without redrawing every line.
+      // ---------------------------------------------------------------
+      const flow = { cols: 0, rows: 0, gap: 0, pts: [] };
+      function buildFlow() {
+        const gap = Math.max(34, Math.min(W, H) * 0.052);
+        flow.gap = gap;
+        flow.cols = Math.ceil(W / gap) + 1;
+        flow.rows = Math.ceil(H / gap) + 1;
+        flow.pts = [];
+        for (let j = 0; j < flow.rows; j++) {
+          for (let i = 0; i < flow.cols; i++) {
+            flow.pts.push({ x: i * gap, y: j * gap });
+          }
+        }
+      }
+
+      function drawField(now) {
+        // persistence: gently fade what's there, paint new strokes over it
+        fctx.globalCompositeOperation = 'source-over';
+        fctx.fillStyle = 'rgba(4,4,7,0.20)';
+        fctx.fillRect(0, 0, W, H);
+
+        const t = now * 0.00018;
+        const len = flow.gap * 0.62;
+        fctx.lineWidth = 1;
+        for (const p of flow.pts) {
+          // base direction: a slow curl-noise rotation field (the substrate)
+          let ang =
+            Math.sin(p.x * 0.0042 + t) * 1.6 +
+            Math.cos(p.y * 0.0050 - t * 0.8) * 1.6 +
+            Math.sin((p.x + p.y) * 0.0026 + t * 0.5) * 1.2;
+
+          // pulled toward the global center of fate (the attractor)
+          const tax = W / 2 - p.x, tay = H * 0.5 - p.y;
+          const ta = Math.atan2(tay, tax);
+          ang = ang * 0.62 + ta * 0.38;
+
+          // cursor warps the field locally (you disturb the determinism)
+          let warp = 0, mag = 1;
+          if (pointer.active) {
+            const dx = p.x - pointer.x, dy = p.y - pointer.y;
+            const d = Math.hypot(dx, dy);
+            if (d < 220) {
+              const f = 1 - d / 220;
+              const ca = Math.atan2(dy, dx) + Math.PI / 2;
+              ang = ang * (1 - f) + ca * f;
+              mag = 1 + f * 1.4;
+              warp = f;
+            }
+          }
+
+          const vx = Math.cos(ang) * len * mag;
+          const vy = Math.sin(ang) * len * mag;
+          const a = 0.05 + warp * 0.5;
+          fctx.strokeStyle = warp > 0.05
+            ? `rgba(242,102,139,${0.10 + warp * 0.55})`
+            : `rgba(170,176,210,${a})`;
+          fctx.beginPath();
+          fctx.moveTo(p.x, p.y);
+          fctx.lineTo(p.x + vx, p.y + vy);
+          fctx.stroke();
+          // node head — a faint star map
+          fctx.fillStyle = `rgba(200,205,230,${a * 0.9})`;
+          fctx.fillRect(p.x - 0.5, p.y - 0.5, 1, 1);
+        }
+      }
+
+      function draw(now) {
+        ctx.clearRect(0, 0, W, H);
+
+        // faint orbital rings — the predetermined paths, made visible
+        const cx = W / 2;
+        const sampleProj = agents.find((a) => a.kind === 'project');
+        if (sampleProj) {
+          ctx.save();
+          ctx.setLineDash([2, 6]);
+          ctx.strokeStyle = 'rgba(233,230,221,0.08)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.ellipse(sampleProj.cx, sampleProj.ringCy,
+            sampleProj.ringR * sampleProj.ringSX,
+            sampleProj.ringR * sampleProj.ringSY, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // tether lines: each agent to its fate (taut = far from fate).
+        // Always at least faintly visible so the "leash" reads at rest.
+        ctx.save();
+        for (const a of agents) {
+          if (now < a.born) continue;
+          const dx = a.fx - a.x, dy = a.fy - a.y;
+          const d = Math.hypot(dx, dy);
+          // fate anchor: a small cross-hair marking the predetermined spot
+          const anchorA = 0.10 + Math.min(0.55, d / 160);
+          ctx.strokeStyle = `rgba(233,230,221,${anchorA})`;
+          ctx.lineWidth = 0.7;
+          ctx.beginPath();
+          ctx.moveTo(a.fx - 3, a.fy); ctx.lineTo(a.fx + 3, a.fy);
+          ctx.moveTo(a.fx, a.fy - 3); ctx.lineTo(a.fx, a.fy + 3);
+          ctx.stroke();
+
+          if (d < 4) continue;
+          const taut = Math.min(1, d / 200);
+          const alpha = 0.08 + taut * 0.55;
+          const col = a.kind === 'project' ? a.color : null;
+          ctx.strokeStyle = col ? hexA(col, alpha) : `rgba(242,102,139,${alpha})`;
+          ctx.lineWidth = a === grabbed ? 1.6 : (0.6 + taut * 1.1);
+          // curve the leash slightly perpendicular when taut — a strained cord
+          const mx = (a.x + a.fx) / 2, my = (a.y + a.fy) / 2;
+          const nx = -dy / (d || 1), ny = dx / (d || 1);
+          const bow = Math.min(28, d * 0.14) * Math.sin(now * 0.004 + a.seed);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.quadraticCurveTo(mx + nx * bow, my + ny * bow, a.fx, a.fy);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // agents
+        for (const a of agents) {
+          if (now < a.born) {
+            continue;
+          }
+          const appear = Math.min(1, (now - a.born) / 900);
+          const ease = 1 - Math.pow(1 - appear, 3);
+
+          if (a.kind === 'word') {
+            drawWord(a, ease);
+          } else if (a.kind === 'project') {
+            drawProject(a, ease, now);
+          } else if (a.kind === 'nav') {
+            drawNav(a, ease);
+          }
+        }
+      }
+
+      function drawWord(a, ease) {
+        ctx.save();
+        ctx.globalAlpha = ease;
+        ctx.font = `400 ${a.size}px Newsreader, serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const speed = Math.hypot(a.vx, a.vy);
+        // displaced words glow faintly hot — the system "feeling" the tug
+        if (speed > 1.5) {
+          ctx.shadowColor = 'rgba(242,102,139,0.5)';
+          ctx.shadowBlur = Math.min(18, speed * 2);
+        }
+        ctx.fillStyle = a === grabbed ? '#fff' : '#e9e6dd';
+        ctx.fillText(a.text, a.x, a.y);
+        ctx.restore();
+      }
+
+      function drawNav(a, ease) {
+        const hot = a === hoverAgent;
+        ctx.save();
+        ctx.globalAlpha = ease * (hot ? 1 : 0.62);
+        ctx.font = `500 ${a.size}px 'JetBrains Mono', monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // pill
+        ctx.strokeStyle = hot ? 'rgba(242,102,139,0.8)' : 'rgba(233,230,221,0.18)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, a.x - a.w / 2, a.y - a.size * 0.95, a.w, a.size * 1.9, a.size);
+        ctx.stroke();
+        ctx.fillStyle = hot ? '#f2668b' : '#cfccc2';
+        ctx.fillText(a.text, a.x, a.y + 0.5);
+        ctx.restore();
+      }
+
+      function drawProject(a, ease, now) {
+        const baseR = Math.max(13, a.size * 1.05);
+        const hot = a === hoverAgent;
+        const r = baseR * (hot ? 1.18 : 1);
+        const col = a.color;
+
+        ctx.save();
+        ctx.globalAlpha = ease;
+
+        // soft halo
+        const grad = ctx.createRadialGradient(a.x, a.y, 0, a.x, a.y, r * 3.4);
+        grad.addColorStop(0, hexA(col, hot ? 0.55 : 0.32));
+        grad.addColorStop(0.5, hexA(col, hot ? 0.16 : 0.08));
+        grad.addColorStop(1, hexA(col, 0));
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, r * 3.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // dense core
+        ctx.shadowColor = hexA(col, 0.9);
+        ctx.shadowBlur = hot ? 28 : 14;
+        const core = ctx.createRadialGradient(
+          a.x - r * 0.3, a.y - r * 0.3, r * 0.1, a.x, a.y, r);
+        core.addColorStop(0, hexA(col, 1));
+        core.addColorStop(1, hexA(col, 0.55));
+        ctx.fillStyle = core;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // thin orbital ring + a satellite electron tracing its fated path
+        ctx.strokeStyle = hexA(col, hot ? 0.6 : 0.28);
+        ctx.lineWidth = 1;
+        const orbR = r * 1.9;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, orbR, 0, Math.PI * 2);
+        ctx.stroke();
+        const sa = now * 0.0013 + a.seed;
+        const sx = a.x + Math.cos(sa) * orbR;
+        const sy = a.y + Math.sin(sa) * orbR;
+        ctx.fillStyle = hexA(col, 1);
+        ctx.beginPath();
+        ctx.arc(sx, sy, hot ? 2.6 : 1.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // label + role, set as quiet instrumentation
+        ctx.save();
+        ctx.globalAlpha = ease * (hot ? 1 : 0.9);
+        ctx.font = `500 ${a.size}px 'Space Grotesk', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = '#eceae2';
+        ctx.fillText(a.text, a.x, a.y + orbR + 9);
+        ctx.globalAlpha = ease * (hot ? 0.95 : 0.5);
+        ctx.font = `400 ${Math.max(9, a.size * 0.5)}px 'JetBrains Mono', monospace`;
+        ctx.fillStyle = hexA(col, hot ? 1 : 0.85);
+        ctx.fillText(
+          (hot ? (a.role + ' · ' + a.period) : a.period).toUpperCase(),
+          a.x, a.y + orbR + 9 + a.size * 1.15);
+        ctx.restore();
+      }
+
+      // ---------------------------------------------------------------
+      // utils
+      // ---------------------------------------------------------------
+      function hexA(hex, a) {
+        let h = hex.replace('#', '');
+        if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+        const n = parseInt(h, 16);
+        return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+      }
+      function roundRect(c, x, y, w, h, r) {
+        r = Math.min(r, h / 2, w / 2);
+        c.beginPath();
+        c.moveTo(x + r, y);
+        c.arcTo(x + w, y, x + w, y + h, r);
+        c.arcTo(x + w, y + h, x, y + h, r);
+        c.arcTo(x, y + h, x, y, r);
+        c.arcTo(x, y, x + w, y, r);
+        c.closePath();
+      }
+
+      function agentAt(px, py) {
+        // hit test, projects + nav first (bigger), then words
+        let best = null, bestD = Infinity;
+        for (const a of agents) {
+          let rad;
+          if (a.kind === 'project') rad = Math.max(26, a.size * 2.2);
+          else if (a.kind === 'nav') rad = Math.max(a.w / 2, 22);
+          else rad = Math.max(18, a.size * 0.7 + (a.text.length * a.size * 0.16));
+          const dx = px - a.x, dy = py - a.y;
+          const d = Math.hypot(dx, dy);
+          if (d < rad && d < bestD) { best = a; bestD = d; }
+        }
+        return best;
+      }
+
+      // ---------------------------------------------------------------
+      // INPUT
+      // ---------------------------------------------------------------
+      function setPointer(e) {
+        const t = e.touches ? e.touches[0] : e;
+        if (!t) return;
+        const rect = root.getBoundingClientRect();
+        pointer.x = t.clientX - rect.left;
+        pointer.y = t.clientY - rect.top;
+        pointer.active = true;
+      }
+
+      root.addEventListener('pointermove', (e) => {
+        setPointer(e);
+        if (!grabbed) {
+          const h = agentAt(pointer.x, pointer.y);
+          hoverAgent = (h && (h.kind === 'project' || h.kind === 'nav')) ? h : null;
+          root.style.cursor = h ? 'grab' : 'crosshair';
+        }
+      });
+
+      root.addEventListener('pointerleave', () => {
+        pointer.active = false;
+        pointer.x = -9999; pointer.y = -9999;
+        hoverAgent = null;
+      });
+
+      let downX = 0, downY = 0, downT = 0;
+      root.addEventListener('pointerdown', (e) => {
+        setPointer(e);
+        pointer.down = true;
+        downX = pointer.x; downY = pointer.y; downT = performance.now();
+        const a = agentAt(pointer.x, pointer.y);
+        if (a) {
+          grabbed = a;
+          a.px = a.x; a.py = a.y;
+          root.style.cursor = 'grabbing';
+          if (root.setPointerCapture) try { root.setPointerCapture(e.pointerId); } catch (_) {}
+        }
+      });
+
+      function release(e) {
+        pointer.down = false;
+        const moved = Math.hypot(pointer.x - downX, pointer.y - downY);
+        const wasGrab = grabbed;
+        if (grabbed) {
+          // fling: keep momentum so it has to fight its way back
+          grabbed.vx *= 1.5;
+          grabbed.vy *= 1.5;
+          grabbed = null;
+        }
+        // click (not drag) on a project/nav -> navigate
+        if (wasGrab && moved < 6 && (performance.now() - downT) < 350) {
+          if (wasGrab.kind === 'project' && wasGrab.link) {
+            window.open(wasGrab.link, '_blank', 'noopener');
+          } else if (wasGrab.kind === 'nav' && wasGrab.href) {
+            window.location.href = wasGrab.href;
+          }
+        }
+        root.style.cursor = 'crosshair';
+      }
+      root.addEventListener('pointerup', release);
+
+      // THE UNFORGETTABLE MOMENT, on demand: a "scatter" gesture.
+      // Double-click / double-tap blasts the whole system apart; watch
+      // it re-converge into the fated sentence. (Drag does it too.)
+      function scatter() {
+        for (const a of agents) {
+          const ang = Math.random() * Math.PI * 2;
+          const force = 18 + Math.random() * 22;
+          a.vx += Math.cos(ang) * force;
+          a.vy += Math.sin(ang) * force;
+        }
+        agency = AGENCY_CEIL; // max it — then watch it decay back to floor
+      }
+      root.addEventListener('dblclick', scatter);
+
+      // ---------------------------------------------------------------
+      // LOOP
+      // ---------------------------------------------------------------
+      let last = performance.now();
+      function frame(now) {
+        const dt = Math.min(48, now - last);
+        last = now;
+        const stats = step(now, dt);
+        drawField(now);
+        draw(now);
+
+        // meter DOM
+        const pct = agency * 100;
+        agencyFill.style.width = pct.toFixed(1) + '%';
+        agencyReadout.textContent = agency.toFixed(2);
+        if (agency > AGENCY_CEIL - 0.04) meterState.textContent = 'maxed — still bounded';
+        else if (stats.maxV > 4) meterState.textContent = 'struggling';
+        else if (agency > AGENCY_FLOOR + 0.06) meterState.textContent = 'returning';
+        else meterState.textContent = 'at rest';
+
+        requestAnimationFrame(frame);
+      }
+
+      function init() {
+        const rect = root.getBoundingClientRect();
+        canvas.width = rect.width * DPR;
+        canvas.height = rect.height * DPR;
+        layout();
+        buildFlow();
+        requestAnimationFrame(frame);
+      }
+
+      let rt;
+      window.addEventListener('resize', () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+          DPR = Math.min(window.devicePixelRatio || 1, 2);
+          layout();
+          buildFlow();
+        }, 120);
+      });
+
+      // fonts may shift metrics — relayout once loaded
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => layout());
+      }
+
+      init();
+    })();
+  </script>
+</GalleryShell>

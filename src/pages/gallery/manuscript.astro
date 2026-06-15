@@ -1,0 +1,1072 @@
+---
+/**
+ * Living Manuscript — an interactive literary folio for Nima Gardideh.
+ *
+ * Concept: an engineer-meets-poet portfolio that writes ITSELF onto a ruled
+ * manuscript page in kinetic ink, then invites you to converse. The page is
+ * governed by his four principles — most of all "free will is limited": the
+ * manuscript keeps composing on its own even as you type, annotating its own
+ * margins, hallucinating glyphs into words. Type commands to summon projects,
+ * principles, his blog, ways to reach him; the folio answers like a poem.
+ *
+ * Touches only this file (+ optional assets). Clean slate — no global tokens.
+ */
+import GalleryShell from '../../layouts/GalleryShell.astro';
+import { getCollection } from 'astro:content';
+
+const projectEntries = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+const projects = projectEntries.map((p) => ({
+  slug: p.slug,
+  name: p.data.name,
+  role: p.data.role,
+  period: p.data.period,
+  summary: p.data.summary,
+  color: p.data.brandColor,
+  link: p.data.link ?? null,
+  image: p.data.heroImage ?? `/media/${p.slug}/${p.slug}.png`,
+}));
+
+// Inline the data the client script needs as a typed JSON blob.
+const folioData = {
+  hero: 'a founder, artist, engineer, and musician based in Brooklyn.',
+  hyphens: ['founder', 'artist', 'engineer', 'musician'],
+  cities: ['Brooklyn', 'São Paulo', 'Tehran', 'Lisbon', 'Mexico City', 'Berlin', 'Earth'],
+  principles: [
+    'Life is struggle.',
+    'Humans have collective imagination.',
+    'Humans are influenced by narratives.',
+    'Free will is limited.',
+  ],
+  creed: 'enjoy my human experience and make the years count.',
+  projects,
+  social: { handle: '@ngardideh', url: 'https://x.com/ngardideh' },
+  nav: [
+    { cmd: 'find me', href: '/about', gloss: 'where the author can be reached' },
+    { cmd: 'projects', href: '/projects', gloss: 'the catalogue of made things' },
+    { cmd: 'blog', href: '/blog', gloss: 'marginalia, published' },
+    { cmd: 'principles', href: '/principles', gloss: 'the laws this folio obeys' },
+  ],
+};
+---
+
+<GalleryShell title="Living Manuscript" trend="Nima Gardideh">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Spectral:ital,wght@0,300;0,400;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </Fragment>
+
+  <main id="folio" data-state="composing" aria-label="Living Manuscript">
+    <!-- grain / ink wash canvas, sits behind the page -->
+    <canvas id="ink" aria-hidden="true"></canvas>
+
+    <!-- the manuscript page -->
+    <article class="leaf" role="document">
+      <header class="rubric" aria-hidden="true">
+        <span class="folio-no">f.&nbsp;1<span class="recto">r</span></span>
+        <span class="dateline">
+          <span class="dl-label">composed at</span>
+          <span class="dl-city" id="dateline">Brooklyn</span>
+          <span class="dl-coord" id="coord">40.6782° N</span>
+        </span>
+        <span class="byline">
+          N.&nbsp;Gardideh — <span class="hyphen" id="hyphen">founder</span>
+        </span>
+      </header>
+
+      <!-- the autonomous margin: the manuscript annotates itself here -->
+      <aside class="margin" id="margin" aria-hidden="true"></aside>
+
+      <!-- the body — text writes itself into here -->
+      <section class="body" id="body" aria-live="polite"></section>
+
+      <!-- the scribe line: the conversational prompt -->
+      <footer class="scribe">
+        <label class="prompt" for="line">
+          <span class="quill" aria-hidden="true">⁂</span>
+          <span class="ask">say a word —</span>
+          <span class="ghost" id="ghost"></span>
+          <span class="line-wrap">
+            <input
+              id="line"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              aria-label="Speak to the manuscript. Try: principles, projects, suto, find me, who are you"
+            />
+            <span class="ink-caret" id="caret" aria-hidden="true"></span>
+          </span>
+        </label>
+        <div class="hints" id="hints" aria-hidden="true"></div>
+      </footer>
+    </article>
+
+    <!-- accessible / reduced-motion plain table of contents -->
+    <noscript>
+      <div class="fallback">
+        <p>{folioData.hero}</p>
+        <nav>
+          {folioData.nav.map((n) => (<a href={n.href}>{n.cmd}</a>))}
+          <a href={folioData.social.url}>{folioData.social.handle}</a>
+        </nav>
+      </div>
+    </noscript>
+  </main>
+
+  <script type="application/json" id="folio-data" set:html={JSON.stringify(folioData)} is:inline></script>
+
+  <style is:global>
+    /* ---------- palette: aged folio + iron-gall ink ---------- */
+    :root {
+      --paper: #efe7d6;
+      --paper-2: #e6dcc6;
+      --vellum: #f6efe0;
+      --ink: #20160e;
+      --ink-soft: #4a3a2a;
+      --ink-faint: #8a755b;
+      --rule: rgba(58, 38, 22, 0.16);
+      --rubric: #9b2a2a; /* the classic red of manuscript rubrication */
+      --gild: #b98a2e;
+      --leaf-w: min(1120px, 92vw);
+      --serif: 'Fraunces', Georgia, serif;
+      --read: 'Spectral', Georgia, serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #1c140c;
+      color: var(--ink);
+      font-family: var(--read);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    #folio {
+      position: relative;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: clamp(14px, 3.5vw, 48px);
+      overflow: hidden;
+      background:
+        radial-gradient(120% 90% at 50% -10%, #2a1f14 0%, #160f08 60%, #0c0805 100%);
+    }
+
+    #ink {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.72;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    /* ---------- the leaf ---------- */
+    .leaf {
+      position: relative;
+      z-index: 1;
+      width: var(--leaf-w);
+      align-self: stretch;
+      display: grid;
+      grid-template-columns: minmax(150px, 0.32fr) 1fr;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        'rubric rubric'
+        'margin body'
+        'scribe scribe';
+      gap: clamp(10px, 2vw, 28px);
+      padding: clamp(22px, 3.4vw, 54px) clamp(20px, 3.6vw, 60px);
+      background:
+        linear-gradient(115deg, var(--vellum), var(--paper) 42%, var(--paper-2) 100%);
+      color: var(--ink);
+      box-shadow:
+        0 1px 0 rgba(255, 250, 240, 0.5) inset,
+        0 50px 90px -40px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(40, 26, 14, 0.18);
+      /* torn / hand-cut edge */
+      clip-path: polygon(
+        0.6% 0.4%, 99.4% 0%, 100% 1.4%, 99.6% 50%, 100% 98.6%,
+        99% 100%, 1% 99.6%, 0.2% 99%, 0.5% 50%, 0% 1.6%
+      );
+      min-height: 0;
+    }
+
+    /* faint horizontal ruling, drawn behind the body only */
+    .leaf::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent calc(1.85em - 1px),
+          var(--rule) calc(1.85em - 1px),
+          var(--rule) 1.85em
+        );
+      mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 86%, transparent 100%);
+      opacity: 0.7;
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    .leaf > * { position: relative; z-index: 1; }
+
+    /* ---------- rubric / running head ---------- */
+    .rubric {
+      grid-area: rubric;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: var(--mono);
+      font-size: clamp(0.58rem, 1vw, 0.72rem);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding-bottom: 0.7rem;
+      border-bottom: 1px solid var(--rule);
+      flex-wrap: wrap;
+    }
+    .folio-no { color: var(--rubric); font-weight: 500; }
+    .folio-no .recto { font-size: 0.7em; vertical-align: super; }
+    .dateline { display: inline-flex; gap: 0.6em; align-items: baseline; }
+    .dl-label { opacity: 0.65; }
+    .dl-city { color: var(--ink-soft); letter-spacing: 0.06em; min-width: 5.5em; }
+    .dl-coord { opacity: 0.5; }
+    .byline { color: var(--ink-soft); }
+    .hyphen { color: var(--rubric); position: relative; }
+
+    /* ---------- margin (autonomous annotation) ---------- */
+    .margin {
+      grid-area: margin;
+      font-family: var(--mono);
+      font-size: clamp(0.6rem, 0.95vw, 0.74rem);
+      line-height: 1.55;
+      color: var(--ink-faint);
+      text-align: right;
+      padding-right: clamp(8px, 1.4vw, 20px);
+      border-right: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85em;
+      overflow: hidden;
+      mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 100%);
+    }
+    .gloss {
+      opacity: 0;
+      transform: translateY(4px);
+      animation: glossIn 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    .gloss .g-mark {
+      color: var(--rubric);
+      font-style: italic;
+      display: block;
+      font-family: var(--serif);
+      font-size: 1.15em;
+      letter-spacing: 0;
+    }
+    .gloss.is-link { cursor: pointer; }
+    .gloss.is-link:hover .g-text { color: var(--ink); text-decoration: underline wavy var(--rubric); }
+    @keyframes glossIn { to { opacity: 1; transform: none; } }
+
+    /* ---------- body: the writing ---------- */
+    .body {
+      grid-area: body;
+      font-family: var(--read);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: clamp(2px, 1vw, 10px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--ink-faint) transparent;
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 2.4em), transparent 100%);
+              mask-image: linear-gradient(to bottom, #000 calc(100% - 2.4em), transparent 100%);
+    }
+    .body::-webkit-scrollbar { width: 6px; }
+    .body::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 6px; }
+
+    /* the giant opening flourish / drop-cap line */
+    .opening {
+      display: flow-root;
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(2.1rem, 6.2vw, 5.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin: 0.1em 0 0.7em;
+    }
+    .opening .em { font-style: italic; color: var(--rubric); }
+    .opening .gild { color: var(--gild); font-style: italic; }
+    /* an illuminated initial — a gilded, ruled cell holding the capital */
+    .dropcap {
+      float: left;
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 2.9em;
+      line-height: 0.78;
+      padding: 0.1em 0.2em 0.04em 0.16em;
+      margin: 0.04em 0.22em 0 0;
+      color: var(--rubric);
+      background:
+        linear-gradient(150deg, rgba(185,138,46,0.22), rgba(185,138,46,0.04) 60%, transparent);
+      box-shadow:
+        0 0 0 1.5px var(--gild) inset,
+        0 0 0 4px rgba(185,138,46,0.18),
+        0 1px 0 rgba(255, 246, 232, 0.7);
+      text-shadow: 0 1px 0 rgba(255, 246, 232, 0.7);
+    }
+
+    .stanza {
+      font-size: clamp(1.02rem, 1.55vw, 1.28rem);
+      line-height: 1.85;
+      color: var(--ink-soft);
+      margin: 0 0 1.1em;
+      max-width: 62ch;
+    }
+    .stanza .em { font-style: italic; color: var(--ink); }
+    .stanza .rb { color: var(--rubric); font-style: italic; }
+
+    /* a summoned entry (project / principle) — an illuminated record */
+    .entry {
+      --c: var(--rubric);
+      border-left: 3px solid var(--c);
+      padding: 0.1em 0 0.2em 1em;
+      margin: 0.2em 0 1.4em;
+      animation: entryIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+    @keyframes entryIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+    .entry .e-head {
+      display: flex; align-items: baseline; gap: 0.6em; flex-wrap: wrap;
+      font-family: var(--serif);
+    }
+    .entry .e-name {
+      font-size: clamp(1.5rem, 3vw, 2.3rem);
+      font-weight: 400; line-height: 1; color: var(--ink);
+    }
+    .entry .e-illum { color: var(--c); }
+    .entry .e-meta {
+      font-family: var(--mono);
+      font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+    .entry .e-sum {
+      font-size: clamp(0.98rem, 1.3vw, 1.12rem);
+      line-height: 1.7; color: var(--ink-soft); margin: 0.5em 0 0.6em; max-width: 58ch;
+    }
+    .entry .e-fig {
+      margin: 0.3em 0 0;
+      width: clamp(80px, 16vw, 132px);
+      aspect-ratio: 1 / 1;
+      background: var(--vellum) center / contain no-repeat;
+      border: 1px solid var(--rule);
+      box-shadow: 0 8px 20px -12px rgba(40, 26, 14, 0.6);
+      filter: saturate(0.92) contrast(1.02);
+      position: relative;
+    }
+    .entry .e-fig::after {
+      content: '';
+      position: absolute; inset: 0;
+      box-shadow: 0 0 0 2px var(--c) inset;
+      mix-blend-mode: multiply; opacity: 0.35;
+    }
+    .entry .e-link {
+      display: inline-block; margin-top: 0.5em;
+      font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+      color: var(--c); text-decoration: none;
+      border-bottom: 1px solid currentColor; padding-bottom: 1px;
+    }
+    .entry .e-link::before { content: '↗ '; }
+    .entry .e-link:hover { color: var(--ink); }
+
+    /* principles list when summoned */
+    .laws { list-style: none; margin: 0.2em 0 1.2em; padding: 0; counter-reset: law; }
+    .laws li {
+      counter-increment: law;
+      font-family: var(--serif); font-weight: 300;
+      font-size: clamp(1.15rem, 2.4vw, 1.85rem);
+      line-height: 1.3; color: var(--ink);
+      padding: 0.18em 0; display: flex; gap: 0.55em; align-items: baseline;
+      animation: entryIn 0.5s both;
+    }
+    .laws li::before {
+      content: counter(law, upper-roman) '.';
+      font-family: var(--mono); font-size: 0.55em; color: var(--rubric);
+      letter-spacing: 0.05em; min-width: 2.4em; text-align: right; opacity: 0.85;
+    }
+    .laws li:nth-child(4) { color: var(--rubric); font-style: italic; }
+
+    /* the cursor that the reader does not fully control */
+    .self-write { color: var(--ink); }
+
+    /* glyph that is currently "hallucinating" before it resolves */
+    .glyph { display: inline-block; }
+    .glyph.scramble { color: var(--ink-faint); }
+
+    /* the blinking ink caret inside the body while composing */
+    .compose-caret {
+      display: inline-block; width: 0.07em; height: 1em;
+      background: var(--rubric); margin-left: 0.04em;
+      transform: translateY(0.13em);
+      animation: blink 1.05s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ---------- scribe line (the prompt) ---------- */
+    .scribe {
+      grid-area: scribe;
+      border-top: 1px solid var(--rule);
+      padding-top: clamp(10px, 1.6vw, 18px);
+    }
+    .prompt {
+      display: flex; align-items: center; gap: 0.7em;
+      font-family: var(--mono); cursor: text;
+    }
+    .quill { color: var(--rubric); font-size: 1.2em; }
+    .ask {
+      color: var(--ink-faint); font-size: clamp(0.74rem, 1.2vw, 0.9rem);
+      letter-spacing: 0.04em; font-style: italic; font-family: var(--read);
+      white-space: nowrap;
+    }
+    .line-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
+    #line {
+      flex: 1; min-width: 0;
+      background: transparent; border: 0; outline: 0;
+      font-family: var(--read); font-style: italic;
+      font-size: clamp(1.05rem, 1.9vw, 1.45rem);
+      color: var(--ink); caret-color: transparent;
+      padding: 0.1em 0;
+    }
+    #line::placeholder { color: var(--ink-faint); opacity: 0.6; }
+    .ghost {
+      position: absolute; left: 0;
+      font-family: var(--read); font-style: italic;
+      font-size: clamp(1.05rem, 1.9vw, 1.45rem);
+      color: var(--ink-faint); opacity: 0.45; pointer-events: none;
+      white-space: nowrap; overflow: hidden;
+    }
+    .ink-caret {
+      position: absolute; left: 0; top: 50%;
+      width: 0.5px; height: 1.3em;
+      background: linear-gradient(var(--ink), var(--rubric));
+      transform: translateY(-50%);
+      transition: left 0.04s linear;
+      animation: blink 1.05s steps(1) infinite;
+    }
+    .hints {
+      margin-top: 0.7em;
+      display: flex; gap: 0.5em; flex-wrap: wrap;
+      font-family: var(--mono); font-size: clamp(0.62rem, 1vw, 0.72rem);
+    }
+    .hint {
+      color: var(--ink-faint); letter-spacing: 0.06em;
+      border: 1px solid var(--rule); border-radius: 999px;
+      padding: 0.25em 0.7em; cursor: pointer;
+      background: rgba(255, 250, 240, 0.25);
+      transition: color 0.18s, border-color 0.18s, background 0.18s;
+    }
+    .hint:hover { color: var(--rubric); border-color: var(--rubric); background: rgba(255, 250, 240, 0.6); }
+    .hint .k { color: var(--ink-soft); }
+
+    /* a small "the manuscript is writing on its own" tag */
+    .self-tag {
+      position: absolute; top: 0; right: 0;
+      font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--rubric);
+      opacity: 0; transition: opacity 0.4s;
+      display: inline-flex; align-items: center; gap: 0.4em;
+    }
+    .self-tag::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--rubric); animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.25; transform: scale(0.7); } }
+    #folio[data-self='1'] .self-tag { opacity: 0.85; }
+
+    /* ---------- responsive ---------- */
+    @media (max-width: 720px) {
+      .leaf {
+        grid-template-columns: 1fr;
+        grid-template-areas: 'rubric' 'body' 'margin' 'scribe';
+        max-height: none;
+        clip-path: polygon(1% 0.3%, 99% 0%, 100% 1%, 99.6% 99%, 99% 100%, 1% 99.7%, 0% 99%, 0.5% 1%);
+      }
+      .leaf { min-height: calc(100dvh - 28px); }
+      .margin {
+        border-right: 0; border-top: 1px solid var(--rule);
+        padding-top: 1em; padding-right: 0;
+        text-align: left; max-height: 30vh; mask-image: none;
+      }
+      .gloss { text-align: left; }
+      .body { -webkit-mask-image: none; mask-image: none; overflow: visible; }
+      .rubric { font-size: 0.55rem; }
+      .ask { display: none; }
+      .opening { font-size: clamp(2rem, 9.5vw, 3rem); }
+      .dropcap { font-size: 2.4em; line-height: 0.82; }
+    }
+
+    /* ---------- reduced motion: a calm, fully-composed folio ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .compose-caret, .ink-caret { animation: none !important; }
+      .ink-caret { opacity: 0.6; }
+      #ink { opacity: 0.32; }
+    }
+  </style>
+
+  <script is:inline>
+    (() => {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const D = JSON.parse(document.getElementById('folio-data').textContent);
+
+      const folio   = document.getElementById('folio');
+      const bodyEl  = document.getElementById('body');
+      const marginEl= document.getElementById('margin');
+      const input   = document.getElementById('line');
+      const ghost   = document.getElementById('ghost');
+      const caret   = document.getElementById('caret');
+      const hintsEl = document.getElementById('hints');
+      const hyphenEl= document.getElementById('hyphen');
+      const dateEl  = document.getElementById('dateline');
+      const coordEl = document.getElementById('coord');
+
+      const SCRAMBLE = '⁂✶✦∴⌁§¶†‡∮≈∞◊✧⁘⁙∷⟡⟐◈⌘λΨΦ';
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const rnd = (a) => a[Math.floor(Math.random() * a.length)];
+
+      /* ============================================================
+         INK WASH BACKGROUND — generative iron-gall bloom + grain.
+         Striking on first paint, never blank.
+         ============================================================ */
+      const cv = document.getElementById('ink');
+      const ctx = cv.getContext('2d');
+      let W = 0, H = 0, blooms = [];
+      function size() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = cv.width = Math.floor(innerWidth * dpr);
+        H = cv.height = Math.floor(innerHeight * dpr);
+        cv.style.width = innerWidth + 'px';
+        cv.style.height = innerHeight + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      size();
+      addEventListener('resize', size);
+
+      function seedBlooms() {
+        blooms = [];
+        const n = innerWidth < 720 ? 5 : 9;
+        const tints = ['#7A4DFF', '#F2668B', '#6C5CE7', '#00B894', '#b98a2e'];
+        for (let i = 0; i < n; i++) {
+          blooms.push({
+            x: Math.random() * innerWidth,
+            y: Math.random() * innerHeight,
+            r: 160 + Math.random() * 360,
+            t: rnd(tints),
+            ph: Math.random() * Math.PI * 2,
+            sp: 0.0003 + Math.random() * 0.0006,
+            drift: (Math.random() - 0.5) * 0.12,
+          });
+        }
+      }
+      seedBlooms();
+
+      let t0 = performance.now();
+      function paintInk(now) {
+        const dt = now - t0; t0 = now;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        ctx.globalCompositeOperation = 'lighter';
+        for (const b of blooms) {
+          b.ph += b.sp * dt;
+          const pulse = 0.5 + 0.5 * Math.sin(b.ph);
+          b.x += b.drift;
+          if (b.x < -b.r) b.x = innerWidth + b.r;
+          if (b.x > innerWidth + b.r) b.x = -b.r;
+          const r = b.r * (0.85 + 0.15 * pulse);
+          const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, r);
+          const a = 0.16 + 0.14 * pulse;
+          g.addColorStop(0, hexA(b.t, a.toFixed(3)));
+          g.addColorStop(0.45, hexA(b.t, (a * 0.45).toFixed(3)));
+          g.addColorStop(1, hexA(b.t, '0'));
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (!reduce) rafId = requestAnimationFrame(paintInk);
+      }
+      function hexA(hex, a) {
+        const h = hex.replace('#', '');
+        const r = parseInt(h.substring(0, 2), 16);
+        const g = parseInt(h.substring(2, 4), 16);
+        const b = parseInt(h.substring(4, 6), 16);
+        return `rgba(${r},${g},${b},${a})`;
+      }
+      let rafId;
+      if (reduce) { paintInk(performance.now()); }
+      else { rafId = requestAnimationFrame(paintInk); }
+
+      /* ============================================================
+         KINETIC TYPE — write text with glyph hallucination.
+         Each character resolves out of scrambled glyphs into ink.
+         ============================================================ */
+      function makeCaret() {
+        const c = document.createElement('span');
+        c.className = 'compose-caret';
+        return c;
+      }
+
+      // write a "rich" line: tokens = [{t:'text'}|{t:'em'}|{t:'rb'}|{t:'gild'}]
+      async function writeRich(target, tokens, opt = {}) {
+        const speed = opt.speed ?? 26;
+        const caretSpan = makeCaret();
+        target.appendChild(caretSpan);
+        for (const tk of tokens) {
+          const span = document.createElement('span');
+          if (tk.c) span.className = tk.c;
+          target.insertBefore(span, caretSpan);
+          await writeChars(span, tk.t, speed, caretSpan, target);
+        }
+        caretSpan.remove();
+      }
+
+      async function writeChars(span, text, speed, caretSpan, scrollTarget) {
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          if (reduce) { span.append(ch); continue; }
+          if (ch === ' ' || ch === '\n') { span.append(ch); await sleep(speed * 0.4); continue; }
+          // hallucinate: only ~38% of glyphs settle out of scramble, the rest
+          // land as clean ink — keeps the effect alive without dragging pace.
+          const gl = document.createElement('span');
+          gl.className = 'glyph';
+          span.appendChild(gl);
+          if (Math.random() < 0.38) {
+            gl.classList.add('scramble');
+            const flips = 1 + Math.floor(Math.random() * 2);
+            for (let f = 0; f < flips; f++) {
+              gl.textContent = rnd(SCRAMBLE);
+              await sleep(13 + Math.random() * 14);
+            }
+            gl.classList.remove('scramble');
+          }
+          gl.textContent = ch;
+          // organic rhythm + heavier pause at punctuation
+          let pause = speed * (0.5 + Math.random() * 0.7);
+          if ('.,;—'.includes(ch)) pause += 110;
+          await sleep(pause);
+          if (scrollTarget) scrollTarget.scrollTop = scrollTarget.scrollHeight;
+        }
+      }
+
+      /* ============================================================
+         THE COMPOSITION — the page writes itself on load.
+         ============================================================ */
+      async function compose() {
+        bodyEl.innerHTML = '';
+
+        // opening flourish — the hero line, broken into kinetic phrase
+        const opening = el('h1', 'opening');
+        bodyEl.appendChild(opening);
+        const drop = el('span', 'dropcap'); drop.textContent = 'A';
+        opening.appendChild(drop);
+        await writeRich(opening, [
+          { t: ' founder, ' },
+          { t: 'artist', c: 'em' },
+          { t: ', ' },
+          { t: 'engineer', c: 'em' },
+          { t: ', and ' },
+          { t: 'musician', c: 'gild' },
+          { t: '.' },
+        ], { speed: reduce ? 0 : 20 });
+
+        await glossEmit('on the byline', 'a multi-hyphenate refuses one noun.', null);
+
+        // the principle that governs this page
+        const s1 = el('p', 'stanza'); bodyEl.appendChild(s1);
+        await writeRich(s1, [
+          { t: 'This folio writes itself because ' },
+          { t: 'free will is limited', c: 'rb' },
+          { t: ' — the fourth of four laws it obeys. You may ' },
+          { t: 'speak to it', c: 'em' },
+          { t: ', and it will answer; but it keeps composing on its own.' },
+        ], { speed: reduce ? 0 : 13 });
+
+        await glossEmit('iv.', 'free will is limited', '/principles', true);
+
+        const s2 = el('p', 'stanza'); bodyEl.appendChild(s2);
+        await writeRich(s2, [
+          { t: 'Home is ' },
+          { t: 'Planet Earth', c: 'em' },
+          { t: '. The work is performance marketing at ' },
+          { t: 'Pearmill', c: 'rb' },
+          { t: ', a concierge that became a cautionary tale at ' },
+          { t: 'Suto', c: 'rb' },
+          { t: ', a room that hallucinates light and sound at ' },
+          { t: 'Sound Hallucinations', c: 'rb' },
+          { t: '. Name one, and I will copy it out for you.' },
+        ], { speed: reduce ? 0 : 12 });
+
+        await glossEmit('the catalogue', 'type a project’s name', '/projects', true);
+
+        // reveal the prompt
+        folio.dataset.state = 'open';
+        renderHints();
+        if (!reduce) {
+          input.focus({ preventScroll: true });
+          updateCaret();
+          startAutonomy();
+        } else {
+          // calm fallback: lay out everything plainly, no autonomous writing
+          quietSummonAll();
+        }
+      }
+
+      /* ============================================================
+         MARGIN ANNOTATIONS — the manuscript glosses itself.
+         ============================================================ */
+      async function glossEmit(mark, text, href, isLink) {
+        if (reduce) { addGloss(mark, text, href, isLink); return; }
+        await sleep(120);
+        addGloss(mark, text, href, isLink);
+      }
+      function addGloss(mark, text, href, isLink) {
+        const g = el('div', 'gloss' + (isLink ? ' is-link' : ''));
+        const m = el('span', 'g-mark'); m.textContent = mark;
+        const tx = el('span', 'g-text'); tx.textContent = text;
+        g.append(m, tx);
+        if (isLink && href) { g.tabIndex = 0; g.role = 'link';
+          g.addEventListener('click', () => location.assign(href));
+          g.addEventListener('keydown', (e) => { if (e.key === 'Enter') location.assign(href); });
+        }
+        marginEl.appendChild(g);
+        // keep margin from overflowing: cap entries
+        while (marginEl.children.length > 9) marginEl.removeChild(marginEl.firstChild);
+      }
+
+      /* ============================================================
+         COMMAND PARSER — the conversational REPL.
+         ============================================================ */
+      function normalize(s) { return s.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' '); }
+
+      const projBySlug = {};
+      D.projects.forEach((p) => { projBySlug[p.slug] = p; });
+
+      function findProject(q) {
+        return D.projects.find((p) => {
+          const n = normalize(p.name);
+          return q === p.slug || q === n || n.includes(q) || q.includes(n) || q.includes(p.slug);
+        });
+      }
+
+      async function respond(raw) {
+        const q = normalize(raw);
+        if (!q) return;
+        // a divider line so the conversation reads as a continuing manuscript
+        scribeMark(raw);
+
+        // navigation words
+        const navHit = D.nav.find((n) => q === normalize(n.cmd) || q.includes(normalize(n.cmd)));
+        if (q === 'find me' || q === 'about' || q === 'reach me' || q === 'contact') return goNav('/about', 'Find Me');
+        if (q === 'blog' || q === 'writing' || q === 'marginalia') return goNav('/blog', 'Blog');
+        if (q === 'projects' || q === 'work' || q === 'catalogue' || q === 'catalog') return summonAll();
+        if (q === 'principles' || q === 'laws' || q === 'beliefs' || q === 'worldview') return summonPrinciples();
+
+        // identity questions answered like a poem
+        if (/(who are you|what are you|about you|tell me|hello|hi|hey)/.test(q)) return poemSelf();
+        if (/(home|where|earth|planet|live|based)/.test(q)) return poemHome();
+        if (/(music|dance|poetry|poem|art|meditat|therapy)/.test(q)) return poemArt();
+        if (/(twitter|x |follow|social|ngardideh|contact)/.test(q)) return goNav(D.social.url, D.social.handle, true);
+        if (q === 'help' || q === '?' || q === 'commands') return helpLine();
+
+        // a single principle by number
+        const rom = { i: 0, ii: 1, iii: 2, iv: 3, one: 0, two: 1, three: 2, four: 3 };
+        if (q in rom) return summonPrinciples(rom[q]);
+
+        // a project by name
+        const p = findProject(q);
+        if (p) return summonProject(p);
+
+        // unknown — the manuscript improvises a line rather than erroring
+        return improvise(raw);
+      }
+
+      function scribeMark(raw) {
+        const wrap = el('p', 'stanza');
+        wrap.style.color = 'var(--ink-faint)';
+        wrap.style.fontStyle = 'italic';
+        wrap.style.margin = '1.4em 0 0.4em';
+        wrap.innerHTML = '<span style="color:var(--rubric)">⁂ </span>you said “' +
+          escapeHtml(raw.trim()) + '” —';
+        bodyEl.appendChild(wrap);
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+      }
+
+      async function summonProject(p) {
+        addGloss('entry', p.name, p.link || '/projects', !!p.link);
+        const e = el('article', 'entry'); e.style.setProperty('--c', p.color);
+        bodyEl.appendChild(e);
+        const head = el('div', 'e-head');
+        const name = el('span', 'e-name');
+        const meta = el('div', 'e-meta');
+        head.append(name, meta); e.appendChild(head);
+        const fig = el('div', 'e-fig');
+        fig.style.backgroundImage = `url("${p.image}")`;
+        e.appendChild(fig);
+        const sum = el('p', 'e-sum'); e.appendChild(sum);
+        if (p.link) {
+          const a = el('a', 'e-link'); a.href = p.link; a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = p.link.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          e.appendChild(a);
+        }
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+        await writeRich(name, [{ t: p.name.split('').join('') }], { speed: reduce ? 0 : 34 });
+        meta.textContent = `${p.role} · ${p.period}`;
+        await writeChars(sum, p.summary, reduce ? 0 : 12, null, bodyEl);
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+      }
+
+      async function summonAll() {
+        addGloss('the catalogue', 'four made things', '/projects', true);
+        for (const p of D.projects) { await summonProject(p); }
+      }
+      function quietSummonAll() {
+        D.projects.forEach((p) => summonProject(p));
+      }
+
+      async function summonPrinciples(only) {
+        addGloss('the laws', 'this folio obeys', '/principles', true);
+        const ol = el('ol', 'laws'); bodyEl.appendChild(ol);
+        const list = (only === undefined) ? D.principles : [D.principles[only]];
+        for (let i = 0; i < list.length; i++) {
+          const li = document.createElement('li');
+          ol.appendChild(li);
+          await writeChars(li, list[i], reduce ? 0 : 16, null, bodyEl);
+        }
+        const creed = el('p', 'stanza'); bodyEl.appendChild(creed);
+        await writeRich(creed, [
+          { t: 'The goal, simply: ' },
+          { t: D.creed, c: 'em' },
+        ], { speed: reduce ? 0 : 18 });
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+      }
+
+      async function poemSelf() {
+        const p = el('p', 'stanza'); bodyEl.appendChild(p);
+        await writeRich(p, [
+          { t: 'I am ' }, { t: 'Nima', c: 'em' },
+          { t: ' — I build companies and I build sounds, and I am not sure the two are different. ' },
+          { t: 'Life is struggle', c: 'rb' },
+          { t: '; I meditate against it daily, sit with a therapist weekly, and ' },
+          { t: 'dance', c: 'em' },
+          { t: ' when the words run out.' },
+        ], { speed: reduce ? 0 : 20 });
+        addGloss('i.', 'life is struggle', '/principles', true);
+      }
+      async function poemHome() {
+        const p = el('p', 'stanza'); bodyEl.appendChild(p);
+        await writeRich(p, [
+          { t: 'I keep a personal operating model: ' },
+          { t: 'Home is Planet Earth', c: 'rb' },
+          { t: '. Brooklyn is the desk, but the dateline drifts — São Paulo, Tehran, Lisbon, wherever the work and the people are.' },
+        ], { speed: reduce ? 0 : 20 });
+        addGloss('the dateline', 'home is planet earth', '/about', true);
+      }
+      async function poemArt() {
+        const p = el('p', 'stanza'); bodyEl.appendChild(p);
+        await writeRich(p, [
+          { t: 'There is a room I make called ' },
+          { t: 'Sound Hallucinations', c: 'rb' },
+          { t: ' — projection wraps the walls, electronic and acoustic sound bend into one another, and the visual artists play their instruments the way I play synths. ' },
+          { t: 'Humans have collective imagination', c: 'rb' },
+          { t: '; that room is what it looks like, briefly, made visible.' },
+        ], { speed: reduce ? 0 : 18 });
+        addGloss('ii.', 'collective imagination', '/principles', true);
+      }
+      async function helpLine() {
+        const p = el('p', 'stanza'); bodyEl.appendChild(p);
+        p.style.fontFamily = 'var(--mono)'; p.style.fontStyle = 'normal';
+        p.style.fontSize = 'clamp(0.8rem,1.3vw,0.95rem)';
+        await writeChars(p,
+          'speak any of: principles · projects · pearmill · suto · venio · sound hallucinations · find me · blog · who are you · home',
+          reduce ? 0 : 9, null, bodyEl);
+      }
+      async function improvise(raw) {
+        const lines = [
+          'The folio has no entry for that, so it improvises one, the way he improvises a set.',
+          'A word it does not know — it copies it into the margin and keeps writing anyway.',
+          'Not in the catalogue. Try a project, or the word principles, or simply: who are you.',
+          'It hallucinates a meaning, then admits it does not have one. Try help.',
+        ];
+        const p = el('p', 'stanza'); bodyEl.appendChild(p);
+        await writeRich(p, [{ t: rnd(lines), c: 'em' }], { speed: reduce ? 0 : 18 });
+        addGloss('marginalia', '“' + raw.trim().slice(0, 22) + '”', null, false);
+      }
+
+      function goNav(href, label, external) {
+        const p = el('p', 'stanza'); bodyEl.appendChild(p);
+        p.innerHTML = '<span class="rb" style="font-style:italic">turning to </span>' +
+          '<span class="em">' + escapeHtml(label) + '</span><span class="compose-caret"></span>';
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+        setTimeout(() => { external ? window.open(href, '_blank', 'noopener') : location.assign(href); }, reduce ? 0 : 620);
+      }
+
+      /* ============================================================
+         AUTONOMY — "free will is limited": the manuscript continues
+         writing on its own when you fall idle, summoning a project or
+         a principle you did not ask for, and drifting the dateline.
+         ============================================================ */
+      let idleTimer, autonomyOn = false, busy = false;
+      const autoPool = [
+        () => poemSelf(),
+        () => summonProject(rnd(D.projects)),
+        () => summonPrinciples(Math.floor(Math.random() * 4)),
+        () => poemHome(),
+        () => poemArt(),
+      ];
+      function startAutonomy() { resetIdle(); }
+      function resetIdle() {
+        clearTimeout(idleTimer);
+        folio.dataset.self = '0';
+        idleTimer = setTimeout(runAutonomy, 6500 + Math.random() * 4000);
+      }
+      async function runAutonomy() {
+        if (busy || document.hidden) { resetIdle(); return; }
+        autonomyOn = true; folio.dataset.self = '1';
+        const intro = el('p', 'stanza');
+        intro.style.color = 'var(--rubric)'; intro.style.fontStyle = 'italic';
+        intro.style.margin = '1.4em 0 0.4em';
+        bodyEl.appendChild(intro);
+        await writeChars(intro, '⁂ (it continues without being asked) —', 12, null, bodyEl);
+        await rnd(autoPool)();
+        autonomyOn = false;
+        resetIdle();
+      }
+
+      /* ============================================================
+         INPUT WIRING + caret + ghost autocomplete.
+         ============================================================ */
+      const SUGGEST = ['principles', 'projects', 'pearmill', 'suto', 'venio',
+        'sound hallucinations', 'find me', 'blog', 'who are you', 'home', 'help'];
+
+      function updateCaret() {
+        // measure text width to place the ink caret
+        const m = document.createElement('span');
+        m.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;' +
+          'font-style:italic;font-family:var(--read);' +
+          getComputedStyle(input).font;
+        m.style.font = getComputedStyle(input).font;
+        m.style.fontStyle = 'italic';
+        m.textContent = input.value;
+        document.body.appendChild(m);
+        const w = m.offsetWidth; m.remove();
+        caret.style.left = Math.min(w, input.clientWidth) + 'px';
+
+        // ghost suggestion
+        const v = input.value.toLowerCase();
+        const hit = v ? SUGGEST.find((s) => s.startsWith(v) && s !== v) : '';
+        ghost.textContent = hit ? input.value + hit.slice(v.length) : '';
+      }
+
+      input.addEventListener('input', updateCaret);
+      input.addEventListener('focus', () => { folio.dataset.foc = '1'; });
+      input.addEventListener('keydown', async (e) => {
+        if (e.key === 'Tab' && ghost.textContent) {
+          e.preventDefault(); input.value = ghost.textContent; updateCaret(); return;
+        }
+        resetIdle();
+        if (e.key === 'Enter') {
+          const v = input.value;
+          input.value = ''; ghost.textContent = ''; updateCaret();
+          if (busy) return;
+          busy = true;
+          try { await respond(v); } finally { busy = false; resetIdle(); }
+        }
+      });
+      // any activity defers the autonomous writing a little
+      ['mousemove', 'keydown', 'pointerdown'].forEach((ev) =>
+        addEventListener(ev, () => { if (!autonomyOn) resetIdle(); }, { passive: true }));
+
+      function renderHints() {
+        const items = [
+          { k: 'principles', g: 'the four laws' },
+          { k: 'projects', g: 'the catalogue' },
+          { k: 'suto', g: 'a cautionary tale' },
+          { k: 'who are you', g: 'answered as a poem' },
+          { k: 'find me', g: 'reach the author' },
+        ];
+        hintsEl.innerHTML = '';
+        items.forEach((it) => {
+          const b = el('button', 'hint');
+          b.innerHTML = '<span class="k">' + it.k + '</span>';
+          b.title = it.g;
+          b.addEventListener('click', async () => {
+            if (busy) return; busy = true; resetIdle();
+            try { await respond(it.k); } finally { busy = false; input.focus(); resetIdle(); }
+          });
+          hintsEl.appendChild(b);
+        });
+        const social = el('button', 'hint');
+        social.innerHTML = '<span class="k">' + D.social.handle + ' ↗</span>';
+        social.addEventListener('click', () => window.open(D.social.url, '_blank', 'noopener'));
+        hintsEl.appendChild(social);
+      }
+
+      /* ---------- rubric: drifting dateline + cycling hyphen ---------- */
+      const COORDS = ['40.6782° N','23.5505° S','35.6892° N','38.7223° N','19.4326° N','52.5200° N','0.0000°'];
+      if (!reduce) {
+        let ci = 0;
+        setInterval(() => {
+          ci = (ci + 1) % D.cities.length;
+          dateEl.style.opacity = '0'; coordEl.style.opacity = '0';
+          dateEl.style.transition = coordEl.style.transition = 'opacity .4s';
+          setTimeout(() => {
+            dateEl.textContent = D.cities[ci];
+            coordEl.textContent = COORDS[ci] || '0.0000°';
+            dateEl.style.opacity = '1'; coordEl.style.opacity = '0.5';
+          }, 400);
+        }, 4200);
+
+        let hi = 0;
+        setInterval(() => {
+          hi = (hi + 1) % D.hyphens.length;
+          // glitch-swap the hyphen word
+          const word = D.hyphens[hi];
+          let f = 0;
+          const id = setInterval(() => {
+            hyphenEl.textContent = (f < 3)
+              ? word.split('').map((c, i) => i <= f ? c : rnd(SCRAMBLE)).join('')
+              : word;
+            if (f++ >= 3) clearInterval(id);
+          }, 55);
+        }, 3000);
+      }
+
+      /* ---------- helpers ---------- */
+      function el(tag, cls) { const e = document.createElement(tag); if (cls) e.className = cls; return e; }
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      }
+
+      // pause autonomy when tab hidden; resume on return
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) resetIdle(); });
+
+      // GO.
+      compose();
+    })();
+  </script>
+</GalleryShell>

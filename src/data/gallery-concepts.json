@@ -1,0 +1,34 @@
+{
+  "concepts": [
+    {
+      "slug": "synesthesia",
+      "name": "Synesthesia",
+      "tagline": "Sound Hallucinations, as the interface",
+      "summary": "The whole page is a generative audio-visual instrument that 'hears' your cursor. Move it to play standing waves of light; click a project to fire a chromatic ripple and a tuned tone across the screen."
+    },
+    {
+      "slug": "determinism",
+      "name": "Determinism",
+      "tagline": "Free will is limited — made literal",
+      "summary": "Your identity and projects are agents in a deterministic force field. Grab and scatter them and they fight back, then implode and re-order into their fated arrangement. An interface that argues a worldview."
+    },
+    {
+      "slug": "planet",
+      "name": "Home is Planet Earth",
+      "tagline": "A portfolio you orbit",
+      "summary": "A dark, cinematic globe you spin and zoom. Your multi-city life rises as labeled light-pillars, projects trail past as comet-tailed satellites, and a meridian readout names whatever is crossing front-and-center."
+    },
+    {
+      "slug": "shapeshifter",
+      "name": "Four Selves",
+      "tagline": "Founder · Artist · Engineer · Musician",
+      "summary": "One URL that is four designs. The entire visual language — type, color, layout, motion — morphs live between your four identities. The multi-hyphenate, expressed as a shapeshifting page."
+    },
+    {
+      "slug": "manuscript",
+      "name": "Living Manuscript",
+      "tagline": "Engineer meets poet",
+      "summary": "The page composes itself in kinetic type — bio, a principle, a line of poetry — then invites you to type. A conversational poem-terminal where the portfolio writes itself and answers back."
+    }
+  ]
+}
